@@ -55,20 +55,6 @@ Resources:
                 Id: "VariablesReportLambdaTarget"
             EventBusName: "default"
 
-    CanvasAutoShutdownRule:
-        Type: "AWS::Events::Rule"
-        Properties:
-            Name: "sagemaker-canvas-auto-shutdown-on-idle-CanvasAutoShutdownRule"
-            Description: "Rule that executes a Lambda function whenever the Alarm is triggered"
-            EventPattern: !Sub "{\"detail-type\":[\"CloudWatch Alarm State Change\"],\"resources\":[\"arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:sagemaker-canvas-auto-shutdown-on-idle-TimeSinceLastActiveAlarm\"],\"source\":[\"aws.cloudwatch\"]}"
-            State: "ENABLED"
-            Targets: 
-              - 
-                Arn: 
-                  Fn::ImportValue: !Sub "RADx-Lambda-${Environment}-SageMakerCanvasAutoShutdownLambda-Arn"
-                Id: "DeleteCanvasAppFunction"
-            EventBusName: "default"
-
     VariableReportSchedule:
         Type: "AWS::Scheduler::Schedule"
         Properties:

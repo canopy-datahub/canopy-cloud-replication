@@ -85,35 +85,6 @@ Resources:
             EphemeralStorage: 
                 Size: 512
 
-    SageMakerCanvasAutoShutdownLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            Description: ""
-            Environment: 
-                Variables: 
-                    TIMEOUT_THRESHOLD: "900"
-                    ALARM_PERIOD: "600"
-            FunctionName: "sagemaker-canvas-auto-shutdown-on-idle-DeleteCanvasAppFunction"
-            Handler: "index.lambda_handler"
-            Architectures: 
-              - "x86_64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from SageMaker Canvas Auto Shutdown!')
-                        }
-            MemorySize: 128
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/sagemaker-canvas-auto-shutdown--LambdaExecutionRole-bNXf55NeoQdf"
-            Runtime: "python3.11"
-            Timeout: 30
-            TracingConfig: 
-                Mode: "PassThrough"
-            EphemeralStorage: 
-                Size: 512
-
     RADxEmailServiceLambda:
         Type: "AWS::Lambda::Function"
         Properties:
@@ -220,13 +191,6 @@ Resources:
             Principal: "events.amazonaws.com"
             SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/VARIABLES-REPORT"
 
-    SageMakerCanvasAutoShutdownLambdaPermission:
-        Type: "AWS::Lambda::Permission"
-        Properties:
-            Action: "lambda:InvokeFunction"
-            FunctionName: !GetAtt SageMakerCanvasAutoShutdownLambda.Arn
-            Principal: "events.amazonaws.com"
-            SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/sagemaker-canvas-auto-shutdown-on-idle-CanvasAutoShutdownRule"
     # PsycoPG2CustomLayer:
     #     Type: "AWS::Lambda::LayerVersion"
     #     Properties:
@@ -259,12 +223,6 @@ Outputs:
     Value: !GetAtt RADxReporterTestLambda.Arn
     Export:
       Name: !Sub "RADx-Lambda-${Environment}-RADxReporterTestLambda-Arn"
-
-  SageMakerCanvasAutoShutdownLambdaArn:
-    Description: "SageMaker Canvas Auto Shutdown Lambda ARN"
-    Value: !GetAtt SageMakerCanvasAutoShutdownLambda.Arn
-    Export:
-      Name: !Sub "RADx-Lambda-${Environment}-SageMakerCanvasAutoShutdownLambda-Arn"
 
   RADxEmailServiceLambdaArn:
     Description: "RADx Email Service Lambda ARN"

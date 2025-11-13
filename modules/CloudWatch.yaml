@@ -588,11 +588,6 @@ Resources:
     #     Properties:
     #         LogGroupName: "/aws/lambda/Setup-NIH-IdP-and-Std-User-Roles-rProviderCreator-fu8JWzCzjVAt"
 
-    CanvasAppAutoShutdownLogGroup:
-        Type: "AWS::Logs::LogGroup"
-        Properties:
-            LogGroupName: "/aws/lambda/sagemaker-canvas-auto-shutdown-on-idle-DeleteCanvasAppFunction"
-
     # LogsLogGroup13:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
