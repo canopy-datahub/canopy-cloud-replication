@@ -55,36 +55,6 @@ Resources:
             EphemeralStorage: 
                 Size: 512
 
-    MacieJobStatusCheckerLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            Description: "Macie Job Status Checker Lambda Function"
-            FunctionName: "check-macie-job-status"
-            Handler: "lambda_function.lambda_handler"
-            Architectures: 
-              - "arm64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from Macie Job Status Checker!')
-                        }
-            MemorySize: 128
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-            Runtime: "python3.12"
-            Timeout: 10
-            TracingConfig: 
-                Mode: "PassThrough"
-            VpcConfig: 
-                SubnetIds: 
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds: 
-                  - Fn::ImportValue: !Sub "RADx-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage: 
-                Size: 512
     RADxReporterTestLambda:
         Type: "AWS::Lambda::Function"
         Properties:
@@ -283,12 +253,6 @@ Outputs:
     Value: !GetAtt VariablesReportLambda.Arn
     Export:
       Name: !Sub "RADx-Lambda-${Environment}-VariablesReportLambda-Arn"
-
-  MacieJobStatusCheckerLambdaArn:
-    Description: "Macie Job Status Checker Lambda ARN"
-    Value: !GetAtt MacieJobStatusCheckerLambda.Arn
-    Export:
-      Name: !Sub "RADx-Lambda-${Environment}-MacieJobStatusCheckerLambda-Arn"
 
   RADxReporterTestLambdaArn:
     Description: "RADx Reporter Test Lambda ARN"

@@ -588,11 +588,6 @@ Resources:
     #     Properties:
     #         LogGroupName: "/aws/lambda/Setup-NIH-IdP-and-Std-User-Roles-rProviderCreator-fu8JWzCzjVAt"
 
-    MacieJobStatusLogGroup:
-        Type: "AWS::Logs::LogGroup"
-        Properties:
-            LogGroupName: "/aws/lambda/check-macie-job-status"
-
     CanvasAppAutoShutdownLogGroup:
         Type: "AWS::Logs::LogGroup"
         Properties:

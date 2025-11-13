@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/09/24 17:13:44
-  "This template deploys the NIH RADx Data Hub WAF and Step Functions to poll Macie jobs."
+  "This template deploys the NIH RADx Data Hub WAF."
 Parameters:
   Environment:
     Type: String

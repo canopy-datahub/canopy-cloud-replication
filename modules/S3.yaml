@@ -78,96 +78,6 @@ Resources:
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
 
-  ## Required by Macie scanning for posting scan results 
-  S3BucketRadxMacieResults:
-    Type: "AWS::S3::Bucket"
-    DeletionPolicy: Delete ## CHANGE THIS
-    Properties:
-      PublicAccessBlockConfiguration:
-        RestrictPublicBuckets: true
-        IgnorePublicAcls: true
-        BlockPublicPolicy: true
-        BlockPublicAcls: true
-      # BucketName: !Sub "radx-macie-results-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "radx-macie-results-joe-bill-${Environment}"
-      VersioningConfiguration:
-        Status: "Enabled"
-      OwnershipControls:
-        Rules:
-        - ObjectOwnership: "BucketOwnerEnforced"
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-        - BucketKeyEnabled: true
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: "AES256"
-
-  ## Bucket Policy for Macie Results Bucket
-  S3BucketPolicyRadxMacieResults:
-    Type: "AWS::S3::BucketPolicy"
-    DeletionPolicy: Delete ## CHANGE THIS
-    Properties:
-      Bucket:
-        Ref: "S3BucketRadxMacieResults"
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-        - Condition:
-            Bool:
-              aws:SecureTransport: "false"
-          Resource: !GetAtt S3BucketRadxMacieResults.Arn
-          Action: "s3:*"
-          Effect: "Deny"
-          Principal: "*"
-          Sid: "Deny non-HTTPS access"
-        # - Condition:
-        #     StringNotEquals:
-        #       s3:x-amz-server-side-encryption-aws-kms-key-id: !Sub "arn:aws:kms:us-west-2:${AWS::AccountId}:key/f0ff72d0-a780-46b2-a12f-5c363410368b" ##FIXME - Parameterize KMS Key ARN
-        #   Resource: !Sub "arn:aws:s3:::${ProjectName}-macie-results-${Environment}/*"
-        #   Action: "s3:PutObject"
-        #   Effect: "Deny"
-        #   Principal:
-        #     Service: "macie.amazonaws.com"
-        #   Sid: "Deny incorrect encryption header. This is optional"
-        - Condition:
-            StringNotEquals:
-              s3:x-amz-server-side-encryption: "aws:kms"
-          Resource: !Join
-          - ""
-          - 
-            - !GetAtt S3BucketRadxMacieResults.Arn
-            - "/*"
-          Action: "s3:PutObject"
-          Effect: "Deny"
-          Principal:
-            Service: "macie.amazonaws.com"
-          Sid: "Deny unencrypted object uploads. This is optional"
-        # - Condition:
-        #     StringEquals:
-        #       aws:SourceAccount: !Sub "${AWS::AccountId}"
-        #     ArnLike:
-        #       aws:SourceArn:
-        #       - !Sub "arn:aws:macie2:us-west-2:${AWS::AccountId}:export-configuration:*"
-        #       - !Sub "arn:aws:macie2:us-west-2:${AWS::AccountId}:classification-job/*"
-        #   Resource: !Sub "arn:aws:s3:::${ProjectName}-macie-results-${Environment}/*"
-        #   Action: "s3:PutObject"
-        #   Effect: "Allow"
-        #   Principal:
-        #     Service: "macie.amazonaws.com"
-          # Sid: "Allow Macie to upload objects to the bucket"
-        # - Condition:
-        #     StringEquals:
-        #       aws:SourceAccount: !Sub "${AWS::AccountId}"
-        #     ArnLike:
-        #       aws:SourceArn:
-        #       - !Sub "arn:aws:macie2:us-west-2:${AWS::AccountId}:export-configuration:*"
-        #       - !Sub "arn:aws:macie2:us-west-2:${AWS::AccountId}:classification-job/*"
-        #   Resource: !Sub "arn:aws:s3:::${ProjectName}-macie-results-${Environment}"
-        #   Action: "s3:GetBucketLocation"
-        #   Effect: "Allow"
-        #   Principal:
-        #     Service: "macie.amazonaws.com"
-        #   Sid: "Allow Macie to use the getBucketLocation operation"
-
   ## Required by SFTP server for user home directories
   S3BucketSftpRadx:
     Type: "AWS::S3::Bucket"
@@ -363,11 +273,6 @@ Resources:
             SSEAlgorithm: "AES256"
 
 Outputs:
-  S3BucketRadxMacieResultsName:
-    Description: "The ARN of the S3 bucket for Macie results"
-    Value: !GetAtt S3BucketRadxMacieResults.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-S3BucketRadxMacieResults-Arn"
   S3BucketCovidRadxReviewName:
     Description: "The ARN of the S3 bucket for Covid RADx review files"
     Value: !GetAtt S3BucketCovidRadxReview.Arn

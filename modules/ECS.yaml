@@ -709,7 +709,6 @@ Resources:
               - "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
               - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
               - "arn:aws:iam::aws:policy/AmazonSESFullAccess"
-              - "arn:aws:iam::aws:policy/AmazonMacieFullAccess"
               - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
 
     ECSExecutionRole:
