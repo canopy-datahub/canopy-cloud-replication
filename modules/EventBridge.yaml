@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "EventBridge Rules for Lambda Functions"
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+
+Resources:
+
+    SftpRule:
+        Type: "AWS::Events::Rule"
+        Properties:
+            Name: !Sub "SFTP-${Environment}"
+            EventPattern: !Sub "{\"source\":[\"aws.s3\"],\"detail-type\":[\"Object Created\"],\"detail.object.key\":[{\"prefix\":\"${Environment}\"}]}"
+            State: "ENABLED"
+            Targets: 
+              - 
+                Arn: 
+                  Fn::ImportValue: !Sub "RADx-SQS-${Environment}-SftpQueue-Arn"
+                Id: "SftpQueueTarget"
+                DeadLetterConfig: 
+                    Arn: 
+                      Fn::ImportValue: !Sub "RADx-SQS-${Environment}-SftpQueueDLQ-Arn"
+            EventBusName: "default"
+
+    ReporterRule:
+        Type: "AWS::Events::Rule"
+        Properties:
+            Name: !Sub "RADx-REPORTER-${Environment}"
+            Description: "Variables Report schedule for environment"
+            ScheduleExpression: "cron(0 12 ? * 2#1 *)"
+            State: "ENABLED"
+            Targets: 
+              - 
+                Arn: 
+                  Fn::ImportValue: !Sub "RADx-Lambda-${Environment}-RADxReporterTestLambda-Arn"
+                Id: "ReporterLambdaTarget"
+            EventBusName: "default"
+
+    VariableReportRule:
+        Type: "AWS::Events::Rule"
+        Properties:
+            Name: "VARIABLES-REPORT"
+            Description: "Variables Report schedule for PROD environment"
+            ScheduleExpression: "cron(0 8 1 * ? *)"
+            State: "ENABLED"
+            Targets: 
+              - 
+                Arn: 
+                  Fn::ImportValue: !Sub "RADx-Lambda-${Environment}-VariablesReportLambda-Arn"
+                Id: "VariablesReportLambdaTarget"
+            EventBusName: "default"
+
+    CanvasAutoShutdownRule:
+        Type: "AWS::Events::Rule"
+        Properties:
+            Name: "sagemaker-canvas-auto-shutdown-on-idle-CanvasAutoShutdownRule"
+            Description: "Rule that executes a Lambda function whenever the Alarm is triggered"
+            EventPattern: !Sub "{\"detail-type\":[\"CloudWatch Alarm State Change\"],\"resources\":[\"arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:sagemaker-canvas-auto-shutdown-on-idle-TimeSinceLastActiveAlarm\"],\"source\":[\"aws.cloudwatch\"]}"
+            State: "ENABLED"
+            Targets: 
+              - 
+                Arn: 
+                  Fn::ImportValue: !Sub "RADx-Lambda-${Environment}-SageMakerCanvasAutoShutdownLambda-Arn"
+                Id: "DeleteCanvasAppFunction"
+            EventBusName: "default"
+
+    VariableReportSchedule:
+        Type: "AWS::Scheduler::Schedule"
+        Properties:
+            Name: "variables-report"
+            Description: ""
+            State: "DISABLED"
+            GroupName: "default"
+            ScheduleExpression: "cron(0 8 1 * ? *)"
+            ScheduleExpressionTimezone: "America/New_York"
+            FlexibleTimeWindow: 
+                Mode: "OFF"
+            Target: 
+                Arn: 
+                  Fn::ImportValue: !Sub "RADx-Lambda-${Environment}-VariablesReportLambda-Arn"
+                RetryPolicy: 
+                    MaximumEventAgeInSeconds: 86400
+                    MaximumRetryAttempts: 185
+                RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_a700f0f097"
+
+
+    # EventsRule:
+    #     Type: "AWS::Events::Rule"
+    #     Properties:
+    #         Name: "Health"
+    #         EventPattern: "{\"source\":[\"aws.health\"]}"
+    #         State: "ENABLED"
+    #         Targets: 
+    #           - 
+    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #             Id: "Id520238fe-fcec-4c0c-8d7d-f466b5c85850"
+    #           - 
+    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts-DHP"
+    #             Id: "Id7d151d31-44d5-42ef-a6a1-9d880e1a4037"
+    #         EventBusName: "default"
+
+    # EventsRule2:
+    #     Type: "AWS::Events::Rule"
+    #     Properties:
+    #         Name: "ACM"
+    #         EventPattern: "{\"source\":[\"aws.acm\"]}"
+    #         State: "ENABLED"
+    #         Targets: 
+    #           - 
+    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #             Id: "Id8f5a7ddb-1061-4829-8c94-127b3c892ddc"
+    #         EventBusName: "default"
+
+    # EventsRule3:
+    #     Type: "AWS::Events::Rule"
+    #     Properties:
+    #         Name: "RADx-GuardDuty"
+    #         EventPattern: "{\"source\":[\"aws.guardduty\"],\"detail-type\":[\"GuardDuty Finding\"]}"
+    #         State: "ENABLED"
+    #         Targets: 
+    #           - 
+    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #             Id: "Ida2413653-8de8-4803-88c7-a3c26e3f280c"
+    #             RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Amazon_EventBridge_Invoke_Sns_1963110324"
+    #         EventBusName: "default"
+
+    # EventsRule7:
+    #     Type: "AWS::Events::Rule"
+    #     Properties:
+    #         Name: "ecs-deployment-failed"
+    #         EventPattern: "{\"source\":[\"aws.ecs\"],\"detail-type\":[\"ECS Deployment State Change\"],\"detail\":{\"eventType\":[\"ERROR\"],\"eventName\":[\"SERVICE_DEPLOYMENT_FAILED\"]}}"
+    #         State: "ENABLED"
+    #         Targets: 
+    #           - 
+    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts-DHP"
+    #             Id: "Id2fab75f0-19d1-494b-9307-c5d603581a95"
+    #           - 
+    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #             Id: "Id7873fe76-3d16-4609-a77f-4d4adfebc641"
+    #         EventBusName: "default"

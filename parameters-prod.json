@@ -1,0 +1,7 @@
+{
+	"Parameters": {
+		"Environment": "prod",
+		"ProjectName": "radx",
+		"Region": "us-east-1"
+	}
+}

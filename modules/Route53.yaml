@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2025/10/17 13:52:29
+  "This template deploys the NIH RADx Data Hub Route53 Services."
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: radx
+    AllowedValues:
+      - radx
+
+Conditions: 
+  DEV: !Equals [!Ref Environment, dev]
+  TEST: !Equals [!Ref Environment, test]
+  PROD: !Equals [!Ref Environment, prod] 
+  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+    Route53HostedZone:
+        Type: "AWS::Route53::HostedZone"
+        Properties:
+            Name: "radxdatahub.nih.gov."
+            VPCs: 
+              - 
+                VPCRegion: "us-east-1"
+                VPCId: 
+                    Fn::ImportValue: !Sub "RADx-Networking-${Environment}-VPC-ID"
+
+    # Route53RecordSet:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: "radxdatahub.nih.gov"
+    #         Type: "NS"
+    #         TTL: 172800
+    #         ResourceRecords: 
+    #           - "ns-1536.awsdns-00.co.uk."
+    #           - "ns-0.awsdns-00.com."
+    #           - "ns-1024.awsdns-00.org."
+    #           - "ns-512.awsdns-00.net."
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    # Route53RecordSet2:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: "radxdatahub.nih.gov"
+    #         Type: "SOA"
+    #         TTL: 900
+    #         # ResourceRecords: 
+    #         #   - "ns-1536.awsdns-00.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    Route53LoadBalancerAliasRecordSet:
+        Type: "AWS::Route53::RecordSet"
+        Properties:
+            Name: !Sub "${Environment}.radxdatahub.nih.gov"
+            Type: "A"
+            AliasTarget: 
+                HostedZoneId: 
+                    Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-LoadBalancer-HostedZoneId"
+                DNSName: 
+                    Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-LoadBalancer-DNSName"
+                EvaluateTargetHealth: true
+            HostedZoneId: !Ref Route53HostedZone
+
+    # Route53DatabaseAliasRecordSet:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: !Sub "rds.radxdatahub.nih.gov"
+    #         Type: "A"
+    #         TTL: 300
+    ##         ResourceRecords: 
+    ##           - "10.32.50.183"
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    # Route53DatabaseCnameRecordSet:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: !Sub "rds.radxdatahub.nih.gov"
+    #         Type: "CNAME"
+    #         TTL: 300
+    #         ResourceRecords: 
+    #           Fn::ImportValue: !Sub "RADx-RDS-${Environment}-RDS-Endpoint"
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    # CertificateManagerCertificate:
+    #     Type: "AWS::CertificateManager::Certificate"
+    #     Properties:
+    #         DomainName: "radxdatahub.nih.gov"
+    #         SubjectAlternativeNames: 
+    #           - "radxdatahub.nih.gov"
+    #           - "www.radxdatahub.nih.gov"
+    #         DomainValidationOptions: 
+    #           - 
+    #             DomainName: "radxdatahub.nih.gov"
+    #           - 
+    #             DomainName: "www.radxdatahub.nih.gov"
+    #         CertificateTransparencyLoggingPreference: "DISABLED"
+
