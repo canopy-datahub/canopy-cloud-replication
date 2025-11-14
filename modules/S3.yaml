@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/10/14 16:52:06
-  "This template deploys the NIH RADx Data Hub S3 Buckets. Bucket names must be globally unique. Please modify the bucket names to ensure uniqueness."
+  "This template deploys the Data Hub S3 Buckets. Bucket names must be globally unique. Please modify the bucket names to ensure uniqueness."
 Parameters:
   Environment:
     Type: String
@@ -14,25 +14,24 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
   ## Required by application
-  S3BucketRadxUploadPortal:
+  S3BucketDataHubUploadPortal:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
-      # BucketName: !Sub "radx-upload-portal-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "radx-upload-portal-joe-bill-${Environment}"
+      BucketName: !Sub "datahub-upload-portal-${DataHubUniqueId}-${Environment}"
     # Fn::Transform:
     #   Name: String
     #   Parameters:
@@ -55,31 +54,8 @@ Resources:
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
 
-  ## Required by application
-  S3BucketCovidRadxIngestPdf:
-    Type: "AWS::S3::Bucket"
-    DeletionPolicy: Delete ## CHANGE THIS
-    Properties:
-      PublicAccessBlockConfiguration:
-        RestrictPublicBuckets: true
-        IgnorePublicAcls: true
-        BlockPublicPolicy: true
-        BlockPublicAcls: true
-      #BucketName: !Sub "covid-radx-ingest-pdf-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "covid-radx-ingest-pdf-joe-bill-${Environment}"
-      VersioningConfiguration:
-        Status: "Enabled"
-      OwnershipControls:
-        Rules:
-        - ObjectOwnership: "BucketOwnerEnforced"
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-        - BucketKeyEnabled: true
-          ServerSideEncryptionByDefault:
-            SSEAlgorithm: "AES256"
-
   ## Required by SFTP server for user home directories
-  S3BucketSftpRadx:
+  S3BucketSftpDataHub:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -88,8 +64,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      # BucketName: !Sub "sftp-radx-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "sftp-radx-joe-bill-${Environment}"
+      BucketName: !Sub "sftp-datahub-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -127,8 +102,8 @@ Resources:
       - Value: "SFTP"
         Key: "Name"
 
-  ## Required by Submission for in-review files for PII processing 
-  S3BucketCovidRadxReview:
+  ## Required by Submission for in-review files for PII processing
+  S3BucketDataHubReview:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -137,8 +112,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      # BucketName: !Sub "covid-radx-review-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "covid-radx-review-joe-bill-${Environment}"
+      BucketName: !Sub "datahub-review-${DataHubUniqueId}-${Environment}"
       VersioningConfiguration:
         Status: "Enabled"
       OwnershipControls:
@@ -153,12 +127,12 @@ Resources:
       #   TargetObjectKeyFormat:
       #     PartitionedPrefix:
       #       PartitionDateSource: "EventTime"
-      #   DestinationBucketName: "covid-radx-s3-access-logging" ##FIXME - Parameterize Access Log Bucket Name
+      #   DestinationBucketName: "datahub-s3-access-logging" ##FIXME - Parameterize Access Log Bucket Name
       #   LogFilePrefix: ""
 
-## Used for static website hosting 
+## Used for static website hosting
 
-  # S3BucketRadxDataHubNihGov:
+  # S3BucketDataHubNihGov:
   #   UpdateReplacePolicy: "Retain"
   #   Type: "AWS::S3::Bucket"
   #   DeletionPolicy: "Retain"
@@ -168,7 +142,7 @@ Resources:
   #       IgnorePublicAcls: true
   #       BlockPublicPolicy: true
   #       BlockPublicAcls: true
-  #     BucketName: "radxdatahub.nih.gov" ##FIXME
+  #     BucketName: "datahub.stanford.edu" ##FIXME
   #     VersioningConfiguration:
   #       Status: "Enabled"
   #     OwnershipControls:
@@ -183,8 +157,8 @@ Resources:
   #     - Value: "Production"
   #       Key: "Environment"
 
-## Bucket containing approved files for access after PII processing 
-  S3BucketCovidRadxDefault:
+## Bucket containing approved files for access after PII processing
+  S3BucketDataHubDefault:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -193,8 +167,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      # BucketName: !Sub "covid-radx-default-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "covid-radx-default-joe-bill-${Environment}"
+      BucketName: !Sub "datahub-default-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -207,12 +180,12 @@ Resources:
       #   TargetObjectKeyFormat:
       #     PartitionedPrefix:
       #       PartitionDateSource: "EventTime"
-      #   DestinationBucketName: "covid-radx-s3-access-logging" ##FIXME 
+      #   DestinationBucketName: "datahub-s3-access-logging" ##FIXME
       #   LogFilePrefix: ""
       # VersioningConfiguration:
       #   Status: "Enabled"
       # ReplicationConfiguration:
-      #   Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/s3crr_role_for_covid-radx-default" ##FIXME
+      #   Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/s3crr_role_for_datahub-default" ##FIXME
       #   Rules:
       #   - Status: "Enabled"
       #     Destination:
@@ -224,13 +197,13 @@ Resources:
       #     Priority: 0
 
   ## S3 Bucket policy for static website hosting
-  # S3BucketPolicyRadxDataHubNihGov:
+  # S3BucketPolicyDataHubNihGov:
   #   UpdateReplacePolicy: "Retain"
   #   Type: "AWS::S3::BucketPolicy"
   #   DeletionPolicy: "Retain"
   #   Properties:
   #     Bucket:
-  #       Ref: "S3BucketRadxDataHubNihGov"
+  #       Ref: "S3BucketDataHubStanfordEdu"
   #     PolicyDocument:
   #       Version: "2012-10-17"
   #       Statement:
@@ -238,16 +211,16 @@ Resources:
   #           StringEquals:
   #             aws:SourceVpce: !Ref VPCId ##FIXME - Parameterize VPC Endpoint ID
   #         Resource:
-  #         - "arn:aws:s3:::radxdatahub.nih.gov" ##FIXME
-  #         - "arn:aws:s3:::radxdatahub.nih.gov/*" ##FIXME
+  #         - "arn:aws:s3:::datahub.stanford.edu" ##FIXME
+  #         - "arn:aws:s3:::datahub.stanford.edu/*" ##FIXME
   #         Action: "s3:GetObject"
   #         Effect: "Allow"
   #         Principal: "*"
   #         Sid: "Access-to-specific-VPCE-only"
   #       Id: "VPC-Endpoint-Interface-4-S3-Webpages"
 
-  ## Bucket containing Lambda function code artifacts for deployment 
-  S3BucketRadxLambdaArtifacts:
+  ## Bucket containing Lambda function code artifacts for deployment
+  S3BucketDataHubLambdaArtifacts:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -256,8 +229,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      # BucketName: !Sub "radx-lambda-artifacts-joe-bill-${Environment}" ## PLEASE MODIFY to ensure global uniqueness according to our organization's needs
-      BucketName: !Sub "radx-lambda-artifacts-joe-bill-${Environment}"
+      BucketName: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
       Tags:
       - Key: "Environment"
         Value: !Sub "${Environment}"
@@ -273,33 +245,28 @@ Resources:
             SSEAlgorithm: "AES256"
 
 Outputs:
-  S3BucketCovidRadxReviewName:
-    Description: "The ARN of the S3 bucket for Covid RADx review files"
-    Value: !GetAtt S3BucketCovidRadxReview.Arn
+  S3BucketDataHubReviewName:
+    Description: "The ARN of the S3 bucket for Data Hub review files"
+    Value: !GetAtt S3BucketDataHubReview.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketCovidRadxReview-Arn"
-  S3BucketCovidRadxDefaultName:
-    Description: "The ARN of the S3 bucket for Covid RADx default files"
-    Value: !GetAtt S3BucketCovidRadxDefault.Arn
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubReview-Arn"
+  S3BucketDataHubDefaultName:
+    Description: "The ARN of the S3 bucket for Data Hub default files"
+    Value: !GetAtt S3BucketDataHubDefault.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketCovidRadxDefault-Arn"
-  S3BucketSftpRadxName:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubDefault-Arn"
+  S3BucketSftpDataHubName:
     Description: "The ARN of the S3 bucket for SFTP user home directories"
-    Value: !GetAtt S3BucketSftpRadx.Arn
+    Value: !GetAtt S3BucketSftpDataHub.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketSftpRadx-Arn"
-  S3BucketRadxUploadPortalName:
-    Description: "The ARN of the main S3 bucket for the RADx Upload Portal"
-    Value: !GetAtt S3BucketRadxUploadPortal.Arn
+      Name: !Sub "${AWS::StackName}-S3BucketSftpDataHub-Arn"
+  S3BucketDataHubUploadPortalName:
+    Description: "The ARN of the main S3 bucket for the Data Hub Upload Portal"
+    Value: !GetAtt S3BucketDataHubUploadPortal.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketRadxUploadPortal-Arn"
-  S3BucketCovidRadxIngestPdfName:
-    Description: "The ARN of the S3 bucket for Covid RADx ingest PDF files"
-    Value: !GetAtt S3BucketCovidRadxIngestPdf.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-S3BucketCovidRadxIngestPdf-Arn"
-  S3BucketRadxLambdaArtifactsName:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubUploadPortal-Arn"
+  S3BucketDataHubLambdaArtifactsName:
     Description: "The ARN of the S3 bucket for Lambda function artifacts"
-    Value: !GetAtt S3BucketRadxLambdaArtifacts.Arn
+    Value: !GetAtt S3BucketDataHubLambdaArtifacts.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketRadxLambdaArtifacts-Arn"
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubLambdaArtifacts-Arn"

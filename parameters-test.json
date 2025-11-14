@@ -1,7 +1,7 @@
 {
 	"Parameters": {
 		"Environment": "test",
-		"ProjectName": "radx",
+		"ProjectName": "datahub",
 		"Region": "us-east-1"
 	}
 }

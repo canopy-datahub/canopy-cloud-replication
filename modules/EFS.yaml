@@ -4,7 +4,7 @@
 # AWSTemplateFormatVersion: "2010-09-09"
 # Metadata:
 #     Generator: "former2"
-# Description: "RADx EFS Resources"
+# Description: "DataHub EFS Resources"
 # Resources:
 # # Subnet IDs, Security Group IDs, and SageMaker Domain ID are hardcoded for now
 #     EfsFileSystem:
@@ -14,8 +14,8 @@
 #             Encrypted: true
 #             KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/791d561c-0d0f-48a3-b51d-634393022442"
 #             ThroughputMode: "bursting"
-#             FileSystemTags: 
-#               - 
+#             FileSystemTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:domain/d-tzcaky9vi2ie"
 
@@ -24,7 +24,7 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             IpAddress: "172.31.80.87"
-#             SecurityGroups: 
+#             SecurityGroups:
 #               - "sg-09d732474b83a67b2"
 #             SubnetId: "subnet-0b3b23e448d78f28e"
 
@@ -33,7 +33,7 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             IpAddress: "172.31.79.202"
-#             SecurityGroups: 
+#             SecurityGroups:
 #               - "sg-09d732474b83a67b2"
 #             SubnetId: "subnet-0f19b11765abe85e6"
 
@@ -42,7 +42,7 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             IpAddress: "172.31.61.105"
-#             SecurityGroups: 
+#             SecurityGroups:
 #               - "sg-09d732474b83a67b2"
 #             SubnetId: "subnet-0504d6763e0abaa0f"
 
@@ -51,7 +51,7 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             IpAddress: "172.31.45.50"
-#             SecurityGroups: 
+#             SecurityGroups:
 #               - "sg-09d732474b83a67b2"
 #             SubnetId: "subnet-0ce3dbae9ab4ddca3"
 
@@ -60,7 +60,7 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             IpAddress: "172.31.11.216"
-#             SecurityGroups: 
+#             SecurityGroups:
 #               - "sg-09d732474b83a67b2"
 #             SubnetId: "subnet-0c49fbc78563ac4bd"
 
@@ -69,7 +69,7 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             IpAddress: "172.31.16.96"
-#             SecurityGroups: 
+#             SecurityGroups:
 #               - "sg-09d732474b83a67b2"
 #             SubnetId: "subnet-0a15795ac06974124"
 
@@ -78,16 +78,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200120:d-tzcaky9vi2ie:emma-brown"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:app/d-tzcaky9vi2ie/test-fix-s3sync/JupyterLab/default"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200120
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200120"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200120
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -97,16 +97,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200115:d-tzcaky9vi2ie:sally-data-submitter"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:app/d-tzcaky9vi2ie/testing-s3-sync-101724/JupyterLab/default"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200115
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200115"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200115
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -116,16 +116,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200140:d-tzcaky9vi2ie:robert-the-researcher"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:app/d-tzcaky9vi2ie/test-2/JupyterLab/default"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200140
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200140"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200140
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -135,16 +135,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200160:d-tzcaky9vi2ie:bala-ramani"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:app/d-tzcaky9vi2ie/test-bal/JupyterLab/default"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200160
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200160"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200160
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -154,16 +154,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200180:d-tzcaky9vi2ie:isaac-theinternaluser"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/isaac-theinternaluser"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200180
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200180"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200180
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -173,16 +173,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200185:d-tzcaky9vi2ie:irina-gorelik-1"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/irina-gorelik-1"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200185
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200185"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200185
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -192,16 +192,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200190:d-tzcaky9vi2ie:irina-gorelik-2"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/irina-gorelik-2"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200190
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200190"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200190
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -211,16 +211,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200195:d-tzcaky9vi2ie:test-user-creation"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/test-user-creation"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200195
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200195"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200195
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -230,16 +230,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200205:d-tzcaky9vi2ie:krishnaveni-kaladi-1"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/krishnaveni-kaladi-1"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200205
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200205"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200205
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -249,16 +249,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200210:d-tzcaky9vi2ie:krishnaveni-kaladi-2"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/krishnaveni-kaladi-2"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200210
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200210"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200210
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -268,16 +268,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200215:d-tzcaky9vi2ie:krishnaveni-kaladi-3"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/krishnaveni-kaladi-3"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200215
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200215"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200215
 #                     OwnerGid: 0
 #                     Permissions: "700"
@@ -287,16 +287,16 @@
 #         Properties:
 #             FileSystemId: !Ref EFSFileSystem
 #             ClientToken: "200250:d-tzcaky9vi2ie:ira-test11"
-#             AccessPointTags: 
-#               - 
+#             AccessPointTags:
+#               -
 #                 Key: "ManagedByAmazonSageMakerResource"
 #                 Value: !Sub "arn:aws:sagemaker:${AWS::Region}:${AWS::AccountId}:user-profile/d-tzcaky9vi2ie/ira-test11"
-#             PosixUser: 
+#             PosixUser:
 #                 Uid: 200250
 #                 Gid: 0
-#             RootDirectory: 
+#             RootDirectory:
 #                 Path: "/200250"
-#                 CreationInfo: 
+#                 CreationInfo:
 #                     OwnerUid: 200250
 #                     OwnerGid: 0
 #                     Permissions: "700"

@@ -15,19 +15,19 @@ Resources:
         Properties:
             FunctionName: "variables-report"
             Description: "Variables Report Lambda Function"
-            Environment: 
-                Variables: 
+            Environment:
+                Variables:
                     CORE_VARIABLES_UPLOAD_PATH: "variables-explorer/core_variables_data_model.json"
                     VARIABLE_REPORT_PATH: "variables-explorer/Complete-Data-Variable-Report.xlsx"
-                    BUCKET: "radxdatahub.nih.gov"
+                    BUCKET: "datahub.stanford.edu"
                     ALL_VARS_UPLOAD_PATH: "variables-explorer/all_variables_data_model.json"
                     SECRET_NAME: "application_prod"
                     REPORT_NAME: "Complete-Data-Variable-Report.xlsx"
                     TEMPLATE_REPORT_PATH: "variables-report/Template Variable Report.xlsx"
                     REGION: !Ref AWS::Region
-                    
+
             Handler: "lambda_function.lambda_handler"
-            Architectures: 
+            Architectures:
               - "x86_64"
             Code:
                 ZipFile: |
@@ -41,26 +41,26 @@ Resources:
             Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
             Runtime: "python3.11"
             Timeout: 60
-            TracingConfig: 
+            TracingConfig:
                 Mode: "PassThrough"
-            VpcConfig: 
-                SubnetIds: 
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds: 
-                  - Fn::ImportValue: !Sub "RADx-ECS-${Environment}-Lambda-SecurityGroup"
-            # Layers: 
+            VpcConfig:
+                SubnetIds:
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
+            # Layers:
             #   - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:psycopg2-custom:1"
             #   - !Sub "arn:aws:lambda:${AWS::Region}:336392948345:layer:AWSSDKPandas-Python311:16"
-            EphemeralStorage: 
+            EphemeralStorage:
                 Size: 512
 
-    RADxReporterTestLambda:
+    DataHubReporterTestLambda:
         Type: "AWS::Lambda::Function"
         Properties:
-            Description: "RADx Reporter Test Lambda Function"
-            FunctionName: "radx-reporter-test"
-            Architectures: 
+            Description: "DataHub Reporter Test Lambda Function"
+            FunctionName: "datahub-reporter-test"
+            Architectures:
               - "x86_64"
             Code:
                 ZipFile: |
@@ -68,33 +68,33 @@ Resources:
                     def lambda_handler(event, context):
                         return {
                             'statusCode': 200,
-                            'body': json.dumps('Hello from RADx Reporter Test!')
+                            'body': json.dumps('Hello from DataHub Reporter Test!')
                         }
             MemorySize: 1024
             Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
             Timeout: 60
             Runtime: "python3.11"
-            TracingConfig: 
+            TracingConfig:
                 Mode: "PassThrough"
-            VpcConfig: 
-                SubnetIds: 
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds: 
-                  - Fn::ImportValue: !Sub "RADx-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage: 
+            VpcConfig:
+                SubnetIds:
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
+            EphemeralStorage:
                 Size: 512
 
-    RADxEmailServiceLambda:
+    DataHubEmailServiceLambda:
         Type: "AWS::Lambda::Function"
         Properties:
-            Description: "RADx Email Service Lambda Function"
-            Environment: 
-                Variables: 
+            Description: "DataHub Email Service Lambda Function"
+            Environment:
+                Variables:
                     SPRING_PROFILES_ACTIVE: "test"
-            FunctionName: "RADx-EmailService"
+            FunctionName: "DataHub-EmailService"
             Handler: "org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest"
-            Architectures: 
+            Architectures:
               - "x86_64"
             Code:
                 ZipFile: |
@@ -102,35 +102,35 @@ Resources:
                     def lambda_handler(event, context):
                         return {
                             'statusCode': 200,
-                            'body': json.dumps('Hello from RADx Email Service!')
+                            'body': json.dumps('Hello from DataHub Email Service!')
                         }
             MemorySize: 2048
             Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/ses-sqs-lambda-role-cme1rbbm"
             Runtime: "java17"
             Timeout: 60
-            TracingConfig: 
+            TracingConfig:
                 Mode: "PassThrough"
-            VpcConfig: 
-                SubnetIds: 
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds: 
-                  - Fn::ImportValue: !Sub "RADx-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage: 
+            VpcConfig:
+                SubnetIds:
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
+            EphemeralStorage:
                 Size: 512
 
-    RADxOpenSearchRefreshLambda:
+    DataHubOpenSearchRefreshLambda:
         Type: "AWS::Lambda::Function"
         Properties:
             Description: ""
-            Environment: 
-                Variables: 
+            Environment:
+                Variables:
                     REGION_NAME: "us-east-1"
                     SECRET_NAME: "application_prod"
                     ALIAS_NAME: "study_search"
                     INDEX_NAME: "study_v101"
-            FunctionName: "RADx-OpenSearchRefresh"
-            Architectures: 
+            FunctionName: "DataHub-OpenSearchRefresh"
+            Architectures:
               - "arm64"
             Code:
                 ZipFile: |
@@ -143,23 +143,23 @@ Resources:
             MemorySize: 1024
             Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
             Timeout: 900
-            TracingConfig: 
+            TracingConfig:
                 Mode: "PassThrough"
-            VpcConfig: 
-                SubnetIds: 
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds: 
-                  - Fn::ImportValue: !Sub "RADx-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage: 
+            VpcConfig:
+                SubnetIds:
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
+            EphemeralStorage:
                 Size: 512
 
-    RADxPublicationScriptLambda:
+    DataHubPublicationScriptLambda:
         Type: "AWS::Lambda::Function"
         Properties:
             Description: ""
-            FunctionName: "RADx-PublicationScript"
-            Architectures: 
+            FunctionName: "DataHub-PublicationScript"
+            Architectures:
               - "x86_64"
             Code:
                 ZipFile: |
@@ -172,15 +172,15 @@ Resources:
             MemorySize: 128
             Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
             Timeout: 60
-            TracingConfig: 
+            TracingConfig:
                 Mode: "PassThrough"
-            VpcConfig: 
-                SubnetIds: 
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds: 
-                  - Fn::ImportValue: !Sub "RADx-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage: 
+            VpcConfig:
+                SubnetIds:
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
+            EphemeralStorage:
                 Size: 512
 
     VariablesReportLambdaPermission:
@@ -195,10 +195,10 @@ Resources:
     #     Type: "AWS::Lambda::LayerVersion"
     #     Properties:
     #         Description: "Python 3.11 psycopg2 layer - https://stackoverflow.com/questions/71493439/unable-to-import-module-lambda-function-no-module-named-psycopg2-psycopg-aw/77012246#7701224"
-    #         CompatibleRuntimes: 
+    #         CompatibleRuntimes:
     #           - "python3.11"
     #         LayerName: "psycopg2-custom"
-    #         Content: 
+    #         Content:
     #             S3Bucket: "prod-iad-c1-djusa-layers"
     #             S3Key: !Sub "/snapshots/${AWS::AccountId}/psycopg2-custom-abce5ae8-3c12-4862-aef1-414d9c11c7ee"
 
@@ -207,7 +207,7 @@ Resources:
     #     Properties:
     #         BatchSize: 10
     #         EventSourceArn: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:testEmailQueue"
-    #         FunctionName: !GetAtt RADxEmailServiceLambda.Arn
+    #         FunctionName: !GetAtt DataHubEmailServiceLambda.Arn
     #         Enabled: true
     #         MaximumBatchingWindowInSeconds: 0
 
@@ -216,28 +216,28 @@ Outputs:
     Description: "Variables Report Lambda ARN"
     Value: !GetAtt VariablesReportLambda.Arn
     Export:
-      Name: !Sub "RADx-Lambda-${Environment}-VariablesReportLambda-Arn"
+      Name: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
 
-  RADxReporterTestLambdaArn:
-    Description: "RADx Reporter Test Lambda ARN"
-    Value: !GetAtt RADxReporterTestLambda.Arn
+  DataHubReporterTestLambdaArn:
+    Description: "DataHub Reporter Test Lambda ARN"
+    Value: !GetAtt DataHubReporterTestLambda.Arn
     Export:
-      Name: !Sub "RADx-Lambda-${Environment}-RADxReporterTestLambda-Arn"
+      Name: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
 
-  RADxEmailServiceLambdaArn:
-    Description: "RADx Email Service Lambda ARN"
-    Value: !GetAtt RADxEmailServiceLambda.Arn
+  DataHubEmailServiceLambdaArn:
+    Description: "DataHub Email Service Lambda ARN"
+    Value: !GetAtt DataHubEmailServiceLambda.Arn
     Export:
-      Name: !Sub "RADx-Lambda-${Environment}-RADxEmailServiceLambda-Arn"
+      Name: !Sub "DataHub-Lambda-${Environment}-DataHubEmailServiceLambda-Arn"
 
-  RADxOpenSearchRefreshLambdaArn:
-    Description: "RADx OpenSearch Refresh Lambda ARN"
-    Value: !GetAtt RADxOpenSearchRefreshLambda.Arn
+  DataHubOpenSearchRefreshLambdaArn:
+    Description: "DataHub OpenSearch Refresh Lambda ARN"
+    Value: !GetAtt DataHubOpenSearchRefreshLambda.Arn
     Export:
-      Name: !Sub "RADx-Lambda-${Environment}-RADxOpenSearchRefreshLambda-Arn"
+      Name: !Sub "DataHub-Lambda-${Environment}-DataHubOpenSearchRefreshLambda-Arn"
 
-  RADxPublicationScriptLambdaArn:
-    Description: "RADx Publication Script Lambda ARN"
-    Value: !GetAtt RADxPublicationScriptLambda.Arn
+  DataHubPublicationScriptLambdaArn:
+    Description: "DataHub Publication Script Lambda ARN"
+    Value: !GetAtt DataHubPublicationScriptLambda.Arn
     Export:
-      Name: !Sub "RADx-Lambda-${Environment}-RADxPublicationScriptLambda-Arn"
+      Name: !Sub "DataHub-Lambda-${Environment}-DataHubPublicationScriptLambda-Arn"

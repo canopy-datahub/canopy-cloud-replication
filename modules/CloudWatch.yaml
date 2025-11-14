@@ -12,9 +12,9 @@ Parameters:
     ProjectName:
         Type: String
         Description: The Project name
-        Default: radx
+        Default: datahub
         AllowedValues:
-            - radx
+            - datahub
 
 Conditions:
     DEV: !Equals [!Ref Environment, dev]
@@ -33,7 +33,7 @@ Resources:
     #         AlarmName: "Test ALB 5XX Error Anomaly"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         EvaluationPeriods: 1
     #         DatapointsToAlarm: 1
     #         ComparisonOperator: "LessThanLowerOrGreaterThanUpperThreshold"
@@ -48,7 +48,7 @@ Resources:
     #                     Dimensions:
     #                       -
     #                         Name: "LoadBalancer"
-    #                         Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #                         Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #                 Period: 300
     #                 Stat: "Sum"
     #             ReturnData: true
@@ -62,21 +62,21 @@ Resources:
     # CloudWatchAlarm4:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-ApprovedDataSvc"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-ApprovedDataSvc"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-ApprovedDataSvc"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ApprovedDataSvc"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-ApprovedDataSvc/bb300a4cc77a84ba"
+    #             Value: "targetgroup/DataHub-TEST-ApprovedDataSvc/bb300a4cc77a84ba"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -88,20 +88,20 @@ Resources:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
     #         AlarmName: !Sub "${CloudWatchAlarm4}-Ext"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-ApprovedDataSvc-Ext"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ApprovedDataSvc-Ext"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-ApprovedDataSvc-Ext/fcbd3d8770b3ab36"
+    #             Value: "targetgroup/DataHub-TEST-ApprovedDataSvc-Ext/fcbd3d8770b3ab36"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -112,21 +112,21 @@ Resources:
     # CloudWatchAlarm6:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-DOWNLOAD-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-DOWNLOAD-INTERNAL"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-DOWNLOAD-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-DOWNLOAD-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-DOWNLOAD-INTERNAL/3eefceff75012d26"
+    #             Value: "targetgroup/DataHub-TEST-DOWNLOAD-INTERNAL/3eefceff75012d26"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -137,21 +137,21 @@ Resources:
     # CloudWatchAlarm7:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-DOWNLOADSERVICE"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-DOWNLOADSERVICE"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-DOWNLOADSERVICE"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-DOWNLOADSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-DOWNLOADSERVICE/1ecec1b842d894cd"
+    #             Value: "targetgroup/DataHub-TEST-DOWNLOADSERVICE/1ecec1b842d894cd"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -162,21 +162,21 @@ Resources:
     # CloudWatchAlarm8:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-ENTITYSERVICE"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-ENTITYSERVICE"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-ENTITYSERVICE"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ENTITYSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-ENTITYSERVICE/1b01be18df141777"
+    #             Value: "targetgroup/DataHub-TEST-ENTITYSERVICE/1b01be18df141777"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -188,20 +188,20 @@ Resources:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
     #         AlarmName: !Sub "${CloudWatchAlarm8}-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-ENTITYSERVICE-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ENTITYSERVICE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-ENTITYSERVICE-INTERNAL/0eccc37f45c68317"
+    #             Value: "targetgroup/DataHub-TEST-ENTITYSERVICE-INTERNAL/0eccc37f45c68317"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -212,21 +212,21 @@ Resources:
     # CloudWatchAlarm10:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-REPORTSERIVCE-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-REPORTSERIVCE-INTERNAL"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-REPORTSERIVCE-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-REPORTSERIVCE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-REPORTSERIVCE-INTERNAL/27ece272cc0b366b"
+    #             Value: "targetgroup/DataHub-TEST-REPORTSERIVCE-INTERNAL/27ece272cc0b366b"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -237,21 +237,21 @@ Resources:
     # CloudWatchAlarm11:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-REPORTSERVICE"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-REPORTSERVICE"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-REPORTSERVICE"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-REPORTSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-REPORTSERVICE/b917a5cf6cb07b43"
+    #             Value: "targetgroup/DataHub-TEST-REPORTSERVICE/b917a5cf6cb07b43"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -262,21 +262,21 @@ Resources:
     # CloudWatchAlarm12:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-SEARCHSERVICE"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-SEARCHSERVICE"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-SEARCHSERVICE"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SEARCHSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-SEARCHSERVICE/beed4ae7a5aacc83"
+    #             Value: "targetgroup/DataHub-TEST-SEARCHSERVICE/beed4ae7a5aacc83"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -288,20 +288,20 @@ Resources:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
     #         AlarmName: !Sub "${CloudWatchAlarm12}-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-SEARCHSERVICE-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SEARCHSERVICE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-SEARCHSERVICE-INTERNAL/b4519237d7e7b20c"
+    #             Value: "targetgroup/DataHub-TEST-SEARCHSERVICE-INTERNAL/b4519237d7e7b20c"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -312,21 +312,21 @@ Resources:
     # CloudWatchAlarm14:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-SUBMISSION-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-SUBMISSION-INTERNAL"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-SUBMISSION-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SUBMISSION-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-SUBMISSION-INTERNAL/8837051a88975854"
+    #             Value: "targetgroup/DataHub-TEST-SUBMISSION-INTERNAL/8837051a88975854"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -337,21 +337,21 @@ Resources:
     # CloudWatchAlarm15:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-SUBMISSIONSERVICE"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-SUBMISSIONSERVICE"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-SUBMISSIONSERVICE"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SUBMISSIONSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-SUBMISSIONSERVICE/414b6a42faa57f3a"
+    #             Value: "targetgroup/DataHub-TEST-SUBMISSIONSERVICE/414b6a42faa57f3a"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -362,21 +362,21 @@ Resources:
     # CloudWatchAlarm16:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-UI-EXTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-UI-EXTERNAL"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-UI-EXTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-UI-EXTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-UI-EXTERNAL/bb6405cf579a557b"
+    #             Value: "targetgroup/DataHub-TEST-UI-EXTERNAL/bb6405cf579a557b"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -387,21 +387,21 @@ Resources:
     # CloudWatchAlarm17:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-UI-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-UI-INTERNAL"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-UI-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-UI-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-UI-INTERNAL/3d936070187fae31"
+    #             Value: "targetgroup/DataHub-TEST-UI-INTERNAL/3d936070187fae31"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -412,21 +412,21 @@ Resources:
     # CloudWatchAlarm18:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
-    #         AlarmName: "Unhealthy Service - RADx-TEST-USERSERVICE"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-USERSERVICE"
+    #         AlarmName: "Unhealthy Service - DataHub-TEST-USERSERVICE"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-USERSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-USERSERVICE/05e5f4e1dddd64c0"
+    #             Value: "targetgroup/DataHub-TEST-USERSERVICE/05e5f4e1dddd64c0"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -438,20 +438,20 @@ Resources:
     #     Type: "AWS::CloudWatch::Alarm"
     #     Properties:
     #         AlarmName: !Sub "${CloudWatchAlarm18}-INTERNAL"
-    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for RADx-TEST-USERSERVICE-INTERNAL"
+    #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-USERSERVICE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
     #         Dimensions:
     #           -
     #             Name: "TargetGroup"
-    #             Value: "targetgroup/RADx-TEST-USERSERVICE-INTERNAL/f9e513472aff04df"
+    #             Value: "targetgroup/DataHub-TEST-USERSERVICE-INTERNAL/f9e513472aff04df"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -466,7 +466,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for S3-ENDPOINTS"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -476,7 +476,7 @@ Resources:
     #             Value: "targetgroup/S3-ENDPOINTS/a08a48234a972437"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST/72a7181680791ed1"
+    #             Value: "app/DataHub-TEST/72a7181680791ed1"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -491,7 +491,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for S3-ENDPOINTS-EXTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:RADx-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -501,7 +501,7 @@ Resources:
     #             Value: "targetgroup/S3-ENDPOINTS-EXTERNAL/58d10a8a2fee61dc"
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
     #         Period: 60
     #         EvaluationPeriods: 10
     #         DatapointsToAlarm: 10
@@ -530,7 +530,7 @@ Resources:
     #     Type: "AWS::CloudWatch::Dashboard"
     #     Properties:
     #         DashboardName: "TargetGroups"
-    #         DashboardBody: "{\"widgets\":[{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"period\":60,\"metrics\":[[\"AWS/ApplicationELB\",\"HTTPCode_Target_5XX_Count\",\"TargetGroup\",\"targetgroup/RADx-EntityService/9ee93777c0060a28\",\"LoadBalancer\",\"app/RADx-PROD/13607c7d7c4657c3\",{\"label\":\"RADx-EntityService\",\"region\":\"us-west-2\"}]],\"region\":\"us-west-2\",\"stat\":\"Sum\",\"title\":\"Target 5XXs\",\"yAxis\":{\"left\":{\"min\":0}},\"view\":\"timeSeries\",\"stacked\":false}}]}"
+    #         DashboardBody: "{\"widgets\":[{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"period\":60,\"metrics\":[[\"AWS/ApplicationELB\",\"HTTPCode_Target_5XX_Count\",\"TargetGroup\",\"targetgroup/DataHub-EntityService/9ee93777c0060a28\",\"LoadBalancer\",\"app/DataHub-PROD/13607c7d7c4657c3\",{\"label\":\"DataHub-EntityService\",\"region\":\"us-west-2\"}]],\"region\":\"us-west-2\",\"stat\":\"Sum\",\"title\":\"Target 5XXs\",\"yAxis\":{\"left\":{\"min\":0}},\"view\":\"timeSeries\",\"stacked\":false}}]}"
     ###############################################################################
 
     ##################################################################################
@@ -556,32 +556,32 @@ Resources:
     # LogsLogGroup4:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_radx-os-logs_${AWS::AccountId}"
+    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_datahub-os-logs_${AWS::AccountId}"
 
     # LogsLogGroup5:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_radx-os-microservice-logs_${AWS::AccountId}"
+    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_datahub-os-microservice-logs_${AWS::AccountId}"
 
     EmailServiceLogGroup:
         Type: "AWS::Logs::LogGroup"
         Properties:
-            LogGroupName: "/aws/lambda/RADx-EmailService"
+            LogGroupName: "/aws/lambda/DataHub-EmailService"
 
     # LogsLogGroup7:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/SFTP-RADx-GetUserConfigLambda-Irb8yyeNdwvT"
+    #         LogGroupName: "/aws/lambda/SFTP-DataHub-GetUserConfigLambda-Irb8yyeNdwvT"
 
     # LogsLogGroup8:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/SFTP-RADx-VPC-GetUserConfigLambda-21cVCJ39gC7Q"
+    #         LogGroupName: "/aws/lambda/SFTP-DataHub-VPC-GetUserConfigLambda-21cVCJ39gC7Q"
 
     # LogsLogGroup9:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/SFTP-RADx-VPC-GetUserConfigLambda-yA9UDaKoavQB"
+    #         LogGroupName: "/aws/lambda/SFTP-DataHub-VPC-GetUserConfigLambda-yA9UDaKoavQB"
 
     # LogsLogGroup10:
     #     Type: "AWS::Logs::LogGroup"
@@ -601,7 +601,7 @@ Resources:
     # LogsLogGroup15:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/sftp-radx-GetUserConfigLambda-kTGcrVdazMMM"
+    #         LogGroupName: "/aws/lambda/sftp-datahub-GetUserConfigLambda-kTGcrVdazMMM"
 
     # LogsLogGroup16:
     #     Type: "AWS::Logs::LogGroup"
@@ -621,16 +621,16 @@ Resources:
     MicroservicesLogGroup:
         Type: "AWS::Logs::LogGroup"
         Properties:
-            LogGroupName: !Sub "/aws/lambda/radx-microservices-${Environment}"
+            LogGroupName: !Sub "/aws/lambda/datahub-microservices-${Environment}"
 
     # Log subscription filters can only be created when the destination (e.g. Lambda, Kinesis, etc.)
     # exists. Therefore, these have been commented out for now.
     # LogsSubscriptionFilter:
     #     Type: "AWS::Logs::SubscriptionFilter"
     #     Properties:
-    #         LogGroupName: "radx-microservices-test"
+    #         LogGroupName: "datahub-microservices-test"
     #         FilterPattern: ""
-    #         DestinationArn: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LogsToElasticsearch_radx-os-logs_${AWS::AccountId}"
+    #         DestinationArn: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LogsToElasticsearch_datahub-os-logs_${AWS::AccountId}"
 
     # CloudWatchAnomalyDetector:
     #     Type: "AWS::CloudWatch::AnomalyDetector"
@@ -642,7 +642,7 @@ Resources:
     #         Dimensions:
     #           -
     #             Name: "LoadBalancer"
-    #             Value: "app/RADx-TEST-EXTERNAL/f4c1a59d0c735438"
+    #             Value: "app/DataHub-TEST-EXTERNAL/f4c1a59d0c735438"
 
     # LogsResourcePolicy:
     #     Type: "AWS::Logs::ResourcePolicy"
@@ -653,5 +653,5 @@ Resources:
     # LogsResourcePolicy2:
     #     Type: "AWS::Logs::ResourcePolicy"
     #     Properties:
-    #         PolicyName: "OpenSearchService-radx-os-test-Application-logs"
-    #         PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"es.amazonaws.com\"},\"Action\":[\"logs:PutLogEvents\",\"logs:CreateLogStream\"],\"Resource\":\"arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/OpenSearchService/domains/radx-os-test/application-logs:*\"}]}"
+    #         PolicyName: "OpenSearchService-datahub-os-test-Application-logs"
+    #         PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"es.amazonaws.com\"},\"Action\":[\"logs:PutLogEvents\",\"logs:CreateLogStream\"],\"Resource\":\"arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/OpenSearchService/domains/datahub-os-test/application-logs:*\"}]}"

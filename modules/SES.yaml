@@ -2,7 +2,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/09/30 14:48:53
-  "This template deploys the NIH RADx Data Hub SES Services."
+  "This template deploys the Data Hub SES Services."
 Parameters:
   Environment:
     Type: String
@@ -15,50 +15,50 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
-    RadxDataHubEmailIdentity:
+    DataHubEmailIdentity:
         Type: "AWS::SES::EmailIdentity"
         Properties:
-            EmailIdentity: "radx-datahub@nih.gov"
-            DkimAttributes: 
+            EmailIdentity: "datahub@stanford.edu"
+            DkimAttributes:
                 SigningEnabled: true
-            MailFromAttributes: 
+            MailFromAttributes:
                 BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
             ConfigurationSetAttributes: {}
-            FeedbackAttributes: 
+            FeedbackAttributes:
                 EmailForwardingEnabled: true
 
-    RadxDataHubDevEmailIdentity:
+    DataHubDevEmailIdentity:
         Type: "AWS::SES::EmailIdentity"
         Properties:
-            EmailIdentity: "radx.datahub.dev@gmail.com"
-            DkimAttributes: 
+            EmailIdentity: "datahub.dev@stanford.edu"
+            DkimAttributes:
                 SigningEnabled: false
-            MailFromAttributes: 
+            MailFromAttributes:
                 BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
             ConfigurationSetAttributes: {}
-            FeedbackAttributes: 
+            FeedbackAttributes:
                 EmailForwardingEnabled: true
 
-    NihGovEmailIdentity:
+    StanfordEduEmailIdentity:
         Type: "AWS::SES::EmailIdentity"
         Properties:
-            EmailIdentity: "nih.gov"
-            DkimAttributes: 
+            EmailIdentity: "stanford.edu"
+            DkimAttributes:
                 SigningEnabled: true
-            MailFromAttributes: 
+            MailFromAttributes:
                 BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
             ConfigurationSetAttributes: {}
-            FeedbackAttributes: 
+            FeedbackAttributes:
                 EmailForwardingEnabled: true

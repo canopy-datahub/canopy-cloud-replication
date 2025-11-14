@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/09/24 17:13:44
-  "This template deploys the NIH RADx Data Hub WAF."
+  "This template deploys the Data Hub WAF."
 Parameters:
   Environment:
     Type: String
@@ -14,14 +14,14 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
@@ -32,50 +32,50 @@ Resources:
         Properties:
             Name: !Sub "${ProjectName}-cloudfront-webacl-${Environment}"
             Description: !Sub "${ProjectName} CloudFront WebACL for the ${Environment} Environment"
-            DefaultAction: 
-                Allow: 
-                    CustomRequestHandling: 
-                        InsertHeaders: 
+            DefaultAction:
+                Allow:
+                    CustomRequestHandling:
+                        InsertHeaders:
                           - Name: "Action"
                             Value: "Would-be-blocked"
-            VisibilityConfig: 
+            VisibilityConfig:
                 SampledRequestsEnabled: true
                 CloudWatchMetricsEnabled: true
                 MetricName: !Sub "${ProjectName}-cloudfront-webacl-${Environment}-metric"
             Scope: "CLOUDFRONT"
-            Rules: 
+            Rules:
               - Name: "AWS-RateBasedRule-IP-300"
                 Priority: 0
-                Action: 
+                Action:
                     Count: {}
-                Statement: 
-                    RateBasedStatement: 
+                Statement:
+                    RateBasedStatement:
                         Limit: 300
                         AggregateKeyType: "IP"
-                VisibilityConfig: 
+                VisibilityConfig:
                     SampledRequestsEnabled: true
                     CloudWatchMetricsEnabled: true
                     MetricName: "AWS-RateBasedRule-IP-300"
               - Name: "AWS-AWSManagedRulesAmazonIpReputationList"
                 Priority: 1
-                OverrideAction: 
+                OverrideAction:
                     None: {}
-                Statement: 
-                    ManagedRuleGroupStatement: 
+                Statement:
+                    ManagedRuleGroupStatement:
                         VendorName: "AWS"
                         Name: "AWSManagedRulesAmazonIpReputationList"
-                VisibilityConfig: 
+                VisibilityConfig:
                     SampledRequestsEnabled: true
                     CloudWatchMetricsEnabled: true
                     MetricName: "AWS-AWSManagedRulesAmazonIpReputationList"
               - Name: "Whitelist-IPs"
                 Priority: 2
-                Action: 
+                Action:
                     Allow: {}
-                Statement: 
-                    IPSetReferenceStatement: 
+                Statement:
+                    IPSetReferenceStatement:
                         ARN: !GetAtt WhitelistIPSet.Arn
-                VisibilityConfig: 
+                VisibilityConfig:
                     SampledRequestsEnabled: true
                     CloudWatchMetricsEnabled: true
                     MetricName: "Whitelist-IPs"
@@ -86,7 +86,7 @@ Resources:
             Name: "Whitelisted-IPs"
             Description: ""
             IPAddressVersion: "IPV4"
-            Addresses: 
+            Addresses:
               - "34.237.50.127/32"
               - "52.28.204.202/32"
               - "3.82.84.220/32"

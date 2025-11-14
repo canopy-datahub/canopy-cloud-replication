@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/10/28 14:19:13
-  "This template deploys the NIH RADx Data Hub SQS Queues."
+  "This template deploys the Data Hub SQS Queues."
 Parameters:
   Environment:
     Type: String
@@ -14,14 +14,14 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
@@ -88,27 +88,27 @@ Resources:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
             PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${PiiSqsQueueDlq}\"}]}"
-            Queues: 
+            Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${PiiSqsQueueDlq.QueueName}"
 
     EmailQueuePolicy:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
             PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${EmailQueue}\"}]}"
-            Queues: 
+            Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${EmailQueue.QueueName}"
 
     SftpQueuePolicy:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
             PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueue}\"},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-sftp-${Environment}\"}}},{\"Sid\":\"SendMessageFromSNSTopic\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-sftp-object-upload-topic-${Environment}\"}}},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-sftp-${Environment}\"}}}]}"
-            Queues: 
+            Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueue.QueueName}"
 
     SftpQueueDlqPolicy:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
             PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueueDlq}\"},{\"Sid\":\"AWSEvents_sftp-dlq-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueueDlq}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-sftp-${Environment}\"}}}]}"
-            Queues: 
+            Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueueDlq.QueueName}"
 

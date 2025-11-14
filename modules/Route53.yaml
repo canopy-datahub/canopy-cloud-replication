@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/10/17 13:52:29
-  "This template deploys the NIH RADx Data Hub Route53 Services."
+  "This template deploys the Data Hub Route53 Services."
 Parameters:
   Environment:
     Type: String
@@ -14,14 +14,14 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
@@ -29,20 +29,20 @@ Resources:
     Route53HostedZone:
         Type: "AWS::Route53::HostedZone"
         Properties:
-            Name: "radxdatahub.nih.gov."
-            VPCs: 
-              - 
+            Name: "datahub.stanford.edu."
+            VPCs:
+              -
                 VPCRegion: "us-east-1"
-                VPCId: 
-                    Fn::ImportValue: !Sub "RADx-Networking-${Environment}-VPC-ID"
+                VPCId:
+                    Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-VPC-ID"
 
     # Route53RecordSet:
     #     Type: "AWS::Route53::RecordSet"
     #     Properties:
-    #         Name: "radxdatahub.nih.gov"
+    #         Name: "datahub.stanford.edu"
     #         Type: "NS"
     #         TTL: 172800
-    #         ResourceRecords: 
+    #         ResourceRecords:
     #           - "ns-1536.awsdns-00.co.uk."
     #           - "ns-0.awsdns-00.com."
     #           - "ns-1024.awsdns-00.org."
@@ -52,57 +52,57 @@ Resources:
     # Route53RecordSet2:
     #     Type: "AWS::Route53::RecordSet"
     #     Properties:
-    #         Name: "radxdatahub.nih.gov"
+    #         Name: "datahub.stanford.edu"
     #         Type: "SOA"
     #         TTL: 900
-    #         # ResourceRecords: 
+    #         # ResourceRecords:
     #         #   - "ns-1536.awsdns-00.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
     #         HostedZoneId: !Ref Route53HostedZone
 
     Route53LoadBalancerAliasRecordSet:
         Type: "AWS::Route53::RecordSet"
         Properties:
-            Name: !Sub "${Environment}.radxdatahub.nih.gov"
+            Name: !Sub "${Environment}.datahub.stanford.edu"
             Type: "A"
-            AliasTarget: 
-                HostedZoneId: 
-                    Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-LoadBalancer-HostedZoneId"
-                DNSName: 
-                    Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-LoadBalancer-DNSName"
+            AliasTarget:
+                HostedZoneId:
+                    Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-LoadBalancer-HostedZoneId"
+                DNSName:
+                    Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-LoadBalancer-DNSName"
                 EvaluateTargetHealth: true
             HostedZoneId: !Ref Route53HostedZone
 
     # Route53DatabaseAliasRecordSet:
     #     Type: "AWS::Route53::RecordSet"
     #     Properties:
-    #         Name: !Sub "rds.radxdatahub.nih.gov"
+    #         Name: !Sub "rds.datahub.stanford.edu"
     #         Type: "A"
     #         TTL: 300
-    ##         ResourceRecords: 
+    ##         ResourceRecords:
     ##           - "10.32.50.183"
     #         HostedZoneId: !Ref Route53HostedZone
 
     # Route53DatabaseCnameRecordSet:
     #     Type: "AWS::Route53::RecordSet"
     #     Properties:
-    #         Name: !Sub "rds.radxdatahub.nih.gov"
+    #         Name: !Sub "rds.datahub.stanford.edu"
     #         Type: "CNAME"
     #         TTL: 300
-    #         ResourceRecords: 
-    #           Fn::ImportValue: !Sub "RADx-RDS-${Environment}-RDS-Endpoint"
+    #         ResourceRecords:
+    #           Fn::ImportValue: !Sub "DataHub-RDS-${Environment}-RDS-Endpoint"
     #         HostedZoneId: !Ref Route53HostedZone
 
     # CertificateManagerCertificate:
     #     Type: "AWS::CertificateManager::Certificate"
     #     Properties:
-    #         DomainName: "radxdatahub.nih.gov"
-    #         SubjectAlternativeNames: 
-    #           - "radxdatahub.nih.gov"
-    #           - "www.radxdatahub.nih.gov"
-    #         DomainValidationOptions: 
-    #           - 
-    #             DomainName: "radxdatahub.nih.gov"
-    #           - 
-    #             DomainName: "www.radxdatahub.nih.gov"
+    #         DomainName: "datahub.stanford.edu"
+    #         SubjectAlternativeNames:
+    #           - "datahub.stanford.edu"
+    #           - "www.datahub.stanford.edu"
+    #         DomainValidationOptions:
+    #           -
+    #             DomainName: "datahub.stanford.edu"
+    #           -
+    #             DomainName: "www.datahub.stanford.edu"
     #         CertificateTransparencyLoggingPreference: "DISABLED"
 

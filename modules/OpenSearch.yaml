@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description:  >-
     Last Modified: 2025/10/28 14:55:45
-    "RADx OpenSearch stack"
-    
+    "Data Hub OpenSearch stack"
+
 Parameters:
     Environment:
         Type: String
@@ -15,9 +15,9 @@ Parameters:
     ProjectName:
         Type: String
         Description: The Project name
-        Default: radx
+        Default: datahub
         AllowedValues:
-          - radx
+          - datahub
     OpenSearchMasterUsername:
         Type: String
         Description: Master user for OpenSearch internal user database
@@ -33,15 +33,15 @@ Parameters:
         MaxLength: 128
         Default: Change–me25$
 
-Conditions: 
+Conditions:
     DEV: !Equals [!Ref Environment, dev]
     TEST: !Equals [!Ref Environment, test]
-    PROD: !Equals [!Ref Environment, prod] 
+    PROD: !Equals [!Ref Environment, prod]
     NOTDEV: !Not [!Equals [!Ref Environment, dev]]
     NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
-    # Uncomment and create this service linked role on the first run for any new AWS Account 
+    # Uncomment and create this service linked role on the first run for any new AWS Account
     # OpenSearchServiceLinkedRole:
     #     Type: AWS::IAM::ServiceLinkedRole
     #     Properties:
@@ -53,8 +53,8 @@ Resources:
         Properties:
             DomainName: !Sub "${ProjectName}-opensearch-${Environment}"
             EngineVersion: "OpenSearch_2.11"
-            ClusterConfig: 
-                ColdStorageOptions: 
+            ClusterConfig:
+                ColdStorageOptions:
                     Enabled: false
                 DedicatedMasterCount: 3
                 DedicatedMasterEnabled: true
@@ -62,7 +62,7 @@ Resources:
                 InstanceCount: 2
                 InstanceType: "m7g.medium.search"
                 ZoneAwarenessEnabled: true
-                ZoneAwarenessConfig: 
+                ZoneAwarenessConfig:
                     AvailabilityZoneCount: 2
                 WarmEnabled: false
             AccessPolicies:
@@ -75,27 +75,27 @@ Resources:
                     Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${ProjectName}-opensearch-${Environment}/*"
             VPCOptions:
                 SubnetIds:
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
-                 # SecurityGroupIds: 
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                 # SecurityGroupIds:
                 #   - !Ref OpenSearchSecurityGroup  ## WILL LIKELY NEED TO IMPORT VALUE HERE
-            EncryptionAtRestOptions: 
+            EncryptionAtRestOptions:
                 Enabled: true
                 # KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/3edad626-9282-4afe-9f69-0c763ac7bd7d" ## MAY NEED TO FIX THIS
-            NodeToNodeEncryptionOptions: 
+            NodeToNodeEncryptionOptions:
                 Enabled: true
-            AdvancedOptions: 
+            AdvancedOptions:
                 indices.fielddata.cache.size: "20"
                 override_main_response_version: "true"
                 indices.query.bool.max_clause_count: "1024"
                 rest.action.multi.allow_explicit_index: "true"
-            EBSOptions: 
+            EBSOptions:
                 EBSEnabled: true
                 VolumeType: "gp3"
                 VolumeSize: 100
                 Iops: 3000
                 Throughput: 125
-            CognitoOptions: 
+            CognitoOptions:
                 Enabled: false
             LogPublishingOptions:
                 ES_APPLICATION_LOGS:
@@ -115,8 +115,8 @@ Resources:
                 MasterUserOptions:
                     MasterUserName: !Ref OpenSearchMasterUsername
                     MasterUserPassword: !Ref OpenSearchMasterPassword
-            Tags: 
-              - 
+            Tags:
+              -
                 Key: "Environment"
                 Value: "Production"
 
@@ -162,30 +162,30 @@ Resources:
     #     Type: "AWS::EC2::SecurityGroup"
     #     Properties:
     #         GroupDescription: "Access to the ECS hosts and the tasks/containers that run on them"
-    #         GroupName: !Sub "RADx-PROD-SecurityGroups-1FTOWRELN2UDM-ECSHostSecurityGroup-NS8WUQ4GG14T"
-    #         Tags: 
-    #           - 
+    #         GroupName: !Sub "DataHub-PROD-SecurityGroups-1FTOWRELN2UDM-ECSHostSecurityGroup-NS8WUQ4GG14T"
+    #         Tags:
+    #           -
     #             Key: "Environment"
     #             Value: "Production"
-    #           - 
+    #           -
     #             Key: "Name"
-    #             Value: "RADx-PROD-ECS-Hosts"
+    #             Value: "DataHub-PROD-ECS-Hosts"
     #         VpcId: "vpc-072375d7b124d35d7"
-    #         SecurityGroupIngress: 
-    #           - 
+    #         SecurityGroupIngress:
+    #           -
     #             CidrIp: "10.31.0.0/16"
     #             Description: "Shared/Control VPC"
     #             FromPort: 0
     #             IpProtocol: "tcp"
     #             ToPort: 65535
-    #           - 
+    #           -
     #             CidrIp: "10.40.0.0/16"
     #             IpProtocol: "-1"
-    #           - 
+    #           -
     #             SourceSecurityGroupId: "sg-06ec59fff2453d742"
     #             SourceSecurityGroupOwnerId: !Ref AWS::AccountId
     #             IpProtocol: "-1"
-    #         SecurityGroupEgress: 
-    #           - 
+    #         SecurityGroupEgress:
+    #           -
     #             CidrIp: "0.0.0.0/0"
     #             IpProtocol: "-1"

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description:  >-
     Last Modified: 2025/10/16 17:06:37
-    "RADx Elastic Container Service (ECS) stack"
+    "DataHub Elastic Container Service (ECS) stack"
 
 Parameters:
   Environment:
@@ -15,14 +15,14 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
@@ -32,39 +32,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-ReportService"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn:  
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-ReportServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-ReportServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-ReportService"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "LATEST"
             TaskDefinition: !Ref ReportServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -74,39 +74,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-UserService"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn:  
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-UserServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-UserServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-UserService"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref UserServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -116,39 +116,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-ApprovedDataService"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn:  
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-ApprovedDataServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-ApprovedDataServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-ApprovedDataService"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref ApprovedServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -158,39 +158,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-EntityService"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn:  
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-EntityServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-EntityServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-EntityService"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref EntityServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -200,39 +200,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-UI"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn:  
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-UIServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-UIServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-UI"
                 ContainerPort: 3000
             DesiredCount: 0
             PlatformVersion: "LATEST"
             TaskDefinition: !Ref UITaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -242,39 +242,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-Search"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn: 
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-SearchServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-SearchServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-Search"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "LATEST"
             TaskDefinition: !Ref SearchServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -284,39 +284,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-DownloadService"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn: 
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-DownloadServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-DownloadServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-DownloadService"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref DownloadServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -326,39 +326,39 @@ Resources:
         Properties:
             ServiceName: !Sub "${ProjectName}-SubmissionService"
             Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers: 
-              - 
-                TargetGroupArn: 
-                  Fn::ImportValue: !Sub "RADx-LoadBalancer-${Environment}-SubmissionServiceTargetGroup"
+            LoadBalancers:
+              -
+                TargetGroupArn:
+                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-SubmissionServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-SubmissionService"
                 ContainerPort: 8080
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref SubmissionServiceTaskDefinition
-            DeploymentConfiguration: 
+            DeploymentConfiguration:
                 MaximumPercent: 200
                 MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker: 
+                DeploymentCircuitBreaker:
                     Enable: true
                     Rollback: true
-            NetworkConfiguration: 
-                AwsvpcConfiguration: 
+            NetworkConfiguration:
+                AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
-                    SecurityGroups: 
-                      - Fn::ImportValue: !Sub RADx-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets: 
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+                    SecurityGroups:
+                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                    Subnets:
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
-            DeploymentController: 
+            DeploymentController:
                 Type: "ECS"
-            CapacityProviderStrategy: 
-              - 
+            CapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 0
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0
@@ -366,41 +366,41 @@ Resources:
     UserServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 1024
-                Environment: 
-                  - 
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                HealthCheck: 
-                    Command: 
+                HealthCheck:
+                    Command:
                       - "CMD-SHELL"
                       - "curl -f http://localhost:8080/api/user/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-user-service/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-user-service/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
+                    Options:
                         awslogs-group: !Sub "${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "user-service"
                 Memory: 2048
                 Name: !Sub "${ProjectName}-UserService"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-user-service-${Environment}"
+            Family: !Sub "datahub-user-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "1024"
@@ -409,36 +409,36 @@ Resources:
     UITaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 1024
                 Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-ui/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-ui/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
-                        awslogs-stream-prefix: "radx-ui"
+                        awslogs-stream-prefix: "datahub-ui"
                 Memory: 2048
                 Name: !Sub "${ProjectName}-UI"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 80
                     HostPort: 80
                     Protocol: "tcp"
-                  - 
+                  -
                     ContainerPort: 443
                     HostPort: 443
                     Protocol: "tcp"
-                  - 
+                  -
                     ContainerPort: 3000
                     HostPort: 3000
                     Protocol: "tcp"
-            Family: !Sub "radx-ui-${Environment}"
+            Family: !Sub "datahub-ui-${Environment}"
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "1024"
@@ -447,39 +447,39 @@ Resources:
     SubmissionServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
-                Environment: 
-                  - 
+            ContainerDefinitions:
+              -
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                HealthCheck: 
-                    Command: 
+                HealthCheck:
+                    Command:
                       - "CMD-SHELL"
                       - "curl -f http://localhost:8080/api/submission-service/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-submission-service/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-submission-service/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "submission-service"
                 Name: !Sub "${ProjectName}-SubmissionService"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-submission-service-${Environment}"
+            Family: !Sub "datahub-submission-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "4096"
@@ -488,33 +488,33 @@ Resources:
     SearchServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 512
-                Environment: 
-                  - 
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-search/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-search/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "search-service"
                 Memory: 1024
                 Name: !Sub "${ProjectName}-Search"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-search-${Environment}"
+            Family: !Sub "datahub-search-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "512"
@@ -523,41 +523,41 @@ Resources:
     ReportServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 1024
-                Environment: 
-                  - 
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                HealthCheck: 
-                    Command: 
+                HealthCheck:
+                    Command:
                       - "CMD-SHELL"
                       - "curl -f http://localhost:8080/api/report/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-report-service/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-report-service/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "report-service"
                 Memory: 2048
                 Name: !Sub "${ProjectName}-ReportService"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-report-service-${Environment}"
+            Family: !Sub "datahub-report-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "1024"
@@ -566,41 +566,41 @@ Resources:
     EntityServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 512
-                Environment: 
-                  - 
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                HealthCheck: 
-                    Command: 
+                HealthCheck:
+                    Command:
                       - "CMD-SHELL"
                       - "curl -f http://localhost:8080/api/entity/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-entityservice/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-entityservice/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "entity-service"
                 Memory: 1024
                 Name: !Sub "${ProjectName}-EntityService"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-entityservice-${Environment}"
+            Family: !Sub "datahub-entityservice-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "512"
@@ -609,41 +609,41 @@ Resources:
     ApprovedServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 1024
-                Environment: 
-                  - 
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                HealthCheck: 
-                    Command: 
+                HealthCheck:
+                    Command:
                       - "CMD-SHELL"
                       - "curl -f http://localhost:8080/api/approved-data/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-approved-data-service/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-approved-data-service/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "approved-data-service"
                 Memory: 2048
                 Name: !Sub "${ProjectName}-ApprovedDataService"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-approved-data-service-${Environment}"
+            Family: !Sub "datahub-approved-data-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "1024"
@@ -652,41 +652,41 @@ Resources:
     DownloadServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
         Properties:
-            ContainerDefinitions: 
-              - 
+            ContainerDefinitions:
+              -
                 Cpu: 1024
-                Environment: 
-                  - 
+                Environment:
+                  -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                HealthCheck: 
-                    Command: 
+                HealthCheck:
+                    Command:
                       - "CMD-SHELL"
                       - "curl -f http://localhost:8080/api/download/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/radx-download-service/${Environment}:latest"
-                LogConfiguration: 
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-download-service/${Environment}:latest"
+                LogConfiguration:
                     LogDriver: "awslogs"
-                    Options: 
-                        awslogs-group: !Sub "radx-microservices-${Environment}"
+                    Options:
+                        awslogs-group: !Sub "datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "download-service"
                 Memory: 2048
                 Name: !Sub "${ProjectName}-DownloadService"
-                PortMappings: 
-                  - 
+                PortMappings:
+                  -
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "radx-download-service-${Environment}"
+            Family: !Sub "datahub-download-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
-            RequiresCompatibilities: 
+            RequiresCompatibilities:
               - "EC2"
               - "FARGATE"
             Cpu: "1024"
@@ -729,15 +729,15 @@ Resources:
         Type: "AWS::ECS::Cluster"
         Properties:
             ClusterName: !Sub "${ProjectName}-Services-${Environment}"
-            CapacityProviders: 
+            CapacityProviders:
               - "FARGATE"
               - "FARGATE_SPOT"
-            DefaultCapacityProviderStrategy: 
-              - 
+            DefaultCapacityProviderStrategy:
+              -
                 CapacityProvider: "FARGATE"
                 Weight: 0
                 Base: 1
-              - 
+              -
                 CapacityProvider: "FARGATE_SPOT"
                 Weight: 1
                 Base: 0

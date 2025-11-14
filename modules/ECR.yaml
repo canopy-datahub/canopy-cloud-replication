@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Last Modified: 2025/10/16 17:06:37
-  "This template deploys the NIH RADx Data Hub ECR repositories."
+  "This template deploys the Data Hub ECR repositories."
 
 Parameters:
   Environment:
@@ -15,14 +15,14 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
@@ -30,55 +30,55 @@ Resources:
     ReporterRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-reporter/${Environment}"
+            RepositoryName: !Sub "datahub-reporter/${Environment}"
 
     ReportServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-report-service/${Environment}"
+            RepositoryName: !Sub "datahub-report-service/${Environment}"
 
     UserInterfaceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-ui/${Environment}"
+            RepositoryName: !Sub "datahub-ui/${Environment}"
 
     SearchServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-search/${Environment}"
+            RepositoryName: !Sub "datahub-search/${Environment}"
 
     EntityServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-entityservice/${Environment}"
+            RepositoryName: !Sub "datahub-entityservice/${Environment}"
 
     OpenSearchRefreshRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-opensearchrefresh/${Environment}"
+            RepositoryName: !Sub "datahub-opensearchrefresh/${Environment}"
 
     SubmissionServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-submission-service/${Environment}"
+            RepositoryName: !Sub "datahub-submission-service/${Environment}"
 
     PublicationScriptRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-publicationscript/${Environment}"
+            RepositoryName: !Sub "datahub-publicationscript/${Environment}"
 
     ApprovedDataServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-approved-data-service/${Environment}"
+            RepositoryName: !Sub "datahub-approved-data-service/${Environment}"
 
     DownloadServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-download-service/${Environment}"
+            RepositoryName: !Sub "datahub-download-service/${Environment}"
 
     UserServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "radx-user-service/${Environment}"
+            RepositoryName: !Sub "datahub-user-service/${Environment}"
 

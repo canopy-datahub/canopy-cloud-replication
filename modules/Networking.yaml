@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
     Last Modified: 2025/10/16 17:06:37
-    "RADx Networking stack"
+    "DataHub Networking stack"
 
 Parameters:
   Environment:
@@ -15,19 +15,19 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: radx
+    Default: datahub
     AllowedValues:
-      - radx
+      - datahub
 
-Conditions: 
+Conditions:
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
-  PROD: !Equals [!Ref Environment, prod] 
+  PROD: !Equals [!Ref Environment, prod]
   NOTDEV: !Not [!Equals [!Ref Environment, dev]]
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
-  RADxVPC:
+  DataHubVPC:
     Type: "AWS::EC2::VPC"
     Properties:
       CidrBlock: "10.40.0.0/16"
@@ -40,12 +40,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-${Environment}"
 
-  RADxPublicSubnetAZ2:
+  DataHubPublicSubnetAZ2:
     Type: "AWS::EC2::Subnet"
     Properties:
-      AvailabilityZone: !GetAtt RADxPrivateSubnetAZ2.AvailabilityZone
+      AvailabilityZone: !GetAtt DataHubPrivateSubnetAZ2.AvailabilityZone
       CidrBlock: "10.40.32.0/20"
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       MapPublicIpOnLaunch: true
       Tags:
         - Key: "Environment"
@@ -53,12 +53,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Public-Subnet-AZ2-${Environment}"
 
-  RADxPublicSubnetAZ1:
+  DataHubPublicSubnetAZ1:
     Type: "AWS::EC2::Subnet"
     Properties:
-      AvailabilityZone: !GetAtt RADxPrivateSubnetAZ1.AvailabilityZone
+      AvailabilityZone: !GetAtt DataHubPrivateSubnetAZ1.AvailabilityZone
       CidrBlock: "10.40.16.0/20"
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       MapPublicIpOnLaunch: true
       Tags:
         - Key: "Environment"
@@ -66,12 +66,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Public-Subnet-AZ1-${Environment}"
 
-  RADxPrivateSubnetAZ1:
+  DataHubPrivateSubnetAZ1:
     Type: "AWS::EC2::Subnet"
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}a"
       CidrBlock: "10.40.48.0/20"
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       MapPublicIpOnLaunch: false
       Tags:
         - Key: "Environment"
@@ -79,12 +79,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-SubnetAZ1-${Environment}"
 
-  RADxPrivateSubnetAZ2:
+  DataHubPrivateSubnetAZ2:
     Type: "AWS::EC2::Subnet"
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}b"
       CidrBlock: "10.40.64.0/20"
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       MapPublicIpOnLaunch: false
       Tags:
         - Key: "Environment"
@@ -92,7 +92,7 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-Subnet-AZ2-${Environment}"
 
-  RADxInternetGateway:
+  DataHubInternetGateway:
     Type: "AWS::EC2::InternetGateway"
     Properties:
       Tags:
@@ -101,40 +101,40 @@ Resources:
         - Key: "Environment"
           Value: !Sub "${Environment}"
 
-  RADxPrivateRoutesAZ1:
+  DataHubPrivateRoutesAZ1:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-Routes-AZ1-${Environment}"
 
-  RADxPrivateRoutesAZ2:
+  DataHubPrivateRoutesAZ2:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref RADxVPC
-      Tags: 
+      VpcId: !Ref DataHubVPC
+      Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-Routes-AZ2-${Environment}"
 
-  RADxPublicRoutesAZ1:
+  DataHubPublicRoutesAZ1:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
         - Key: "Name"
           Value: !Sub "${ProjectName}-Public-Routes-${Environment}"
 
-  RADxPublicRoutesAZ2:
+  DataHubPublicRoutesAZ2:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref RADxVPC
+      VpcId: !Ref DataHubVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
@@ -146,64 +146,64 @@ Resources:
     Properties:
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref EC2NatGateway
-      RouteTableId: !Ref RADxPrivateRoutesAZ1
+      RouteTableId: !Ref DataHubPrivateRoutesAZ1
 
   EC2Route3:
     Type: "AWS::EC2::Route"
     Properties:
       DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref RADxInternetGateway
-      RouteTableId: !Ref RADxPublicRoutesAZ1
-        
+      GatewayId: !Ref DataHubInternetGateway
+      RouteTableId: !Ref DataHubPublicRoutesAZ1
+
   NatGateway1EIP:
     Type: AWS::EC2::EIP
-    Properties: 
+    Properties:
         Domain: vpc
 
-  EC2NatGateway: 
+  EC2NatGateway:
     Type: AWS::EC2::NatGateway
-    Properties: 
+    Properties:
         AllocationId: !GetAtt NatGateway1EIP.AllocationId
-        SubnetId: !Ref RADxPublicSubnetAZ1
-        Tags: 
-          - 
+        SubnetId: !Ref DataHubPublicSubnetAZ1
+        Tags:
+          -
             Key: "Environment"
             Value: !Sub "${Environment}"
-          - 
+          -
             Key: "Name"
             Value: !Sub "${ProjectName}-Nat-Gateway-${Environment}"
-            
+
 
 # RDS PROXY ENDPOINT
-  # RADxVPCEndpoint:
+  # DataHubVPCEndpoint:
   #   Type: "AWS::EC2::VPCEndpoint"
   #   Properties:
   #     VpcEndpointType: "Interface"
-  #     VpcId: !Ref RADxVPC
+  #     VpcId: !Ref DataHubVPC
   #     ServiceName: !Sub "com.amazonaws.vpce.${AWS::Region}.vpce-svc-045553b17ec91b500"
   #     PolicyDocument: |
   #         {
   #           "Statement": [
   #             {
-  #               "Action": "*", 
-  #               "Effect": "Allow", 
-  #               "Principal": "*", 
+  #               "Action": "*",
+  #               "Effect": "Allow",
+  #               "Principal": "*",
   #               "Resource": "*"
   #             }
   #           ]
   #         }
-  #     SubnetIds: 
-  #       - !Ref RADxPublicSubnetAZ1
-  #       - !Ref RADxPrivateSubnetAZ1
+  #     SubnetIds:
+  #       - !Ref DataHubPublicSubnetAZ1
+  #       - !Ref DataHubPrivateSubnetAZ1
   #     PrivateDnsEnabled: false
-  #     SecurityGroupIds: 
+  #     SecurityGroupIds:
   #       - !Ref ECSHostSecurityGroup
 
-  RADxS3VPCEndpoint:
+  DataHubS3VPCEndpoint:
       Type: "AWS::EC2::VPCEndpoint"
       Properties:
           VpcEndpointType: "Interface"
-          VpcId: !Ref RADxVPC
+          VpcId: !Ref DataHubVPC
           ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
           PolicyDocument: |
               {
@@ -216,79 +216,79 @@ Resources:
                   }
                 ]
               }
-          SubnetIds: 
-            - !Ref RADxPrivateSubnetAZ1
-            - !Ref RADxPrivateSubnetAZ2
+          SubnetIds:
+            - !Ref DataHubPrivateSubnetAZ1
+            - !Ref DataHubPrivateSubnetAZ2
           PrivateDnsEnabled: false
-          SecurityGroupIds: 
+          SecurityGroupIds:
             - !Ref ECSHostSecurityGroup
 
-  # RADxVPCEndpoint3:
+  # DataHubVPCEndpoint3:
   #   Type: "AWS::EC2::VPCEndpoint"
   #   Properties:
   #     VpcEndpointType: "Interface"
-  #     VpcId: !Ref RADxVPC
+  #     VpcId: !Ref DataHubVPC
   #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.datasync"
   #     PolicyDocument: |
   #         {
   #           "Statement": [
   #             {
-  #               "Action": "*", 
-  #               "Effect": "Allow", 
-  #               "Principal": "*", 
+  #               "Action": "*",
+  #               "Effect": "Allow",
+  #               "Principal": "*",
   #               "Resource": "*"
   #             }
   #           ]
   #         }
-  #     SubnetIds: 
-  #       - !Ref RADxPrivateSubnetAZ1
-  #       - !Ref RADxPrivateSubnetAZ2
+  #     SubnetIds:
+  #       - !Ref DataHubPrivateSubnetAZ1
+  #       - !Ref DataHubPrivateSubnetAZ2
   #     PrivateDnsEnabled: true
-  #     SecurityGroupIds: 
+  #     SecurityGroupIds:
   #       - "sg-0aa8e3f5049fbe1bf"
 
-  RADxVPCGatewayAttachment:
+  DataHubVPCGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
-      InternetGatewayId: !Ref RADxInternetGateway
-      VpcId: !Ref RADxVPC
+      InternetGatewayId: !Ref DataHubInternetGateway
+      VpcId: !Ref DataHubVPC
 
   EC2SubnetRouteTableAssociation:
       Type: "AWS::EC2::SubnetRouteTableAssociation"
       Properties:
-        RouteTableId: !Ref RADxPrivateRoutesAZ1
-        SubnetId: !Ref RADxPrivateSubnetAZ1
+        RouteTableId: !Ref DataHubPrivateRoutesAZ1
+        SubnetId: !Ref DataHubPrivateSubnetAZ1
 
   EC2SubnetRouteTableAssociation2:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      RouteTableId: !Ref RADxPrivateRoutesAZ2
-      SubnetId: !Ref  RADxPrivateSubnetAZ2
+      RouteTableId: !Ref DataHubPrivateRoutesAZ2
+      SubnetId: !Ref  DataHubPrivateSubnetAZ2
 
   EC2SubnetRouteTableAssociation3:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-        RouteTableId: !Ref RADxPublicRoutesAZ1
-        SubnetId: !Ref RADxPublicSubnetAZ1
+        RouteTableId: !Ref DataHubPublicRoutesAZ1
+        SubnetId: !Ref DataHubPublicSubnetAZ1
 
   EC2SubnetRouteTableAssociation4:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      RouteTableId: !Ref RADxPublicRoutesAZ2
-      SubnetId: !Ref RADxPublicSubnetAZ2
+      RouteTableId: !Ref DataHubPublicRoutesAZ2
+      SubnetId: !Ref DataHubPublicSubnetAZ2
 
   ECSHostSecurityGroup:
       Type: AWS::EC2::SecurityGroup
-      Properties: 
-          VpcId: !Ref RADxVPC
+      Properties:
+          VpcId: !Ref DataHubVPC
           GroupDescription: Access to the ECS hosts and the tasks/containers that run on them
           SecurityGroupIngress:
               # Only allow inbound access to ECS from the ELB
-              - SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup 
+              - SourceSecurityGroupId: !Ref LoadBalancerSecurityGroup
                 IpProtocol: -1
               - CidrIp: 10.40.0.0/16
                 IpProtocol: -1
-          Tags: 
+          Tags:
               - Key: Name
                 Value: !Sub "${ProjectName}-ECS-Hosts-${Environment}"
 
@@ -297,40 +297,40 @@ Resources:
   # it further if you want.
   LoadBalancerSecurityGroup:
       Type: AWS::EC2::SecurityGroup
-      Properties: 
-          VpcId: !Ref RADxVPC
+      Properties:
+          VpcId: !Ref DataHubVPC
           GroupDescription: Access to the load balancer that sits in front of ECS
           SecurityGroupIngress:
               # Allow access from anywhere to our ECS services
               - CidrIp: 10.40.0.0/16
                 IpProtocol: -1
-          Tags: 
+          Tags:
               - Key: Name
                 Value: !Sub "${ProjectName}-LoadBalancers-${Environment}"
 
 Outputs:
   VpcId:
-    Value: !Ref RADxVPC
+    Value: !Ref DataHubVPC
     Export:
       Name: !Sub "${AWS::StackName}-VPC-ID"
-  
+
   PublicSubnetAZ1:
-    Value: !Ref RADxPublicSubnetAZ1
+    Value: !Ref DataHubPublicSubnetAZ1
     Export:
       Name: !Sub "${AWS::StackName}-Public-Subnet-AZ1"
-  
+
   PublicSubnetAZ2:
-    Value: !Ref RADxPublicSubnetAZ2
+    Value: !Ref DataHubPublicSubnetAZ2
     Export:
       Name: !Sub "${AWS::StackName}-Public-Subnet-AZ2"
-  
+
   PrivateSubnetAZ1:
-    Value: !Ref RADxPrivateSubnetAZ1
+    Value: !Ref DataHubPrivateSubnetAZ1
     Export:
       Name: !Sub "${AWS::StackName}-Private-Subnet-AZ1"
-  
+
   PrivateSubnetAZ2:
-    Value: !Ref RADxPrivateSubnetAZ2
+    Value: !Ref DataHubPrivateSubnetAZ2
     Export:
       Name: !Sub "${AWS::StackName}-Private-Subnet-AZ2"
 

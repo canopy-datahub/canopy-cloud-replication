@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
     Last Modified: 2025/10/17 13:55:07
-    "This template deploys the NIH RADx Data Hub RDS Database."
+    "This template deploys the Data Hub RDS Database."
 Parameters:
     Environment:
         Type: String
@@ -14,14 +14,14 @@ Parameters:
     ProjectName:
         Type: String
         Description: The Project name
-        Default: radx
+        Default: datahub
         AllowedValues:
-          - radx
+          - datahub
 
-Conditions: 
+Conditions:
     DEV: !Equals [!Ref Environment, dev]
     TEST: !Equals [!Ref Environment, test]
-    PROD: !Equals [!Ref Environment, prod] 
+    PROD: !Equals [!Ref Environment, prod]
     NOTDEV: !Not [!Equals [!Ref Environment, dev]]
     NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
@@ -29,11 +29,11 @@ Resources:
     RDSDBInstance:
         Type: "AWS::RDS::DBInstance"
         Properties:
-            DBInstanceIdentifier: !Sub "radx-postgresql-${Environment}"
+            DBInstanceIdentifier: !Sub "datahub-postgresql-${Environment}"
             AllocatedStorage: 20
             DBInstanceClass: "db.t4g.small"
             Engine: "postgres"
-            MasterUsername: !Sub "radxpostgres${Environment}"
+            MasterUsername: !Sub "datahubpostgres${Environment}"
             MasterUserPassword: "REPLACEME" ## Replace this value with a Secrets Manager secret in production
             DBName: !Sub "${ProjectName}_${Environment}"
             PreferredBackupWindow: "05:00-05:30"
@@ -55,8 +55,8 @@ Resources:
             EnableIAMDatabaseAuthentication: false
             EnablePerformanceInsights: false
             DeletionProtection: true
-            DBSubnetGroupName: !Sub "radx-db-subnet-group-${Environment}"
-            VPCSecurityGroups: 
+            DBSubnetGroupName: !Sub "datahub-db-subnet-group-${Environment}"
+            VPCSecurityGroups:
               - !Ref RdsSecurityGroup
             MaxAllocatedStorage: 1000
             DBParameterGroupName: !Ref RDSDBParameterGroup
@@ -66,22 +66,22 @@ Resources:
     # RDSDBProxy:
     #     Type: "AWS::RDS::DBProxy"
     #     Properties:
-    #         DBProxyName: !Sub "radx-db-proxy-${Environment}"
+    #         DBProxyName: !Sub "datahub-db-proxy-${Environment}"
     #         EngineFamily: "POSTGRESQL"
-    #         VpcSecurityGroupIds: 
+    #         VpcSecurityGroupIds:
     #           - "sg-0dc608be5f7eee5f6" ## GET FROM NETWORKING STACK
-    #         VpcSubnetIds: 
+    #         VpcSubnetIds:
     #           - "subnet-0835f4ca5509a3ecc" ## GET FROM NETWORKING STACK
     #           - "subnet-041462c76d97c28a0" ## GET FROM NETWORKING STACK
     #         # Auth: ## GET FROM SECRETS MANAGER ONCE COMPLETED
-    #         #   - 
+    #         #   -
     #         #     AuthScheme: "SECRETS"
-    #         #     SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${RDSDBInstance}/testradxpostgres-IL7dGP"
+    #         #     SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${RDSDBInstance}/testdatahubpostgres-IL7dGP"
     #         #     IAMAuth: "DISABLED"
     #         #     ClientPasswordAuthType: "POSTGRES_SCRAM_SHA_256"
-    #         #   - 
+    #         #   -
     #         #     AuthScheme: "SECRETS"
-    #         #     SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${RDSDBInstance}/radx_admin-VePiXp"
+    #         #     SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${RDSDBInstance}/datahub_admin-VePiXp"
     #         #     IAMAuth: "DISABLED"
     #         #     ClientPasswordAuthType: "POSTGRES_SCRAM_SHA_256"
     #         RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/rds-proxy-role-1697141531813"  ## CREATE HERE
@@ -93,10 +93,10 @@ Resources:
         Type: "AWS::RDS::DBSubnetGroup"
         Properties:
             DBSubnetGroupDescription: !Sub "${ProjectName}-db-subnet-group-${Environment}"
-            DBSubnetGroupName: !Sub "radx-db-subnet-group-${Environment}"
-            SubnetIds: 
-              - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ1"
-              - Fn::ImportValue: !Sub "RADx-Networking-${Environment}-Private-Subnet-AZ2"
+            DBSubnetGroupName: !Sub "datahub-db-subnet-group-${Environment}"
+            SubnetIds:
+              - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+              - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
 
     RDSDBParameterGroup:
         Type: "AWS::RDS::DBParameterGroup"
@@ -104,19 +104,19 @@ Resources:
             # DBClusterParameterGroupName: !Sub "db-postgresql-16-${Environment}"
             Description: "Parameter group for the test db with pg_cron enabled"
             Family: "postgres16"
-            Parameters: 
+            Parameters:
                 shared_preload_libraries: "pg_stat_statements,pg_tle,pg_cron"
 
     # RDSDBProxyTargetGroup:
     #     Type: "AWS::RDS::DBProxyTargetGroup"
     #     Properties:
-    #         DBProxyName: !Sub "radx-db-proxy-${Environment}"
+    #         DBProxyName: !Sub "datahub-db-proxy-${Environment}"
     #         TargetGroupName: "default"
-    #         ConnectionPoolConfigurationInfo: 
+    #         ConnectionPoolConfigurationInfo:
     #             MaxConnectionsPercent: 100
     #             MaxIdleConnectionsPercent: 50
     #             ConnectionBorrowTimeout: 120
-    #         DBInstanceIdentifiers: 
+    #         DBInstanceIdentifiers:
     #           - !Ref RDSDBInstance
 
     RdsSecurityGroup:
@@ -124,13 +124,13 @@ Resources:
         Properties:
             GroupDescription: "Created by RDS management console"
             GroupName: !Sub "${ProjectName}-db-sg-${Environment}"
-            VpcId: 
-                Fn::ImportValue: !Sub "RADx-Networking-${Environment}-VPC-ID"
-            # Tags: 
-            #   - 
+            VpcId:
+                Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-VPC-ID"
+            # Tags:
+            #   -
             #     Key: "Name"
-            #     Value: "RADx-PROD-DB"
-            SecurityGroupIngress: 
+            #     Value: "DataHub-PROD-DB"
+            SecurityGroupIngress:
               - CidrIp: "10.31.0.0/16"
                 Description: "Control VPC"
                 FromPort: 0
@@ -142,8 +142,8 @@ Resources:
                 IpProtocol: "tcp"
                 ToPort: 5432
 
-              - SourceSecurityGroupId: 
-                  Fn::ImportValue: !Sub "RADx-Networking-${Environment}-ECS-Host-SecurityGroup"
+              - SourceSecurityGroupId:
+                  Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
                 SourceSecurityGroupOwnerId: !Ref AWS::AccountId
                 Description: "ECS Services"
                 FromPort: 5432
@@ -156,8 +156,8 @@ Resources:
               #   FromPort: 5432
               #   IpProtocol: "tcp"
               #   ToPort: 5432
-                
-            SecurityGroupEgress: 
+
+            SecurityGroupEgress:
               - CidrIp: "0.0.0.0/0"
                 Description: "Allow all outbound traffic"
                 IpProtocol: "-1"
@@ -172,10 +172,10 @@ Resources:
     #           Action:
     #             - secretsmanager:GetSecretValue
     #           Resource:  ### CHANGE THESE WHEN SECRETS ARE CREATED
-    #             - "arn:aws:secretsmanager:us-east-2:652837727789:secret:rds-db-credentials/radx-dev-postgresql/iam_db_user_dev/1697141531813-Vy6AWB"
-    #             - "arn:aws:secretsmanager:us-east-1:652837727789:secret:radx-test-postgresql/testradxpostgres-IL7dGP"
-    #             - "arn:aws:secretsmanager:us-east-1:652837727789:secret:radx-test-postgresql/radx_admin-VePiXp"
-    #             - "arn:aws:secretsmanager:us-east-2:652837727789:secret:radx-dev-postgresql/radx_user-1NYhGH"
+    #             - "arn:aws:secretsmanager:us-east-2:652837727789:secret:rds-db-credentials/datahub-dev-postgresql/iam_db_user_dev/1697141531813-Vy6AWB"
+    #             - "arn:aws:secretsmanager:us-east-1:652837727789:secret:datahub-test-postgresql/testdatahubpostgres-IL7dGP"
+    #             - "arn:aws:secretsmanager:us-east-1:652837727789:secret:datahub-test-postgresql/datahub_admin-VePiXp"
+    #             - "arn:aws:secretsmanager:us-east-2:652837727789:secret:datahub-dev-postgresql/datahub_user-1NYhGH"
     #           Effect: Allow
     #         - Sid: "DecryptSecretValue"
     #           Action:
@@ -185,7 +185,7 @@ Resources:
     #           Effect: Allow
     #           Condition:
     #             StringEquals:
-    #               kms:ViaService: 
+    #               kms:ViaService:
     #                 - secretsmanager.us-east-2.amazonaws.com
     #     Roles:
     #       - !Ref RdsProxyRole
