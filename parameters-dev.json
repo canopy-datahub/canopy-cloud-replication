@@ -2,6 +2,7 @@
 	"Parameters": {
 		"Environment": "dev",
 		"ProjectName": "datahub",
-		"Region": "us-east-1"
+		"Region": "us-east-1",
+		"DataHubUniqueId": "stanford"
 	}
 }

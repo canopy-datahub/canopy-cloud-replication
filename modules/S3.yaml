@@ -17,6 +17,10 @@ Parameters:
     Default: datahub
     AllowedValues:
       - datahub
+  DataHubUniqueId:
+    Type: String
+    Description: A unique identifier to ensure S3 bucket names are globally unique
+    Default: stanford
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
