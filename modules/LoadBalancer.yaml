@@ -1007,7 +1007,7 @@ Resources:
             HealthyThresholdCount: 5
             VpcId:
               Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
-            Name: !Sub "${ProjectName}-S3-ENDPOINTS-${Environment}"
+            Name: !Sub "${ProjectName}-S3-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
               -
