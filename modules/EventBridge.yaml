@@ -27,52 +27,52 @@ Resources:
                       Fn::ImportValue: !Sub "DataHub-SQS-${Environment}-SftpQueueDLQ-Arn"
             EventBusName: "default"
 
-    ReporterRule:
-        Type: "AWS::Events::Rule"
-        Properties:
-            Name: !Sub "DataHub-REPORTER-${Environment}"
-            Description: "Variables Report schedule for environment"
-            ScheduleExpression: "cron(0 12 ? * 2#1 *)"
-            State: "ENABLED"
-            Targets:
-              -
-                Arn:
-                  Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
-                Id: "ReporterLambdaTarget"
-            EventBusName: "default"
+    # ReporterRule:
+    #     Type: "AWS::Events::Rule"
+    #     Properties:
+    #         Name: !Sub "DataHub-REPORTER-${Environment}"
+    #         Description: "Variables Report schedule for environment"
+    #         ScheduleExpression: "cron(0 12 ? * 2#1 *)"
+    #         State: "ENABLED"
+    #         Targets:
+    #           -
+    #             Arn:
+    #               Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
+    #             Id: "ReporterLambdaTarget"
+    #         EventBusName: "default"
 
-    VariableReportRule:
-        Type: "AWS::Events::Rule"
-        Properties:
-            Name: "VARIABLES-REPORT"
-            Description: "Variables Report schedule for PROD environment"
-            ScheduleExpression: "cron(0 8 1 * ? *)"
-            State: "ENABLED"
-            Targets:
-              -
-                Arn:
-                  Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
-                Id: "VariablesReportLambdaTarget"
-            EventBusName: "default"
+    # VariableReportRule:
+    #     Type: "AWS::Events::Rule"
+    #     Properties:
+    #         Name: "VARIABLES-REPORT"
+    #         Description: "Variables Report schedule for PROD environment"
+    #         ScheduleExpression: "cron(0 8 1 * ? *)"
+    #         State: "ENABLED"
+    #         Targets:
+    #           -
+    #             Arn:
+    #               Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
+    #             Id: "VariablesReportLambdaTarget"
+    #         EventBusName: "default"
 
-    VariableReportSchedule:
-        Type: "AWS::Scheduler::Schedule"
-        Properties:
-            Name: "variables-report"
-            Description: ""
-            State: "DISABLED"
-            GroupName: "default"
-            ScheduleExpression: "cron(0 8 1 * ? *)"
-            ScheduleExpressionTimezone: "America/New_York"
-            FlexibleTimeWindow:
-                Mode: "OFF"
-            Target:
-                Arn:
-                  Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
-                RetryPolicy:
-                    MaximumEventAgeInSeconds: 86400
-                    MaximumRetryAttempts: 185
-                RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_a700f0f097"
+    # VariableReportSchedule:
+    #     Type: "AWS::Scheduler::Schedule"
+    #     Properties:
+    #         Name: "variables-report"
+    #         Description: ""
+    #         State: "DISABLED"
+    #         GroupName: "default"
+    #         ScheduleExpression: "cron(0 8 1 * ? *)"
+    #         ScheduleExpressionTimezone: "America/New_York"
+    #         FlexibleTimeWindow:
+    #             Mode: "OFF"
+    #         Target:
+    #             Arn:
+    #               Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
+    #             RetryPolicy:
+    #                 MaximumEventAgeInSeconds: 86400
+    #                 MaximumRetryAttempts: 185
+    #             RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_a700f0f097"
 
 
     # EventsRule:

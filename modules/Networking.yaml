@@ -147,6 +147,13 @@ Resources:
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref EC2NatGateway
       RouteTableId: !Ref DataHubPrivateRoutesAZ1
+  
+  EC2RoutePrivateAZ2:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref EC2NatGateway
+      RouteTableId: !Ref DataHubPrivateRoutesAZ2
 
   EC2Route3:
     Type: "AWS::EC2::Route"
@@ -154,6 +161,13 @@ Resources:
       DestinationCidrBlock: "0.0.0.0/0"
       GatewayId: !Ref DataHubInternetGateway
       RouteTableId: !Ref DataHubPublicRoutesAZ1
+
+  EC2RoutePublicAZ2:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref DataHubInternetGateway
+      RouteTableId: !Ref DataHubPublicRoutesAZ2
 
   NatGateway1EIP:
     Type: AWS::EC2::EIP
@@ -301,9 +315,22 @@ Resources:
           VpcId: !Ref DataHubVPC
           GroupDescription: Access to the load balancer that sits in front of ECS
           SecurityGroupIngress:
-              # Allow access from anywhere to our ECS services
+              # Allow HTTP access from anywhere (internet-facing ALB)
+              - CidrIp: 0.0.0.0/0
+                IpProtocol: tcp
+                FromPort: 80
+                ToPort: 80
+                Description: "HTTP access from internet"
+              # Allow HTTPS access from anywhere (for future HTTPS setup)
+              - CidrIp: 0.0.0.0/0
+                IpProtocol: tcp
+                FromPort: 443
+                ToPort: 443
+                Description: "HTTPS access from internet"
+              # Allow access from VPC for internal communication
               - CidrIp: 10.40.0.0/16
                 IpProtocol: -1
+                Description: "Internal VPC access"
           Tags:
               - Key: Name
                 Value: !Sub "${ProjectName}-LoadBalancers-${Environment}"

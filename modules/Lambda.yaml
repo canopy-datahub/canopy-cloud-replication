@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: ""
+Description: "Lambda Functions and IAM Roles for DataHub"
 Parameters:
   Environment:
     Type: String
@@ -8,188 +8,320 @@ Parameters:
       - test
       - prod
       - shared
+  DataHubUniqueId:
+    Type: String
+    Description: A unique identifier to ensure S3 bucket names are globally unique
+  ProjectName:
+    Type: String
+    Description: Project name for resource naming
+    Default: DataHub
+
 Resources:
+  # ============================================================================
+  # IAM ROLES
+  # ============================================================================
 
-    VariablesReportLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            FunctionName: "variables-report"
-            Description: "Variables Report Lambda Function"
-            Environment:
-                Variables:
-                    CORE_VARIABLES_UPLOAD_PATH: "variables-explorer/core_variables_data_model.json"
-                    VARIABLE_REPORT_PATH: "variables-explorer/Complete-Data-Variable-Report.xlsx"
-                    BUCKET: "datahub.stanford.edu"
-                    ALL_VARS_UPLOAD_PATH: "variables-explorer/all_variables_data_model.json"
-                    SECRET_NAME: "application_prod"
-                    REPORT_NAME: "Complete-Data-Variable-Report.xlsx"
-                    TEMPLATE_REPORT_PATH: "variables-report/Template Variable Report.xlsx"
-                    REGION: !Ref AWS::Region
+  # Lambda Execution Role for OpenSearch Refresh and other general Lambda functions
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "LambdaExecutionRole"
+      Description: "Execution role for DataHub Lambda functions"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: "LambdaSecretsManagerAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:DescribeSecret"
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}-*"
+        - PolicyName: "LambdaRDSAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "rds:DescribeDBInstances"
+                  - "rds:DescribeDBClusters"
+                Resource: "*"
+        - PolicyName: "LambdaOpenSearchAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "es:ESHttpDelete"
+                  - "es:ESHttpGet"
+                  - "es:ESHttpHead"
+                  - "es:ESHttpPost"
+                  - "es:ESHttpPut"
+                  - "es:DescribeElasticsearchDomain"
+                Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/*"
+        - PolicyName: "LambdaS3Access"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - !Sub "arn:aws:s3:::datahub-*"
+                  - !Sub "arn:aws:s3:::datahub-*/*"
 
-            Handler: "lambda_function.lambda_handler"
-            Architectures:
-              - "x86_64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from Variables Report Lambda!')
-                        }
-            MemorySize: 512
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-            Runtime: "python3.11"
-            Timeout: 60
-            TracingConfig:
-                Mode: "PassThrough"
-            VpcConfig:
-                SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds:
-                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
-            # Layers:
-            #   - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:psycopg2-custom:1"
-            #   - !Sub "arn:aws:lambda:${AWS::Region}:336392948345:layer:AWSSDKPandas-Python311:16"
-            EphemeralStorage:
-                Size: 512
+  # Lambda Execution Role for Email Service (SES/SQS)
+  SESLambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "ses-sqs-lambda-role-cme1rbbm"
+      Description: "Execution role for DataHub Email Service Lambda"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+        - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+      Policies:
+        - PolicyName: "LambdaSESAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "ses:SendEmail"
+                  - "ses:SendRawEmail"
+                  - "ses:SendTemplatedEmail"
+                  - "ses:GetSendQuota"
+                Resource: "*"
+        - PolicyName: "LambdaSQSAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "sqs:ReceiveMessage"
+                  - "sqs:DeleteMessage"
+                  - "sqs:GetQueueAttributes"
+                  - "sqs:SendMessage"
+                Resource: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:*"
+        - PolicyName: "LambdaSecretsManagerAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "secretsmanager:GetSecretValue"
+                  - "secretsmanager:DescribeSecret"
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}-*"
+        - PolicyName: "LambdaS3Access"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:PutObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - !Sub "arn:aws:s3:::datahub-*"
+                  - !Sub "arn:aws:s3:::datahub-*/*"
 
-    DataHubReporterTestLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            Description: "DataHub Reporter Test Lambda Function"
-            FunctionName: "datahub-reporter-test"
-            Architectures:
-              - "x86_64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from DataHub Reporter Test!')
-                        }
-            MemorySize: 1024
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-            Timeout: 60
-            Runtime: "python3.11"
-            TracingConfig:
-                Mode: "PassThrough"
-            VpcConfig:
-                SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds:
-                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage:
-                Size: 512
+  # ============================================================================
+  # LAMBDA FUNCTIONS
+  # ============================================================================
 
-    DataHubEmailServiceLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            Description: "DataHub Email Service Lambda Function"
-            Environment:
-                Variables:
-                    SPRING_PROFILES_ACTIVE: "test"
-            FunctionName: "DataHub-EmailService"
-            Handler: "org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest"
-            Architectures:
-              - "x86_64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from DataHub Email Service!')
-                        }
-            MemorySize: 2048
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/ses-sqs-lambda-role-cme1rbbm"
-            Runtime: "java17"
-            Timeout: 60
-            TracingConfig:
-                Mode: "PassThrough"
-            VpcConfig:
-                SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds:
-                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage:
-                Size: 512
+    # VariablesReportLambda:
+    #     Type: "AWS::Lambda::Function"
+    #     Properties:
+    #         FunctionName: "variables-report"
+    #         Description: "Variables Report Lambda Function"
+    #         Environment:
+    #             Variables:
+    #                 CORE_VARIABLES_UPLOAD_PATH: "variables-explorer/core_variables_data_model.json"
+    #                 VARIABLE_REPORT_PATH: "variables-explorer/Complete-Data-Variable-Report.xlsx"
+    #                 BUCKET: "datahub.stanford.edu"
+    #                 ALL_VARS_UPLOAD_PATH: "variables-explorer/all_variables_data_model.json"
+    #                 SECRET_NAME: "application_prod"
+    #                 REPORT_NAME: "Complete-Data-Variable-Report.xlsx"
+    #                 TEMPLATE_REPORT_PATH: "variables-report/Template Variable Report.xlsx"
+    #                 REGION: !Ref AWS::Region
 
-    DataHubOpenSearchRefreshLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            Description: ""
-            Environment:
-                Variables:
-                    REGION_NAME: "us-east-1"
-                    SECRET_NAME: "application_prod"
-                    ALIAS_NAME: "study_search"
-                    INDEX_NAME: "study_v101"
-            FunctionName: "DataHub-OpenSearchRefresh"
-            Architectures:
-              - "arm64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from OpenSearch Refresh!')
-                        }
-            MemorySize: 1024
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-            Timeout: 900
-            TracingConfig:
-                Mode: "PassThrough"
-            VpcConfig:
-                SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds:
-                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage:
-                Size: 512
+    #         Handler: "lambda_function.lambda_handler"
+    #         Architectures:
+    #           - "x86_64"
+    #         Code:
+    #             ZipFile: |
+    #                 import json
+    #                 def lambda_handler(event, context):
+    #                     return {
+    #                         'statusCode': 200,
+    #                         'body': json.dumps('Hello from Variables Report Lambda!')
+    #                     }
+    #         MemorySize: 512
+    #         Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
+    #         Runtime: "python3.11"
+    #         Timeout: 60
+    #         TracingConfig:
+    #             Mode: "PassThrough"
+    #         VpcConfig:
+    #             SubnetIds:
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+    #             SecurityGroupIds:
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+    #         # Layers:
+    #         #   - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:psycopg2-custom:1"
+    #         #   - !Sub "arn:aws:lambda:${AWS::Region}:336392948345:layer:AWSSDKPandas-Python311:16"
+    #         EphemeralStorage:
+    #             Size: 512
 
-    DataHubPublicationScriptLambda:
-        Type: "AWS::Lambda::Function"
-        Properties:
-            Description: ""
-            FunctionName: "DataHub-PublicationScript"
-            Architectures:
-              - "x86_64"
-            Code:
-                ZipFile: |
-                    import json
-                    def lambda_handler(event, context):
-                        return {
-                            'statusCode': 200,
-                            'body': json.dumps('Hello from Publication Script!')
-                        }
-            MemorySize: 128
-            Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-            Timeout: 60
-            TracingConfig:
-                Mode: "PassThrough"
-            VpcConfig:
-                SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
-                SecurityGroupIds:
-                  - Fn::ImportValue: !Sub "DataHub-ECS-${Environment}-Lambda-SecurityGroup"
-            EphemeralStorage:
-                Size: 512
+    # DataHubReporterTestLambda:
+    #     Type: "AWS::Lambda::Function"
+    #     Properties:
+    #         Description: "DataHub Reporter Test Lambda Function"
+    #         FunctionName: "datahub-reporter-test"
+    #         Architectures:
+    #           - "x86_64"
+    #         Code:
+    #             ZipFile: |
+    #                 import json
+    #                 def lambda_handler(event, context):
+    #                     return {
+    #                         'statusCode': 200,
+    #                         'body': json.dumps('Hello from DataHub Reporter Test!')
+    #                     }
+    #         MemorySize: 1024
+    #         Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
+    #         Timeout: 60
+    #         Runtime: "python3.11"
+    #         TracingConfig:
+    #             Mode: "PassThrough"
+    #         VpcConfig:
+    #             SubnetIds:
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+    #             SecurityGroupIds:
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+    #         EphemeralStorage:
+    #             Size: 512
 
-    VariablesReportLambdaPermission:
-        Type: "AWS::Lambda::Permission"
-        Properties:
-            Action: "lambda:InvokeFunction"
-            FunctionName: !GetAtt VariablesReportLambda.Arn
-            Principal: "events.amazonaws.com"
-            SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/VARIABLES-REPORT"
+  DataHubEmailServiceLambda:
+    Type: "AWS::Lambda::Function"
+    DependsOn: SESLambdaExecutionRole
+    Properties:
+      Description: "DataHub Email Service Lambda Function"
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: "dev"
+      FunctionName: "DataHub-EmailService"
+      Handler: "org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest"
+      Architectures:
+        - "x86_64"
+      Code:
+        S3Bucket: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+        S3Key: "email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar"
+      MemorySize: 2048
+      Role: !GetAtt SESLambdaExecutionRole.Arn
+      Runtime: "java17"
+      Timeout: 60
+      TracingConfig:
+        Mode: "PassThrough"
+      VpcConfig:
+        SubnetIds:
+          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+      EphemeralStorage:
+        Size: 512
+
+  DataHubOpenSearchRefreshLambda:
+    Type: "AWS::Lambda::Function"
+    DependsOn: LambdaExecutionRole
+    Properties:
+      Description: "Refreshes OpenSearch indices (study_search, variable_search, autocomplete) from RDS database"
+      Environment:
+        Variables:
+          REGION_NAME: "us-east-1"
+          SECRET_NAME: !Sub "application_${Environment}"
+      FunctionName: "DataHub-OpenSearchRefresh"
+      Handler: "opensearch_reindex_aws.lambda_handler"
+      Architectures:
+        - "arm64"
+      Code:
+        S3Bucket: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+        S3Key: "opensearch-refresh/opensearch-refresh-lambda.zip"
+      Layers:
+        - !Sub "arn:aws:lambda:us-east-1:772554522152:layer:psycopg2-layer:4" #Need to update this to the correct layer ARN
+      MemorySize: 2048
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: "python3.11"
+      Timeout: 900
+      TracingConfig:
+        Mode: "PassThrough"
+      VpcConfig:
+        SubnetIds:
+          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+      EphemeralStorage:
+        Size: 1024
+
+    # DataHubPublicationScriptLambda:
+    #     Type: "AWS::Lambda::Function"
+    #     Properties:
+    #         Description: ""
+    #         FunctionName: "DataHub-PublicationScript"
+    #         Architectures:
+    #           - "x86_64"
+    #         Code:
+    #             ZipFile: |
+    #                 import json
+    #                 def lambda_handler(event, context):
+    #                     return {
+    #                         'statusCode': 200,
+    #                         'body': json.dumps('Hello from Publication Script!')
+    #                     }
+    #         MemorySize: 128
+    #         Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
+    #         Runtime: "python3.11"
+    #         Timeout: 60
+    #         TracingConfig:
+    #             Mode: "PassThrough"
+    #         VpcConfig:
+    #             SubnetIds:
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+    #             SecurityGroupIds:
+    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+    #         EphemeralStorage:
+    #             Size: 512
+
+    # VariablesReportLambdaPermission:
+    #     Type: "AWS::Lambda::Permission"
+    #     Properties:
+    #         Action: "lambda:InvokeFunction"
+    #         FunctionName: !GetAtt VariablesReportLambda.Arn
+    #         Principal: "events.amazonaws.com"
+    #         SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/VARIABLES-REPORT"
 
     # PsycoPG2CustomLayer:
     #     Type: "AWS::Lambda::LayerVersion"
@@ -202,27 +334,28 @@ Resources:
     #             S3Bucket: "prod-iad-c1-djusa-layers"
     #             S3Key: !Sub "/snapshots/${AWS::AccountId}/psycopg2-custom-abce5ae8-3c12-4862-aef1-414d9c11c7ee"
 
-    # EmailServiceSQSEventSourceMapping:
-    #     Type: "AWS::Lambda::EventSourceMapping"
-    #     Properties:
-    #         BatchSize: 10
-    #         EventSourceArn: !Sub "arn:aws:sqs:${AWS::Region}:${AWS::AccountId}:testEmailQueue"
-    #         FunctionName: !GetAtt DataHubEmailServiceLambda.Arn
-    #         Enabled: true
-    #         MaximumBatchingWindowInSeconds: 0
+  EmailServiceSQSEventSourceMapping:
+    Type: "AWS::Lambda::EventSourceMapping"
+    Properties:
+      BatchSize: 10
+      EventSourceArn:
+        Fn::ImportValue: !Sub "DataHub-SQS-${Environment}-EmailQueue-Arn"
+      FunctionName: !Ref DataHubEmailServiceLambda
+      Enabled: true
+      MaximumBatchingWindowInSeconds: 0
 
 Outputs:
-  VariablesReportLambdaArn:
-    Description: "Variables Report Lambda ARN"
-    Value: !GetAtt VariablesReportLambda.Arn
-    Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
+  # VariablesReportLambdaArn:
+  #   Description: "Variables Report Lambda ARN"
+  #   Value: !GetAtt VariablesReportLambda.Arn
+  #   Export:
+  #     Name: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
 
-  DataHubReporterTestLambdaArn:
-    Description: "DataHub Reporter Test Lambda ARN"
-    Value: !GetAtt DataHubReporterTestLambda.Arn
-    Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
+  # DataHubReporterTestLambdaArn:
+  #   Description: "DataHub Reporter Test Lambda ARN"
+  #   Value: !GetAtt DataHubReporterTestLambda.Arn
+  #   Export:
+  #     Name: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
 
   DataHubEmailServiceLambdaArn:
     Description: "DataHub Email Service Lambda ARN"
@@ -236,8 +369,20 @@ Outputs:
     Export:
       Name: !Sub "DataHub-Lambda-${Environment}-DataHubOpenSearchRefreshLambda-Arn"
 
-  DataHubPublicationScriptLambdaArn:
-    Description: "DataHub Publication Script Lambda ARN"
-    Value: !GetAtt DataHubPublicationScriptLambda.Arn
+  # DataHubPublicationScriptLambdaArn:
+  #   Description: "DataHub Publication Script Lambda ARN"
+  #   Value: !GetAtt DataHubPublicationScriptLambda.Arn
+  #   Export:
+  #     Name: !Sub "DataHub-Lambda-${Environment}-DataHubPublicationScriptLambda-Arn"
+
+  LambdaExecutionRoleArn:
+    Description: "ARN of the Lambda Execution Role"
+    Value: !GetAtt LambdaExecutionRole.Arn
     Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-DataHubPublicationScriptLambda-Arn"
+      Name: !Sub "DataHub-Lambda-${Environment}-LambdaExecutionRole-Arn"
+
+  SESLambdaExecutionRoleArn:
+    Description: "ARN of the SES Lambda Execution Role"
+    Value: !GetAtt SESLambdaExecutionRole.Arn
+    Export:
+      Name: !Sub "DataHub-Lambda-${Environment}-SESLambdaExecutionRole-Arn"

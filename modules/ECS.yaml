@@ -386,7 +386,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "${ProjectName}-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "user-service"
                 Memory: 2048
@@ -417,7 +417,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "datahub-ui"
                 Memory: 2048
@@ -466,7 +466,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "submission-service"
                 Name: !Sub "${ProjectName}-SubmissionService"
@@ -500,7 +500,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "search-service"
                 Memory: 1024
@@ -543,7 +543,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "report-service"
                 Memory: 2048
@@ -573,6 +573,31 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                Secrets:
+                  - Name: DATAHUB_SPRING_MANAGEMENT_USER
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:DATAHUB_SPRING_MANAGEMENT_USER::"
+
+                  - Name: DATAHUB_SPRING_MANAGEMENT_PASSWORD
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:DATAHUB_SPRING_MANAGEMENT_PASSWORD::"
+
+                  - Name: dbuser
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbuser::"
+
+                  - Name: password
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:password::"
+
+                  - Name: host
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:host::"
+
+                  - Name: port
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:port::"
+
+                  - Name: dbname
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbname::"
+
+                  - Name: dbDriverClassName
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbDriverClassName::"
+
                 Essential: true
                 HealthCheck:
                     Command:
@@ -586,7 +611,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "entity-service"
                 Memory: 1024
@@ -629,7 +654,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "approved-data-service"
                 Memory: 2048
@@ -672,7 +697,7 @@ Resources:
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "download-service"
                 Memory: 2048
@@ -704,13 +729,14 @@ Resources:
                         Service: "ecs-tasks.amazonaws.com"
                     Action: "sts:AssumeRole"
             ManagedPolicyArns:
+              - "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
               - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
               - "arn:aws:iam::aws:policy/AmazonRDSDataFullAccess"
               - "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
               - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
               - "arn:aws:iam::aws:policy/AmazonSESFullAccess"
               - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
-
+          
     ECSExecutionRole:
         Type: "AWS::IAM::Role"
         Properties:
@@ -724,6 +750,16 @@ Resources:
                     Action: "sts:AssumeRole"
             ManagedPolicyArns:
               - "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+            Policies:
+              - PolicyName: "SecretsManagerAccess"
+                PolicyDocument:
+                  Version: "2012-10-17"
+                  Statement:
+                    - Effect: "Allow"
+                      Action:
+                        - "secretsmanager:GetSecretValue"
+                        - "secretsmanager:DescribeSecret"
+                      Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}*"
 
     ECSCluster:
         Type: "AWS::ECS::Cluster"

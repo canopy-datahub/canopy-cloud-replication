@@ -621,7 +621,7 @@ Resources:
     MicroservicesLogGroup:
         Type: "AWS::Logs::LogGroup"
         Properties:
-            LogGroupName: !Sub "/aws/lambda/datahub-microservices-${Environment}"
+            LogGroupName: !Sub "/aws/ecs/datahub-microservices-${Environment}"
 
     # Log subscription filters can only be created when the destination (e.g. Lambda, Kinesis, etc.)
     # exists. Therefore, these have been commented out for now.

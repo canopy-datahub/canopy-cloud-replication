@@ -58,7 +58,7 @@ Resources:
             MaximumMessageSize: "262144"
             MessageRetentionPeriod: "345600"
             ReceiveMessageWaitTimeSeconds: "0"
-            VisibilityTimeout: "30"
+            VisibilityTimeout: "360"
             QueueName: !Sub "${ProjectName}-email-queue-${Environment}"
 
     SftpQueue:
@@ -111,4 +111,29 @@ Resources:
             PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueueDlq}\"},{\"Sid\":\"AWSEvents_sftp-dlq-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueueDlq}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-sftp-${Environment}\"}}}]}"
             Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueueDlq.QueueName}"
+
+Outputs:
+  EmailQueueArn:
+    Description: "ARN of the Email Queue"
+    Value: !GetAtt EmailQueue.Arn
+    Export:
+      Name: !Sub "DataHub-SQS-${Environment}-EmailQueue-Arn"
+  
+  EmailQueueUrl:
+    Description: "URL of the Email Queue"
+    Value: !Ref EmailQueue
+    Export:
+      Name: !Sub "DataHub-SQS-${Environment}-EmailQueue-Url"
+
+  SftpQueueArn:
+    Description: "ARN of the SFTP Queue"
+    Value: !GetAtt SftpQueue.Arn
+    Export:
+      Name: !Sub "DataHub-SQS-${Environment}-SftpQueue-Arn"
+
+  SftpQueueDlqArn:
+    Description: "ARN of the SFTP Queue Dead Letter Queue"
+    Value: !GetAtt SftpQueueDlq.Arn
+    Export:
+      Name: !Sub "DataHub-SQS-${Environment}-SftpQueueDLQ-Arn"
 

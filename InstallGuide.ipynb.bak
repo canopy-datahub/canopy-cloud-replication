@@ -27,13 +27,7 @@
     "5. **RDS** - Database infrastructure\n",
     "6. **Route53** - DNS routing\n",
     "7. **CloudWatch** - Monitoring and logging\n",
-    "8. **SQS** - Message queues\n",
-    "9. **ECR** - Container registries\n",
-    "10. **OpenSearch** - Search and analytics\n",
-    "11. **ECS** - Container services (depends on all above)\n",
-    "12. **SES** - Email service \n",
-    "13. **Lambda** - Serverless functions \n",
-    "14. **EventBridge** - Event scheduling "
+    "8. **ECS** - Container services (depends on all above)"
    ]
   },
   {
@@ -229,7 +223,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 53,
+   "execution_count": 10,
    "metadata": {},
    "outputs": [
     {
@@ -239,8 +233,8 @@
       "🔗 Deploying Networking Stack...\n",
       "\n",
       "Waiting for changeset to be created..\n",
-      "Waiting for stack create/update to complete\n",
-      "Successfully created/updated stack - DataHub-Networking-dev\n",
+      "\n",
+      "No changes to deploy. Stack DataHub-Networking-dev is up to date\n",
       "✅ Networking Stack deployment complete\n"
      ]
     }
@@ -309,7 +303,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 55,
+   "execution_count": 13,
    "metadata": {},
    "outputs": [
     {
@@ -448,6 +442,34 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
+    "### Get RDS endpoint"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "datahub-postgresql-dev.cyhmos66o8v8.us-east-1.rds.amazonaws.com\n"
+     ]
+    }
+   ],
+   "source": [
+    "!aws rds describe-db-instances \\\n",
+    "  --db-instance-identifier datahub-postgresql-dev \\\n",
+    "  --region  us-east-1\\\n",
+    "  --query 'DBInstances[0].Endpoint.Address' \\\n",
+    "  --output text"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
     "## 10. Deploy Route53 Stack\n",
     "\n",
     "*Creates DNS records and routing configurations*\n",
@@ -497,7 +519,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 38,
+   "execution_count": 3,
    "metadata": {},
    "outputs": [
     {
@@ -537,7 +559,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 23,
+   "execution_count": 4,
    "metadata": {},
    "outputs": [
     {
@@ -577,7 +599,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 51,
+   "execution_count": 5,
    "metadata": {},
    "outputs": [
     {
@@ -587,8 +609,8 @@
       "📦 Deploying ECR Stack...\n",
       "\n",
       "Waiting for changeset to be created..\n",
-      "\n",
-      "No changes to deploy. Stack DataHub-ECR-dev is up to date\n",
+      "Waiting for stack create/update to complete\n",
+      "Successfully created/updated stack - DataHub-ECR-dev\n",
       "✅ ECR Stack deployment complete\n"
      ]
     }
@@ -612,9 +634,7 @@
    "metadata": {},
    "source": [
     "## 14. Deploy OpenSearch Stack\n",
-    "*Creates the OpenSearch domain and supporting resources*\n",
-    "\n",
-    "**Notice**: Please uncomment line 45-49 to create this service linked role on the first run for any new AWS Account"
+    "*Creates the OpenSearch domain and supporting resources*"
    ]
   },
   {
@@ -659,7 +679,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 56,
+   "execution_count": null,
    "metadata": {},
    "outputs": [
     {
@@ -670,8 +690,12 @@
       "\n",
       "Waiting for changeset to be created..\n",
       "Waiting for stack create/update to complete\n",
-      "Successfully created/updated stack - DataHub-ECS-dev\n",
-      "✅ ECS Stack deployment complete\n"
+      "\n",
+      "Failed to create/update the stack. Run the following command\n",
+      "to fetch the list of events leading up to the failure\n",
+      "aws cloudformation describe-stack-events --stack-name DataHub-ECS-dev\n",
+      "✅ ECS Stack deployment complete\n",
+      "🎉 All stacks deployed! Your Data Hub is ready.\n"
      ]
     }
    ],
@@ -692,74 +716,26 @@
   {
    "cell_type": "markdown",
    "metadata": {},
-   "source": [
-    "## 17. Deploy SES Stack\n",
-    "*Creates SES email identities for sending emails*\n",
-    "\n",
-    "- **Important**: Email identities are region-specific, so if you change regions later, you'll need to recreate them\n",
-    "\n",
-    "**Current Email Identities Created:**\n",
-    "- `datahub@stanford.edu` \n",
-    "- `datahub.dev@stanford.edu` \n",
-    "- `stanford.edu` \n",
-    "\n",
-    "### Adding Team Email Identities Outside Stanford Domain\n",
-    "If you need to send emails from addresses **other than @stanford.edu**, you must update this CloudFormation template.\n"
-   ]
+   "source": []
   },
   {
-   "cell_type": "code",
-   "execution_count": 19,
+   "cell_type": "markdown",
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "📧 Deploying SES Stack...\n",
-      "⚠️  Note: SES must be deployed in us-west-2 region\n",
-      "\n",
-      "Waiting for changeset to be created..\n",
-      "Waiting for stack create/update to complete\n",
-      "Successfully created/updated stack - DataHub-SES-dev\n",
-      "✅ SES Stack deployment complete\n",
-      "\n",
-      "📋 Next Steps:\n",
-      "1. Go to AWS Console → SES → Verified identities (us-east-1 region)\n",
-      "2. Verify email addresses by clicking verification links\n",
-      "3. For production, request production access from AWS\n"
-     ]
-    }
-   ],
    "source": [
-    "print('📧 Deploying SES Stack...')\n",
-    "\n",
-    "!aws cloudformation deploy \\\n",
-    "  --stack-name DataHub-SES-{ENV} \\\n",
-    "  --template-file modules/SES.yaml \\\n",
-    "  --parameter-overrides file://parameters-{ENV}.json \\\n",
-    "  --region us-east-1 \\\n",
-    "  --tags projectname=datahub environment={ENV}\n",
-    "\n",
-    "print('✅ SES Stack deployment complete')\n",
-    "print('')\n",
-    "print('📋 Next Steps:')\n",
-    "print('1. Go to AWS Console → SES → Verified identities (us-east-1 region)')\n",
-    "print('2. Verify email addresses by clicking verification links')\n",
-    "print('3. For production, request production access from AWS')\n"
+    "\n"
    ]
   },
   {
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "## 18. Deploy Lambda Stack\n",
-    "*Creates Lambda functions for data processing, automation, and integrations*"
+    "## 16. Deploy Lambda Stack (includes IAM roles)\n",
+    "*Creates IAM roles and Lambda functions for data processing, automation, and integrations. No separate IAM stack needed.*"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 26,
+   "execution_count": 3,
    "metadata": {},
    "outputs": [
     {
@@ -770,7 +746,10 @@
       "\n",
       "Waiting for changeset to be created..\n",
       "Waiting for stack create/update to complete\n",
-      "Successfully created/updated stack - DataHub-Lambda-dev\n",
+      "\n",
+      "Failed to create/update the stack. Run the following command\n",
+      "to fetch the list of events leading up to the failure\n",
+      "aws cloudformation describe-stack-events --stack-name DataHub-Lambda-dev\n",
       "✅ Lambda Stack deployment complete\n"
      ]
     }
@@ -790,82 +769,6 @@
    ]
   },
   {
-   "cell_type": "code",
-   "execution_count": 27,
-   "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "{\n",
-      "    \"FunctionName\": \"DataHub-EmailService\",\n",
-      "    \"FunctionArn\": \"arn:aws:lambda:us-east-1:772554522152:function:DataHub-EmailService\",\n",
-      "    \"Runtime\": \"java17\",\n",
-      "    \"Role\": \"arn:aws:iam::772554522152:role/ses-sqs-lambda-role-cme1rbbm\",\n",
-      "    \"Handler\": \"org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest\",\n",
-      "    \"CodeSize\": 41938550,\n",
-      "    \"Description\": \"DataHub Email Service Lambda Function\",\n",
-      "    \"Timeout\": 60,\n",
-      "    \"MemorySize\": 2048,\n",
-      "    \"LastModified\": \"2025-12-01T18:40:28.000+0000\",\n",
-      "    \"CodeSha256\": \"ggC8jvJ8bwCOEpjvgHvDQJeHSvhThwpnE35VmDrv/4A=\",\n",
-      "    \"Version\": \"$LATEST\",\n",
-      "    \"VpcConfig\": {\n",
-      "        \"SubnetIds\": [\n",
-      "            \"subnet-02a20fa5bc848ce1a\",\n",
-      "            \"subnet-0cdbca4b512337c34\"\n",
-      "        ],\n",
-      "        \"SecurityGroupIds\": [\n",
-      "            \"sg-09eb41ca386a80f2a\"\n",
-      "        ],\n",
-      "        \"VpcId\": \"vpc-0fbe345a66dea8bbb\",\n",
-      "        \"Ipv6AllowedForDualStack\": false\n",
-      "    },\n",
-      "    \"Environment\": {\n",
-      "        \"Variables\": {\n",
-      "            \"SPRING_PROFILES_ACTIVE\": \"dev\"\n",
-      "        }\n",
-      "    },\n",
-      "    \"TracingConfig\": {\n",
-      "        \"Mode\": \"PassThrough\"\n",
-      "    },\n",
-      "    \"RevisionId\": \"fa731ba9-d4fa-4c36-a7d6-c86a02a1bd94\",\n",
-      "    \"State\": \"Active\",\n",
-      "    \"LastUpdateStatus\": \"InProgress\",\n",
-      "    \"LastUpdateStatusReason\": \"The function is being created.\",\n",
-      "    \"LastUpdateStatusReasonCode\": \"Creating\",\n",
-      "    \"PackageType\": \"Zip\",\n",
-      "    \"Architectures\": [\n",
-      "        \"x86_64\"\n",
-      "    ],\n",
-      "    \"EphemeralStorage\": {\n",
-      "        \"Size\": 512\n",
-      "    },\n",
-      "    \"SnapStart\": {\n",
-      "        \"ApplyOn\": \"None\",\n",
-      "        \"OptimizationStatus\": \"Off\"\n",
-      "    },\n",
-      "    \"RuntimeVersionConfig\": {\n",
-      "        \"RuntimeVersionArn\": \"arn:aws:lambda:us-east-1::runtime:554393f0facb9677cef450c3d5968b6bfaf590f3c881099f00a3eeb6d1732be4\"\n",
-      "    },\n",
-      "    \"LoggingConfig\": {\n",
-      "        \"LogFormat\": \"Text\",\n",
-      "        \"LogGroup\": \"/aws/lambda/DataHub-EmailService\"\n",
-      "    }\n",
-      "}\n"
-     ]
-    }
-   ],
-   "source": [
-    "!aws lambda update-function-code \\\n",
-    "  --function-name DataHub-EmailService \\\n",
-    "  --s3-bucket datahub-lambda-artifacts-stanford-dev \\\n",
-    "  --s3-key email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar \\\n",
-    "  --region us-east-1"
-   ]
-  },
-  {
    "cell_type": "markdown",
    "metadata": {},
    "source": []
@@ -880,26 +783,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 22,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "⏰ Deploying EventBridge Stack...\n",
-      "\n",
-      "Waiting for changeset to be created..\n",
-      "Waiting for stack create/update to complete\n",
-      "\n",
-      "Failed to create/update the stack. Run the following command\n",
-      "to fetch the list of events leading up to the failure\n",
-      "aws cloudformation describe-stack-events --stack-name DataHub-EventBridge-dev\n",
-      "✅ EventBridge Stack deployment complete\n",
-      "🎉 All stacks deployed! Your Data Hub is ready.\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "print('⏰ Deploying EventBridge Stack...')\n",
     "\n",
@@ -1047,32 +933,28 @@
    "source": [
     "print('🗂️ Deleting stacks in reverse dependency order...')\n",
     "\n",
-    "# Delete stacks in reverse order (stack_name, region)\n",
+    "# Delete stacks in reverse order\n",
     "stacks = [\n",
-    "    (f'DataHub-EventBridge-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-Lambda-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-SES-{ENV}', 'us-east-1'),  \n",
-    "    (f'DataHub-ECS-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-OpenSearch-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-ECR-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-SQS-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-CloudWatch-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-Route53-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-RDS-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-ApplicationLoadBalancer-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-SecretsManager-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-S3-{ENV}', 'us-east-1'),\n",
-    "    (f'DataHub-Networking-{ENV}', 'us-east-1')\n",
+    "    f'DataHub-ECS-{ENV}',\n",
+    "    f'DataHub-ECR-{ENV}',\n",
+    "    f'DataHub-SQS-{ENV}',\n",
+    "    f'DataHub-CloudWatch-{ENV}',\n",
+    "    f'DataHub-Route53-{ENV}',\n",
+    "    f'DataHub-RDS-{ENV}',\n",
+    "    f'DataHub-ApplicationLoadBalancer-{ENV}',\n",
+    "    f'DataHub-SecretsManager-{ENV}',\n",
+    "    f'DataHub-S3-{ENV}',\n",
+    "    f'DataHub-Networking-{ENV}'\n",
     "]\n",
     "\n",
-    "for stack_name, region in stacks:\n",
-    "    print(f'🗁️ Deleting stack: {stack_name} (region: {region})')\n",
-    "    !aws cloudformation delete-stack --stack-name {stack_name} --region {region}\n",
+    "for stack in stacks:\n",
+    "    print(f'🗁️ Deleting stack: {stack}')\n",
+    "    !aws cloudformation delete-stack --stack-name {stack} --region us-east-1\n",
     "\n",
-    "    print(f'⏳ Waiting for {stack_name} deletion to complete...')\n",
-    "    !aws cloudformation wait stack-delete-complete --stack-name {stack_name} --region {region}\n",
+    "    print(f'⏳ Waiting for {stack} deletion to complete...')\n",
+    "    !aws cloudformation wait stack-delete-complete --stack-name {stack} --region us-east-1\n",
     "\n",
-    "    print(f'✅ {stack_name} deleted successfully\\n')\n",
+    "    print(f'✅ {stack} deleted successfully\\n')\n",
     "\n",
     "print('🎉 Cleanup complete!')"
    ]
