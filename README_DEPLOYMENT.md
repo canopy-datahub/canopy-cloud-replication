@@ -257,6 +257,21 @@ cd datahub-service-user    # Change to appropriate service directory
 
 #### 2. Build the Docker image
 
+Before running Docker, build the application so the Dockerfile can pick them up:
+
+**Spring Boot services (backend)**  
+```bash
+mvn clean package -DskipTests
+```
+
+**React + Next.js (UI)**  
+```bash
+npm install
+npm run build
+```
+
+After the package/build completes, build the Docker image:
+
 ```bash
 docker buildx build --platform linux/amd64 -t {IMAGE_NAME}:latest --load .
 ```
@@ -301,10 +316,13 @@ cd ..  # Return to project root
 # 1. Navigate to service directory
 cd datahub-service-user
 
-# 2. Build Docker image
+# 2. Build the application
+mvn clean package -DskipTests
+
+# 3. Build Docker image
 docker buildx build --platform linux/amd64 -t datahub-user-service:latest --load .
 
-# 3. Return to project root and deploy
+# 4. Return to project root and deploy
 cd ..
 ./push-and-deploy.sh user-service dev
 ```
@@ -315,10 +333,14 @@ cd ..
 # 1. Navigate to UI directory
 cd datahub-ui-main
 
-# 2. Build Docker image
+# 2. Build the application
+npm install
+npm run build
+
+# 3. Build Docker image
 docker buildx build --platform linux/amd64 -t datahub-ui:latest --load .
 
-# 3. Return to project root and deploy
+# 4. Return to project root and deploy
 cd ..
 ./push-and-deploy.sh ui dev
 ```
