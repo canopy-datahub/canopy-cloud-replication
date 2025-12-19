@@ -736,6 +736,7 @@ Resources:
               - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
               - "arn:aws:iam::aws:policy/AmazonSESFullAccess"
               - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
+              - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
           
     ECSExecutionRole:
         Type: "AWS::IAM::Role"
