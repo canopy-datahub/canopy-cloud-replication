@@ -17,6 +17,13 @@ Parameters:
         Default: datahub
         AllowedValues:
           - datahub
+    DBMasterUsername:
+        Type: String
+        Description: Master username for the PostgreSQL instance
+    DBMasterPassword:
+        Type: String
+        NoEcho: true
+        Description: Master password for the PostgreSQL instance
 
 Conditions:
     DEV: !Equals [!Ref Environment, dev]
@@ -33,8 +40,8 @@ Resources:
             AllocatedStorage: 20
             DBInstanceClass: "db.t4g.small"
             Engine: "postgres"
-            MasterUsername: !Sub "datahubpostgres${Environment}"
-            MasterUserPassword: "REPLACEME" ## Replace this value with a Secrets Manager secret in production
+            MasterUsername: !Ref DBMasterUsername
+            MasterUserPassword: !Ref DBMasterPassword
             DBName: !Sub "${ProjectName}_${Environment}"
             PreferredBackupWindow: "05:00-05:30"
             BackupRetentionPeriod: 3
@@ -101,7 +108,6 @@ Resources:
     RDSDBParameterGroup:
         Type: "AWS::RDS::DBParameterGroup"
         Properties:
-            # DBClusterParameterGroupName: !Sub "db-postgresql-16-${Environment}"
             Description: "Parameter group for the test db with pg_cron enabled"
             Family: "postgres16"
             Parameters:
@@ -129,7 +135,7 @@ Resources:
             Tags:
               -
                 Key: "Name"
-                Value: !Sub "RADx-${Environment}-DB"
+                Value: !Sub "DATAHUB-${Environment}-DB"
             SecurityGroupIngress:
               - CidrIp: "0.0.0.0/0"
                 Description: "INSECURE: Open to all IPs - REPLACE THIS RULE based on your security requirements"

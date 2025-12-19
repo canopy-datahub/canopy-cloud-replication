@@ -3,6 +3,16 @@
 		"Environment": "test",
 		"ProjectName": "datahub",
 		"Region": "us-east-1",
-		"DataHubUniqueId": "stanford"
+		"DataHubUniqueId": "stanford",
+		"DBMasterUsername": "datahubpostgrestest",
+		"DBMasterPassword": "REPLACEME",
+		"PostgresMasterUsername": "datahubpostgrestest",
+		"PostgresMasterPassword": "REPLACEME",
+		"DataHubAdminUsername": "datahub_admin",
+		"DataHubAdminPassword": "REPLACEME",
+		"DataHubUserUsername": "datahub_user",
+		"DataHubUserPassword": "REPLACEME",
+		"OpenSearchUsername": "opensearch",
+		"OpenSearchPassword": "ChangeMe@2025"
 	}
 }
