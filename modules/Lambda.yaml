@@ -27,7 +27,7 @@ Resources:
   LambdaExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: "LambdaExecutionRole"
+      RoleName: !Sub "${ProjectName}-LambdaExecutionRole"
       Description: !Sub "Execution role for ${ProjectName} Lambda functions"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -88,7 +88,7 @@ Resources:
   SESLambdaExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
-      RoleName: "ses-sqs-lambda-role-cme1rbbm"
+      RoleName: !Sub "${ProjectName}-ses-sqs-lambda-role-cme1rbbm"
       Description: !Sub "Execution role for ${ProjectName} Email Service Lambda"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"

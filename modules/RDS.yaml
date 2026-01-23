@@ -34,7 +34,7 @@ Resources:
     RDSDBInstance:
         Type: "AWS::RDS::DBInstance"
         Properties:
-            DBInstanceIdentifier: !Sub "datahub-postgresql-${Environment}"
+            DBInstanceIdentifier: !Sub "${ProjectName}-postgresql-${Environment}"
             AllocatedStorage: 20
             DBInstanceClass: "db.t4g.small"
             Engine: "postgres"
