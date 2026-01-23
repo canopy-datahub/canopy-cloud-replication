@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description:  >-
-    Last Modified: 2025/10/16 17:06:37
-    "DataHub Load Balancer stack"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "Load Balancer stack"
 
 Parameters:
   Environment:
@@ -16,8 +16,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -34,10 +32,10 @@ Resources:
             Scheme: "internet-facing"
             Type: "application"
             Subnets:
-              - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-Public-Subnet-AZ1
-              - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-Public-Subnet-AZ2
+              - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-Public-Subnet-AZ1
+              - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-Public-Subnet-AZ2
             SecurityGroups:
-              - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-LoadBalancer-SecurityGroup
+              - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-LoadBalancer-SecurityGroup
             IpAddressType: "ipv4"
             LoadBalancerAttributes:
               -
@@ -247,7 +245,7 @@ Resources:
                 Field: "path-pattern"
                 PathPatternConfig:
                     Values:
-                      - "/datahub-s3-resources*"
+                      - !Sub "/${ProjectName}-s3-resources*"
                       - "/variables-explorer*"
             Actions:
               -
@@ -354,8 +352,8 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
-            Name: "DataHub-Approved-Data-Service"
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
+            Name: !Sub "${ProjectName}-Approved-Data-Service"
             HealthCheckEnabled: true
             TargetGroupAttributes:
               -
@@ -510,8 +508,8 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
-            Name: "DataHub-DownloadService"
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
+            Name: !Sub "${ProjectName}-DownloadService"
             HealthCheckEnabled: true
             TargetGroupAttributes:
               -
@@ -584,8 +582,8 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
-            Name: "DataHub-EntityService"
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
+            Name: !Sub "${ProjectName}-EntityService"
             HealthCheckEnabled: true
             TargetGroupAttributes:
               -
@@ -718,7 +716,7 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-Search-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
@@ -790,7 +788,7 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-UI-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
@@ -862,7 +860,7 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-ReportService-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
@@ -934,7 +932,7 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-SubmissionService-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
@@ -1006,7 +1004,7 @@ Resources:
                 HttpCode: "307,405,200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-S3-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
@@ -1078,7 +1076,7 @@ Resources:
                 HttpCode: "200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-UserService-${Environment}"
             HealthCheckEnabled: true
             TargetGroupAttributes:
@@ -1150,7 +1148,7 @@ Resources:
                 HttpCode: "307,405,200"
             HealthyThresholdCount: 5
             VpcId:
-              Fn::ImportValue: !Sub DataHub-Networking-${Environment}-VPC-ID
+              Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${S3TargetGroup.TargetGroupName}-EXTERNAL"
             HealthCheckEnabled: true
             TargetGroupAttributes:

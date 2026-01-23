@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/10/28 14:19:13
-  "This template deploys the Data Hub SQS Queues."
+  Last Modified: 2026/01/20 14:30:00
+  "SQS Queues stack"
 Parameters:
   Environment:
     Type: String
@@ -15,8 +15,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -101,7 +99,7 @@ Resources:
     SftpQueuePolicy:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
-            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueue}\"},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-sftp-${Environment}\"}}},{\"Sid\":\"SendMessageFromSNSTopic\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-sftp-object-upload-topic-${Environment}\"}}},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-sftp-${Environment}\"}}}]}"
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueue}\"},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/SFTP-${Environment}\"}}}]}"
             Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueue.QueueName}"
 
@@ -117,23 +115,23 @@ Outputs:
     Description: "ARN of the Email Queue"
     Value: !GetAtt EmailQueue.Arn
     Export:
-      Name: !Sub "DataHub-SQS-${Environment}-EmailQueue-Arn"
+      Name: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Arn"
   
   EmailQueueUrl:
     Description: "URL of the Email Queue"
     Value: !Ref EmailQueue
     Export:
-      Name: !Sub "DataHub-SQS-${Environment}-EmailQueue-Url"
+      Name: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Url"
 
   SftpQueueArn:
     Description: "ARN of the SFTP Queue"
     Value: !GetAtt SftpQueue.Arn
     Export:
-      Name: !Sub "DataHub-SQS-${Environment}-SftpQueue-Arn"
+      Name: !Sub "${ProjectName}-SQS-${Environment}-SftpQueue-Arn"
 
   SftpQueueDlqArn:
     Description: "ARN of the SFTP Queue Dead Letter Queue"
     Value: !GetAtt SftpQueueDlq.Arn
     Export:
-      Name: !Sub "DataHub-SQS-${Environment}-SftpQueueDLQ-Arn"
+      Name: !Sub "${ProjectName}-SQS-${Environment}-SftpQueueDLQ-Arn"
 

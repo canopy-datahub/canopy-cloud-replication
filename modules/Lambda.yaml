@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Lambda Functions and IAM Roles for DataHub"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "Lambda Functions and IAM Roles"
 Parameters:
   Environment:
     Type: String
@@ -14,7 +16,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: Project name for resource naming
-    Default: DataHub
+    Default: datahub
 
 Resources:
   # ============================================================================
@@ -26,7 +28,7 @@ Resources:
     Type: "AWS::IAM::Role"
     Properties:
       RoleName: "LambdaExecutionRole"
-      Description: "Execution role for DataHub Lambda functions"
+      Description: !Sub "Execution role for ${ProjectName} Lambda functions"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -79,15 +81,15 @@ Resources:
                   - "s3:PutObject"
                   - "s3:ListBucket"
                 Resource:
-                  - !Sub "arn:aws:s3:::datahub-*"
-                  - !Sub "arn:aws:s3:::datahub-*/*"
+                  - !Sub "arn:aws:s3:::${ProjectName}-*"
+                  - !Sub "arn:aws:s3:::${ProjectName}-*/*"
 
   # Lambda Execution Role for Email Service (SES/SQS)
   SESLambdaExecutionRole:
     Type: "AWS::IAM::Role"
     Properties:
       RoleName: "ses-sqs-lambda-role-cme1rbbm"
-      Description: "Execution role for DataHub Email Service Lambda"
+      Description: !Sub "Execution role for ${ProjectName} Email Service Lambda"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -140,8 +142,8 @@ Resources:
                   - "s3:PutObject"
                   - "s3:ListBucket"
                 Resource:
-                  - !Sub "arn:aws:s3:::datahub-*"
-                  - !Sub "arn:aws:s3:::datahub-*/*"
+                  - !Sub "arn:aws:s3:::${ProjectName}-*"
+                  - !Sub "arn:aws:s3:::${ProjectName}-*/*"
 
   # ============================================================================
   # LAMBDA FUNCTIONS
@@ -182,10 +184,10 @@ Resources:
     #             Mode: "PassThrough"
     #         VpcConfig:
     #             SubnetIds:
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
     #             SecurityGroupIds:
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
     #         # Layers:
     #         #   - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:psycopg2-custom:1"
     #         #   - !Sub "arn:aws:lambda:${AWS::Region}:336392948345:layer:AWSSDKPandas-Python311:16"
@@ -215,10 +217,10 @@ Resources:
     #             Mode: "PassThrough"
     #         VpcConfig:
     #             SubnetIds:
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
     #             SecurityGroupIds:
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
     #         EphemeralStorage:
     #             Size: 512
 
@@ -226,17 +228,17 @@ Resources:
     Type: "AWS::Lambda::Function"
     DependsOn: SESLambdaExecutionRole
     Properties:
-      Description: "DataHub Email Service Lambda Function"
+      Description: !Sub "${ProjectName} Email Service Lambda Function"
       Environment:
         Variables:
           SPRING_PROFILES_ACTIVE: "dev"
-      FunctionName: "DataHub-EmailService"
+      FunctionName: !Sub "${ProjectName}-EmailService"
       Handler: "org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest"
       Architectures:
         - "x86_64"
       Code:
-        S3Bucket: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
-        S3Key: "email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar"
+        S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+        S3Key: !Sub "email-service/${ProjectName}-service-email-0.0.1-SNAPSHOT-aws.jar"
       MemorySize: 2048
       Role: !GetAtt SESLambdaExecutionRole.Arn
       Runtime: "java17"
@@ -245,10 +247,10 @@ Resources:
         Mode: "PassThrough"
       VpcConfig:
         SubnetIds:
-          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+          - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+          - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+          - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
       EphemeralStorage:
         Size: 512
 
@@ -261,12 +263,12 @@ Resources:
         Variables:
           REGION_NAME: "us-east-1"
           SECRET_NAME: !Sub "application_${Environment}"
-      FunctionName: "DataHub-OpenSearchRefresh"
+      FunctionName: !Sub "${ProjectName}-OpenSearchRefresh"
       Handler: "opensearch_reindex_aws.lambda_handler"
       Architectures:
         - "arm64"
       Code:
-        S3Bucket: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+        S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
         S3Key: "opensearch-refresh/opensearch-refresh-lambda.zip"
       Layers:
         - !Sub "arn:aws:lambda:us-east-1:772554522152:layer:psycopg2-layer:4" #Need to update this to the correct layer ARN
@@ -278,10 +280,10 @@ Resources:
         Mode: "PassThrough"
       VpcConfig:
         SubnetIds:
-          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+          - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+          - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+          - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
       EphemeralStorage:
         Size: 1024
 
@@ -308,10 +310,10 @@ Resources:
     #             Mode: "PassThrough"
     #         VpcConfig:
     #             SubnetIds:
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
     #             SecurityGroupIds:
-    #               - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
     #         EphemeralStorage:
     #             Size: 512
 
@@ -339,7 +341,7 @@ Resources:
     Properties:
       BatchSize: 10
       EventSourceArn:
-        Fn::ImportValue: !Sub "DataHub-SQS-${Environment}-EmailQueue-Arn"
+        Fn::ImportValue: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Arn"
       FunctionName: !Ref DataHubEmailServiceLambda
       Enabled: true
       MaximumBatchingWindowInSeconds: 0
@@ -358,16 +360,16 @@ Outputs:
   #     Name: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
 
   DataHubEmailServiceLambdaArn:
-    Description: "DataHub Email Service Lambda ARN"
+    Description: "Email Service Lambda ARN"
     Value: !GetAtt DataHubEmailServiceLambda.Arn
     Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-DataHubEmailServiceLambda-Arn"
+      Name: !Sub "${ProjectName}-Lambda-${Environment}-EmailServiceLambda-Arn"
 
   DataHubOpenSearchRefreshLambdaArn:
-    Description: "DataHub OpenSearch Refresh Lambda ARN"
+    Description: "OpenSearch Refresh Lambda ARN"
     Value: !GetAtt DataHubOpenSearchRefreshLambda.Arn
     Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-DataHubOpenSearchRefreshLambda-Arn"
+      Name: !Sub "${ProjectName}-Lambda-${Environment}-OpenSearchRefreshLambda-Arn"
 
   # DataHubPublicationScriptLambdaArn:
   #   Description: "DataHub Publication Script Lambda ARN"
@@ -379,10 +381,10 @@ Outputs:
     Description: "ARN of the Lambda Execution Role"
     Value: !GetAtt LambdaExecutionRole.Arn
     Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-LambdaExecutionRole-Arn"
+      Name: !Sub "${ProjectName}-Lambda-${Environment}-LambdaExecutionRole-Arn"
 
   SESLambdaExecutionRoleArn:
     Description: "ARN of the SES Lambda Execution Role"
     Value: !GetAtt SESLambdaExecutionRole.Arn
     Export:
-      Name: !Sub "DataHub-Lambda-${Environment}-SESLambdaExecutionRole-Arn"
+      Name: !Sub "${ProjectName}-Lambda-${Environment}-SESLambdaExecutionRole-Arn"

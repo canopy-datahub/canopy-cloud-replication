@@ -1,8 +1,8 @@
 # Should be rescanned on us-west-2
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/09/30 14:48:53
-  "This template deploys the Data Hub SES Services."
+  Last Modified: 2026/01/20 14:30:00
+  "SES Services stack"
 Parameters:
   Environment:
     Type: String
@@ -16,8 +16,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]

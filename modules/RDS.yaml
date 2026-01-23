@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-    Last Modified: 2025/10/17 13:55:07
-    "This template deploys the Data Hub RDS Database."
+  Last Modified: 2026/01/20 14:30:00
+  "RDS PostgreSQL Database stack"
 Parameters:
     Environment:
         Type: String
@@ -15,8 +15,6 @@ Parameters:
         Type: String
         Description: The Project name
         Default: datahub
-        AllowedValues:
-          - datahub
     DBMasterUsername:
         Type: String
         Description: Master username for the PostgreSQL instance
@@ -102,8 +100,8 @@ Resources:
             DBSubnetGroupDescription: !Sub "${ProjectName}-db-subnet-group-${Environment}"
             DBSubnetGroupName: !Sub "datahub-db-subnet-group-${Environment}"
             SubnetIds:
-              - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Public-Subnet-AZ1"
-              - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Public-Subnet-AZ2"
+              - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Public-Subnet-AZ1"
+              - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Public-Subnet-AZ2"
 
     RDSDBParameterGroup:
         Type: "AWS::RDS::DBParameterGroup"
@@ -131,7 +129,7 @@ Resources:
             GroupDescription: "Created by RDS management console"
             GroupName: !Sub "${ProjectName}-db-sg-${Environment}"
             VpcId:
-                Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-VPC-ID"
+                Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
             Tags:
               -
                 Key: "Name"
@@ -163,7 +161,7 @@ Resources:
                 ToPort: 5432    
 
               - SourceSecurityGroupId:
-                  Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
                 SourceSecurityGroupOwnerId: !Ref AWS::AccountId
                 Description: "ECS Services"
                 FromPort: 5432

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-    Last Modified: 2025/10/16 17:06:37
-    "DataHub Networking stack"
+  Last Modified: 2026/01/20 14:30:00
+  "Networking stack"
 
 Parameters:
   Environment:
@@ -16,8 +16,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]

@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description:  >-
-    Last Modified: 2025/10/16 17:06:37
-    "DataHub Elastic Container Service (ECS) stack"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "ECS Cluster and Services stack"
 
 Parameters:
   Environment:
@@ -16,8 +16,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -35,7 +33,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-ReportServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-ReportServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-ReportService"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -51,10 +49,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -77,7 +75,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-UserServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-UserServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-UserService"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -93,10 +91,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -119,7 +117,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-ApprovedDataServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-ApprovedDataServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-ApprovedDataService"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -135,10 +133,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -161,7 +159,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-EntityServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-EntityServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-EntityService"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -177,10 +175,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -203,7 +201,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-UIServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-UIServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-UI"
                 ContainerPort: 3000
             DesiredCount: 0
@@ -219,10 +217,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -245,7 +243,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-SearchServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-SearchServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-Search"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -261,10 +259,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -287,7 +285,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-DownloadServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-DownloadServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-DownloadService"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -303,10 +301,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -329,7 +327,7 @@ Resources:
             LoadBalancers:
               -
                 TargetGroupArn:
-                  Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-SubmissionServiceTargetGroup"
+                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-SubmissionServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-SubmissionService"
                 ContainerPort: 8080
             DesiredCount: 0
@@ -345,10 +343,10 @@ Resources:
                 AwsvpcConfiguration:
                     AssignPublicIp: "DISABLED"
                     SecurityGroups:
-                      - Fn::ImportValue: !Sub DataHub-Networking-${Environment}-ECS-Host-SecurityGroup
+                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
                     Subnets:
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
             HealthCheckGracePeriodSeconds: 300
             SchedulingStrategy: "REPLICA"
             DeploymentController:
@@ -382,7 +380,7 @@ Resources:
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-user-service/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-user-service/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
@@ -396,7 +394,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-user-service-${Environment}"
+            Family: !Sub "${ProjectName}-user-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
@@ -413,13 +411,13 @@ Resources:
               -
                 Cpu: 1024
                 Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-ui/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-ui/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
-                        awslogs-stream-prefix: "datahub-ui"
+                        awslogs-stream-prefix: "ui"
                 Memory: 2048
                 Name: !Sub "${ProjectName}-UI"
                 PortMappings:
@@ -435,7 +433,7 @@ Resources:
                     ContainerPort: 3000
                     HostPort: 3000
                     Protocol: "tcp"
-            Family: !Sub "datahub-ui-${Environment}"
+            Family: !Sub "${ProjectName}-ui-${Environment}"
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
             RequiresCompatibilities:
@@ -462,11 +460,11 @@ Resources:
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-submission-service/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-submission-service/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "submission-service"
                 Name: !Sub "${ProjectName}-SubmissionService"
@@ -475,7 +473,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-submission-service-${Environment}"
+            Family: !Sub "${ProjectName}-submission-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
@@ -496,11 +494,11 @@ Resources:
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
                 Essential: true
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-search/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-search/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "search-service"
                 Memory: 1024
@@ -510,7 +508,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-search-${Environment}"
+            Family: !Sub "${ProjectName}-search-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
@@ -539,11 +537,11 @@ Resources:
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-report-service/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-report-service/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "report-service"
                 Memory: 2048
@@ -553,7 +551,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-report-service-${Environment}"
+            Family: !Sub "${ProjectName}-report-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
@@ -607,11 +605,11 @@ Resources:
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-entityservice/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-entityservice/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "entity-service"
                 Memory: 1024
@@ -621,7 +619,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-entityservice-${Environment}"
+            Family: !Sub "${ProjectName}-entityservice-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
@@ -650,11 +648,11 @@ Resources:
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-approved-data-service/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-approved-data-service/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "approved-data-service"
                 Memory: 2048
@@ -664,7 +662,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-approved-data-service-${Environment}"
+            Family: !Sub "${ProjectName}-approved-data-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"
@@ -693,11 +691,11 @@ Resources:
                     Timeout: 5
                     Retries: 3
                     StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/datahub-download-service/${Environment}:latest"
+                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-download-service/${Environment}:latest"
                 LogConfiguration:
                     LogDriver: "awslogs"
                     Options:
-                        awslogs-group: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
                         awslogs-region: !Ref AWS::Region
                         awslogs-stream-prefix: "download-service"
                 Memory: 2048
@@ -707,7 +705,7 @@ Resources:
                     ContainerPort: 8080
                     HostPort: 8080
                     Protocol: "tcp"
-            Family: !Sub "datahub-download-service-${Environment}"
+            Family: !Sub "${ProjectName}-download-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
             ExecutionRoleArn: !Ref ECSExecutionRole
             NetworkMode: "awsvpc"

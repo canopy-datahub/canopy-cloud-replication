@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/10/14 16:52:06
-  "This template deploys the Data Hub S3 Buckets. Bucket names must be globally unique. Please modify the bucket names to ensure uniqueness."
+  Last Modified: 2026/01/20 14:30:00
+  "S3 Buckets stack - Bucket names must be globally unique"
 Parameters:
   Environment:
     Type: String
@@ -15,8 +15,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
   DataHubUniqueId:
     Type: String
     Description: A unique identifier to ensure S3 bucket names are globally unique
@@ -35,7 +33,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
-      BucketName: !Sub "datahub-upload-portal-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-upload-portal-${DataHubUniqueId}-${Environment}"
     # Fn::Transform:
     #   Name: String
     #   Parameters:
@@ -68,7 +66,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "sftp-datahub-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-sftp-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -116,7 +114,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "datahub-review-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-review-${DataHubUniqueId}-${Environment}"
       VersioningConfiguration:
         Status: "Enabled"
       OwnershipControls:
@@ -171,7 +169,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "datahub-default-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-default-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -233,7 +231,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
       Tags:
       - Key: "Environment"
         Value: !Sub "${Environment}"
@@ -250,12 +248,12 @@ Resources:
 
 Outputs:
   S3BucketDataHubReviewName:
-    Description: "The ARN of the S3 bucket for Data Hub review files"
+    Description: "The ARN of the S3 bucket for review files"
     Value: !GetAtt S3BucketDataHubReview.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubReview-Arn"
   S3BucketDataHubDefaultName:
-    Description: "The ARN of the S3 bucket for Data Hub default files"
+    Description: "The ARN of the S3 bucket for default files"
     Value: !GetAtt S3BucketDataHubDefault.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubDefault-Arn"
@@ -265,7 +263,7 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketSftpDataHub-Arn"
   S3BucketDataHubUploadPortalName:
-    Description: "The ARN of the main S3 bucket for the Data Hub Upload Portal"
+    Description: "The ARN of the main S3 bucket for the Upload Portal"
     Value: !GetAtt S3BucketDataHubUploadPortal.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubUploadPortal-Arn"

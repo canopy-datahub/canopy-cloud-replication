@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: ""
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "CloudWatch stack"
 Parameters:
     Environment:
         Type: String
@@ -13,8 +15,6 @@ Parameters:
         Type: String
         Description: The Project name
         Default: datahub
-        AllowedValues:
-            - datahub
 
 Conditions:
     DEV: !Equals [!Ref Environment, dev]
@@ -33,7 +33,7 @@ Resources:
     #         AlarmName: "Test ALB 5XX Error Anomaly"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         EvaluationPeriods: 1
     #         DatapointsToAlarm: 1
     #         ComparisonOperator: "LessThanLowerOrGreaterThanUpperThreshold"
@@ -66,7 +66,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ApprovedDataSvc"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -91,7 +91,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ApprovedDataSvc-Ext"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -116,7 +116,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-DOWNLOAD-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -141,7 +141,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-DOWNLOADSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -166,7 +166,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ENTITYSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -191,7 +191,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-ENTITYSERVICE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -216,7 +216,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-REPORTSERIVCE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -241,7 +241,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-REPORTSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -266,7 +266,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SEARCHSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -291,7 +291,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SEARCHSERVICE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -316,7 +316,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SUBMISSION-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -341,7 +341,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-SUBMISSIONSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -366,7 +366,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-UI-EXTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -391,7 +391,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-UI-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -416,7 +416,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-USERSERVICE"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -441,7 +441,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for DataHub-TEST-USERSERVICE-INTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -466,7 +466,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for S3-ENDPOINTS"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -491,7 +491,7 @@ Resources:
     #         AlarmDescription: "Alarm when unhealthy host count is greater than 0 for S3-ENDPOINTS-EXTERNAL"
     #         ActionsEnabled: true
     #         AlarmActions:
-    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
+    #           - !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${ProjectName}-alerts-${Environment}"
     #         MetricName: "UnHealthyHostCount"
     #         Namespace: "AWS/ApplicationELB"
     #         Statistic: "Sum"
@@ -556,32 +556,32 @@ Resources:
     # LogsLogGroup4:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_datahub-os-logs_${AWS::AccountId}"
+    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_${ProjectName}-os-logs_${AWS::AccountId}"
 
     # LogsLogGroup5:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_datahub-os-microservice-logs_${AWS::AccountId}"
+    #         LogGroupName: !Sub "/aws/lambda/LogsToElasticsearch_${ProjectName}-os-microservice-logs_${AWS::AccountId}"
 
     EmailServiceLogGroup:
         Type: "AWS::Logs::LogGroup"
         Properties:
-            LogGroupName: "/aws/lambda/DataHub-EmailService"
+            LogGroupName: !Sub "/aws/lambda/${ProjectName}-EmailService"
 
     # LogsLogGroup7:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/SFTP-DataHub-GetUserConfigLambda-Irb8yyeNdwvT"
+    #         LogGroupName: !Sub "/aws/lambda/SFTP-${ProjectName}-GetUserConfigLambda-Irb8yyeNdwvT"
 
     # LogsLogGroup8:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/SFTP-DataHub-VPC-GetUserConfigLambda-21cVCJ39gC7Q"
+    #         LogGroupName: !Sub "/aws/lambda/SFTP-${ProjectName}-VPC-GetUserConfigLambda-21cVCJ39gC7Q"
 
     # LogsLogGroup9:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/SFTP-DataHub-VPC-GetUserConfigLambda-yA9UDaKoavQB"
+    #         LogGroupName: !Sub "/aws/lambda/SFTP-${ProjectName}-VPC-GetUserConfigLambda-yA9UDaKoavQB"
 
     # LogsLogGroup10:
     #     Type: "AWS::Logs::LogGroup"
@@ -601,7 +601,7 @@ Resources:
     # LogsLogGroup15:
     #     Type: "AWS::Logs::LogGroup"
     #     Properties:
-    #         LogGroupName: "/aws/lambda/sftp-datahub-GetUserConfigLambda-kTGcrVdazMMM"
+    #         LogGroupName: !Sub "/aws/lambda/sftp-${ProjectName}-GetUserConfigLambda-kTGcrVdazMMM"
 
     # LogsLogGroup16:
     #     Type: "AWS::Logs::LogGroup"
@@ -621,16 +621,16 @@ Resources:
     MicroservicesLogGroup:
         Type: "AWS::Logs::LogGroup"
         Properties:
-            LogGroupName: !Sub "/aws/ecs/datahub-microservices-${Environment}"
+            LogGroupName: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
 
     # Log subscription filters can only be created when the destination (e.g. Lambda, Kinesis, etc.)
     # exists. Therefore, these have been commented out for now.
     # LogsSubscriptionFilter:
     #     Type: "AWS::Logs::SubscriptionFilter"
     #     Properties:
-    #         LogGroupName: "datahub-microservices-test"
+    #         LogGroupName: !Sub "${ProjectName}-microservices-${Environment}"
     #         FilterPattern: ""
-    #         DestinationArn: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LogsToElasticsearch_datahub-os-logs_${AWS::AccountId}"
+    #         DestinationArn: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:LogsToElasticsearch_${ProjectName}-os-logs_${AWS::AccountId}"
 
     # CloudWatchAnomalyDetector:
     #     Type: "AWS::CloudWatch::AnomalyDetector"
@@ -653,5 +653,5 @@ Resources:
     # LogsResourcePolicy2:
     #     Type: "AWS::Logs::ResourcePolicy"
     #     Properties:
-    #         PolicyName: "OpenSearchService-datahub-os-test-Application-logs"
-    #         PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"es.amazonaws.com\"},\"Action\":[\"logs:PutLogEvents\",\"logs:CreateLogStream\"],\"Resource\":\"arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/OpenSearchService/domains/datahub-os-test/application-logs:*\"}]}"
+    #         PolicyName: !Sub "OpenSearchService-${ProjectName}-os-${Environment}-Application-logs"
+    #         PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"es.amazonaws.com\"},\"Action\":[\"logs:PutLogEvents\",\"logs:CreateLogStream\"],\"Resource\":\"arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/OpenSearchService/domains/${ProjectName}-os-${Environment}/application-logs:*\"}]}"

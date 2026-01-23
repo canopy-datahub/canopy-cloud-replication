@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description:  >-
-    Last Modified: 2025/12/16 12:00:00
-    "Data Hub OpenSearch stack"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "OpenSearch stack"
 
 Parameters:
     Environment:
@@ -16,8 +16,6 @@ Parameters:
         Type: String
         Description: The Project name
         Default: datahub
-        AllowedValues:
-          - datahub
     OpenSearchMasterUsername:
         Type: String
         Description: Master user for OpenSearch internal user database
@@ -53,11 +51,11 @@ Resources:
         Properties:
             GroupDescription: Security group for OpenSearch domain
             VpcId:
-                Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-VPC-ID"
+                Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
             SecurityGroupIngress:
                 # Allow HTTPS from ECS services
                 - SourceSecurityGroupId:
-                      Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-ECS-Host-SecurityGroup"
+                      Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
                   IpProtocol: tcp
                   FromPort: 443
                   ToPort: 443
@@ -101,8 +99,8 @@ Resources:
                     Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${ProjectName}-opensearch-${Environment}/*"
             VPCOptions:
                 SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
+                  - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
                 SecurityGroupIds:
                   - !Ref OpenSearchSecurityGroup
             EncryptionAtRestOptions:
@@ -188,22 +186,22 @@ Outputs:
         Description: "OpenSearch Domain Endpoint"
         Value: !GetAtt OpenSearchServiceDomain.DomainEndpoint
         Export:
-            Name: !Sub "DataHub-OpenSearch-${Environment}-Endpoint"
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-Endpoint"
 
     OpenSearchDomainArn:
         Description: "OpenSearch Domain ARN"
         Value: !GetAtt OpenSearchServiceDomain.Arn
         Export:
-            Name: !Sub "DataHub-OpenSearch-${Environment}-Arn"
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-Arn"
 
     OpenSearchDomainName:
         Description: "OpenSearch Domain Name"
         Value: !Ref OpenSearchServiceDomain
         Export:
-            Name: !Sub "DataHub-OpenSearch-${Environment}-DomainName"
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-DomainName"
 
     OpenSearchSecurityGroupId:
         Description: "OpenSearch Security Group ID"
         Value: !Ref OpenSearchSecurityGroup
         Export:
-            Name: !Sub "DataHub-OpenSearch-${Environment}-SecurityGroup"
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-SecurityGroup"
