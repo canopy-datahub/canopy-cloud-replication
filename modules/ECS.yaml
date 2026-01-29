@@ -371,6 +371,9 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                  -
+                    Name: "AWS_SECRET_NAME"
+                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -451,6 +454,9 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                  -
+                    Name: "AWS_SECRET_NAME"
+                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -493,6 +499,9 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                  -
+                    Name: "AWS_SECRET_NAME"
+                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-search/${Environment}:latest"
                 LogConfiguration:
@@ -528,6 +537,9 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                  -
+                    Name: "AWS_SECRET_NAME"
+                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -571,30 +583,33 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                  -
+                    Name: "AWS_SECRET_NAME"
+                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Secrets:
                   - Name: DATAHUB_SPRING_MANAGEMENT_USER
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:DATAHUB_SPRING_MANAGEMENT_USER::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DATAHUB_SPRING_MANAGEMENT_USER::"
 
                   - Name: DATAHUB_SPRING_MANAGEMENT_PASSWORD
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:DATAHUB_SPRING_MANAGEMENT_PASSWORD::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DATAHUB_SPRING_MANAGEMENT_PASSWORD::"
 
                   - Name: dbuser
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbuser::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbuser::"
 
                   - Name: password
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:password::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:password::"
 
                   - Name: host
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:host::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:host::"
 
                   - Name: port
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:port::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:port::"
 
                   - Name: dbname
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbname::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbname::"
 
                   - Name: dbDriverClassName
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbDriverClassName::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbDriverClassName::"
 
                 Essential: true
                 HealthCheck:
@@ -682,6 +697,9 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
+                  -
+                    Name: "AWS_SECRET_NAME"
+                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -758,7 +776,7 @@ Resources:
                       Action:
                         - "secretsmanager:GetSecretValue"
                         - "secretsmanager:DescribeSecret"
-                      Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}*"
+                      Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}*"
 
     ECSCluster:
         Type: "AWS::ECS::Cluster"

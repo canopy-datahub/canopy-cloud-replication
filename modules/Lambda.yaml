@@ -48,7 +48,7 @@ Resources:
                 Action:
                   - "secretsmanager:GetSecretValue"
                   - "secretsmanager:DescribeSecret"
-                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}-*"
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}-*"
         - PolicyName: "LambdaRDSAccess"
           PolicyDocument:
             Version: "2012-10-17"
@@ -131,7 +131,7 @@ Resources:
                 Action:
                   - "secretsmanager:GetSecretValue"
                   - "secretsmanager:DescribeSecret"
-                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}-*"
+                Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}-*"
         - PolicyName: "LambdaS3Access"
           PolicyDocument:
             Version: "2012-10-17"
@@ -160,7 +160,7 @@ Resources:
     #                 VARIABLE_REPORT_PATH: "variables-explorer/Complete-Data-Variable-Report.xlsx"
     #                 BUCKET: "datahub.stanford.edu"
     #                 ALL_VARS_UPLOAD_PATH: "variables-explorer/all_variables_data_model.json"
-    #                 SECRET_NAME: "application_prod"
+    #                 SECRET_NAME: !Sub "${ProjectName}_application_${Environment}"
     #                 REPORT_NAME: "Complete-Data-Variable-Report.xlsx"
     #                 TEMPLATE_REPORT_PATH: "variables-report/Template Variable Report.xlsx"
     #                 REGION: !Ref AWS::Region
@@ -262,7 +262,7 @@ Resources:
       Environment:
         Variables:
           REGION_NAME: "us-east-1"
-          SECRET_NAME: !Sub "application_${Environment}"
+          SECRET_NAME: !Sub "${ProjectName}_application_${Environment}"
       FunctionName: !Sub "${ProjectName}-OpenSearchRefresh"
       Handler: "opensearch_reindex_aws.lambda_handler"
       Architectures:
