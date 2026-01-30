@@ -13,11 +13,11 @@ Parameters:
       - shared
   ProjectName:
     Type: String
-    Description: The Project name
+    Description: The Project name (must be lowercase for S3 bucket names; e.g. redwood not Redwood)
     Default: datahub
   DataHubUniqueId:
     Type: String
-    Description: A unique identifier to ensure S3 bucket names are globally unique
+    Description: A unique identifier to ensure S3 bucket names are globally unique (must be lowercase for S3 bucket names)
     Default: stanford
 
 Conditions:
