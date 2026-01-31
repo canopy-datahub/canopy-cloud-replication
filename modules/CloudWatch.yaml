@@ -613,10 +613,6 @@ Resources:
     #     Properties:
     #         LogGroupName: !Sub "/aws/lambda/${AWS::Region}.dev-va-swdev-edgeLambda-EdgeLambda-oWKdf8guxe9U"
 
-    VariablesReportLogGroup:
-        Type: "AWS::Logs::LogGroup"
-        Properties:
-            LogGroupName: "/aws/lambda/variables-report"
 
     MicroservicesLogGroup:
         Type: "AWS::Logs::LogGroup"
