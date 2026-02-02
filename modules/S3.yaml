@@ -75,29 +75,9 @@ Resources:
         - BucketKeyEnabled: false
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
-      ## May be using EventBridge instead of S3 Events
-      # NotificationConfiguration:
-      #   QueueConfigurations: []
-      #   LambdaConfigurations: []
-      #   EventBridgeConfiguration:
-      #     EventBridgeEnabled: true
-      #   TopicConfigurations:
-      #   - Topic: !Sub "arn:aws:sns:us-east-1:${AWS::AccountId}:SFTP-Object-Upload-Topic-${Environment}" ##FIXME - Parameterize SNS Topic ARN
-      #     Filter:
-      #       S3Key:
-      #         Rules:
-      #         - Value: "test/"
-      #           Name: "Prefix"
-      #     Event: "s3:ObjectCreated:*"
-      #   - Topic: !Sub "arn:aws:sns:us-east-1:${AWS::AccountId}:SFTP-Object-Upload-Topic-${Environment}" ##FIXME - Parameterize SNS Topic ARN
-      #     Filter:
-      #       S3Key:
-      #         Rules:
-      #         - Value: "prod/"
-      #           Name: "Prefix"
-      #         - Value: ""
-      #           Name: "Suffix"
-      #     Event: "s3:ObjectCreated:*"
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
       # VersioningConfiguration:
       #   Status: "Enabled"
       Tags:
