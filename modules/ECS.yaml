@@ -109,48 +109,6 @@ Resources:
                 Weight: 1
                 Base: 0
 
-    ApprovedDataService:
-        Type: "AWS::ECS::Service"
-        Properties:
-            ServiceName: !Sub "${ProjectName}-ApprovedDataService"
-            Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers:
-              -
-                TargetGroupArn:
-                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-ApprovedDataServiceTargetGroup"
-                ContainerName: !Sub "${ProjectName}-ApprovedDataService"
-                ContainerPort: 8080
-            DesiredCount: 0
-            PlatformVersion: "1.4.0"
-            TaskDefinition: !Ref ApprovedServiceTaskDefinition
-            DeploymentConfiguration:
-                MaximumPercent: 200
-                MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker:
-                    Enable: true
-                    Rollback: true
-            NetworkConfiguration:
-                AwsvpcConfiguration:
-                    AssignPublicIp: "DISABLED"
-                    SecurityGroups:
-                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets:
-                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
-            HealthCheckGracePeriodSeconds: 300
-            SchedulingStrategy: "REPLICA"
-            DeploymentController:
-                Type: "ECS"
-            CapacityProviderStrategy:
-              -
-                CapacityProvider: "FARGATE"
-                Weight: 0
-                Base: 0
-              -
-                CapacityProvider: "FARGATE_SPOT"
-                Weight: 1
-                Base: 0
-
     EntityService:
         Type: "AWS::ECS::Service"
         Properties:
@@ -371,9 +329,6 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
-                  -
-                    Name: "AWS_SECRET_NAME"
-                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -454,9 +409,6 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
-                  -
-                    Name: "AWS_SECRET_NAME"
-                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -499,9 +451,6 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
-                  -
-                    Name: "AWS_SECRET_NAME"
-                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-search/${Environment}:latest"
                 LogConfiguration:
@@ -537,9 +486,6 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
-                  -
-                    Name: "AWS_SECRET_NAME"
-                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -583,33 +529,30 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
-                  -
-                    Name: "AWS_SECRET_NAME"
-                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Secrets:
                   - Name: DATAHUB_SPRING_MANAGEMENT_USER
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DATAHUB_SPRING_MANAGEMENT_USER::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:DATAHUB_SPRING_MANAGEMENT_USER::"
 
                   - Name: DATAHUB_SPRING_MANAGEMENT_PASSWORD
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DATAHUB_SPRING_MANAGEMENT_PASSWORD::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:DATAHUB_SPRING_MANAGEMENT_PASSWORD::"
 
                   - Name: dbuser
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbuser::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbuser::"
 
                   - Name: password
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:password::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:password::"
 
                   - Name: host
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:host::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:host::"
 
                   - Name: port
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:port::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:port::"
 
                   - Name: dbname
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbname::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbname::"
 
                   - Name: dbDriverClassName
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbDriverClassName::"
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}:dbDriverClassName::"
 
                 Essential: true
                 HealthCheck:
@@ -697,9 +640,6 @@ Resources:
                   -
                     Name: "SPRING_PROFILES_ACTIVE"
                     Value: !Ref Environment
-                  -
-                    Name: "AWS_SECRET_NAME"
-                    Value: !Sub "${ProjectName}_application_${Environment}"
                 Essential: true
                 HealthCheck:
                     Command:
@@ -776,7 +716,7 @@ Resources:
                       Action:
                         - "secretsmanager:GetSecretValue"
                         - "secretsmanager:DescribeSecret"
-                      Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}*"
+                      Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:application_${Environment}*"
 
     ECSCluster:
         Type: "AWS::ECS::Cluster"
