@@ -20,6 +20,10 @@ Parameters:
 
 Resources:
   # ============================================================================
+  # PREREQUISITE: Upload these S3 objects before deploying this stack:
+  #   - s3://${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}/email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar
+  #   - s3://${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}/opensearch-refresh/opensearch-refresh-lambda.zip
+  # ============================================================================
   # IAM ROLES
   # ============================================================================
 
@@ -271,7 +275,7 @@ Resources:
         S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
         S3Key: "opensearch-refresh/opensearch-refresh-lambda.zip"
       Layers:
-        - !Sub "arn:aws:lambda:us-east-1:772554522152:layer:psycopg2-layer:4" #Need to update this to the correct layer ARN
+        - !Sub "arn:aws:lambda:us-east-1:772554522152:layer:dependency-layer:2" #Need to update this to the correct layer ARN
       MemorySize: 2048
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: "python3.11"
