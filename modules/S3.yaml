@@ -132,32 +132,28 @@ Resources:
       #   DestinationBucketName: "datahub-s3-access-logging" ##FIXME - Parameterize Access Log Bucket Name
       #   LogFilePrefix: ""
 
-## Used for static website hosting
-
-  # S3BucketDataHubNihGov:
-  #   UpdateReplacePolicy: "Retain"
-  #   Type: "AWS::S3::Bucket"
-  #   DeletionPolicy: "Retain"
-  #   Properties:
-  #     PublicAccessBlockConfiguration:
-  #       RestrictPublicBuckets: true
-  #       IgnorePublicAcls: true
-  #       BlockPublicPolicy: true
-  #       BlockPublicAcls: true
-  #     BucketName: "datahub.stanford.edu" ##FIXME
-  #     VersioningConfiguration:
-  #       Status: "Enabled"
-  #     OwnershipControls:
-  #       Rules:
-  #       - ObjectOwnership: "BucketOwnerEnforced"
-  #     BucketEncryption:
-  #       ServerSideEncryptionConfiguration:
-  #       - BucketKeyEnabled: false
-  #         ServerSideEncryptionByDefault:
-  #           SSEAlgorithm: "AES256"
-  #     Tags:
-  #     - Value: "Production"
-  #       Key: "Environment"
+## Resource bucket for study UUID spreadsheet, and other static resources
+  S3BucketDataHubResources:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-resources-${DataHubUniqueId}-${Environment}"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+      Tags:
+      - Key: "Environment"
+        Value: !Sub "${Environment}"
 
 ## Bucket containing approved files for access after PII processing
   S3BucketDataHubDefault:
@@ -272,3 +268,8 @@ Outputs:
     Value: !GetAtt S3BucketDataHubLambdaArtifacts.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubLambdaArtifacts-Arn"
+  S3BucketDataHubResourcesName:
+    Description: "The ARN of the S3 bucket for static resources (study UUID spreadsheet, variable reports, etc.)"
+    Value: !GetAtt S3BucketDataHubResources.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubResources-Arn"
