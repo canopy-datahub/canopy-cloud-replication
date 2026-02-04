@@ -238,7 +238,7 @@ Resources:
         - "x86_64"
       Code:
         S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
-        S3Key: !Sub "email-service/${ProjectName}-service-email-0.0.1-SNAPSHOT-aws.jar"
+        S3Key: !Sub "email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar"
       MemorySize: 2048
       Role: !GetAtt SESLambdaExecutionRole.Arn
       Runtime: "java17"
