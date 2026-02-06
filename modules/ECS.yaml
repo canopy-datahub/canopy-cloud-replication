@@ -109,48 +109,7 @@ Resources:
                 Weight: 1
                 Base: 0
 
-    ApprovedDataService:
-        Type: "AWS::ECS::Service"
-        Properties:
-            ServiceName: !Sub "${ProjectName}-ApprovedDataService"
-            Cluster: !GetAtt ECSCluster.Arn
-            LoadBalancers:
-              -
-                TargetGroupArn:
-                  Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-ApprovedDataServiceTargetGroup"
-                ContainerName: !Sub "${ProjectName}-ApprovedDataService"
-                ContainerPort: 8080
-            DesiredCount: 0
-            PlatformVersion: "1.4.0"
-            TaskDefinition: !Ref ApprovedServiceTaskDefinition
-            DeploymentConfiguration:
-                MaximumPercent: 200
-                MinimumHealthyPercent: 100
-                DeploymentCircuitBreaker:
-                    Enable: true
-                    Rollback: true
-            NetworkConfiguration:
-                AwsvpcConfiguration:
-                    AssignPublicIp: "DISABLED"
-                    SecurityGroups:
-                      - Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup
-                    Subnets:
-                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
-                      - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
-            HealthCheckGracePeriodSeconds: 300
-            SchedulingStrategy: "REPLICA"
-            DeploymentController:
-                Type: "ECS"
-            CapacityProviderStrategy:
-              -
-                CapacityProvider: "FARGATE"
-                Weight: 0
-                Base: 0
-              -
-                CapacityProvider: "FARGATE_SPOT"
-                Weight: 1
-                Base: 0
-
+  
     EntityService:
         Type: "AWS::ECS::Service"
         Properties:
@@ -644,48 +603,6 @@ Resources:
             Cpu: "512"
             Memory: "1024"
 
-    ApprovedServiceTaskDefinition:
-        Type: "AWS::ECS::TaskDefinition"
-        Properties:
-            ContainerDefinitions:
-              -
-                Cpu: 1024
-                Environment:
-                  -
-                    Name: "SPRING_PROFILES_ACTIVE"
-                    Value: !Ref Environment
-                Essential: true
-                HealthCheck:
-                    Command:
-                      - "CMD-SHELL"
-                      - "curl -f http://localhost:8080/api/approved-data/v1/actuator/health || exit 1"
-                    Interval: 30
-                    Timeout: 5
-                    Retries: 3
-                    StartPeriod: 300
-                Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-approved-data-service/${Environment}:latest"
-                LogConfiguration:
-                    LogDriver: "awslogs"
-                    Options:
-                        awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
-                        awslogs-region: !Ref AWS::Region
-                        awslogs-stream-prefix: "approved-data-service"
-                Memory: 2048
-                Name: !Sub "${ProjectName}-ApprovedDataService"
-                PortMappings:
-                  -
-                    ContainerPort: 8080
-                    HostPort: 8080
-                    Protocol: "tcp"
-            Family: !Sub "${ProjectName}-approved-data-service-${Environment}"
-            TaskRoleArn: !Ref ECSTaskRole
-            ExecutionRoleArn: !Ref ECSExecutionRole
-            NetworkMode: "awsvpc"
-            RequiresCompatibilities:
-              - "EC2"
-              - "FARGATE"
-            Cpu: "1024"
-            Memory: "2048"
 
     DownloadServiceTaskDefinition:
         Type: "AWS::ECS::TaskDefinition"
@@ -751,7 +668,6 @@ Resources:
               - "arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess"
               - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
               - "arn:aws:iam::aws:policy/AmazonSESFullAccess"
-              - "arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess"
               - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
           
     ECSExecutionRole:
