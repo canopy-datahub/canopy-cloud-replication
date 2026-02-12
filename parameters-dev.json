@@ -1,9 +1,9 @@
 {
 	"Parameters": {
 		"Environment": "dev",
-		"ProjectName": "datahub",
+		"ProjectName": "redwood",
 		"Region": "us-east-1",
-		"DataHubUniqueId": "stanford",
+		"DataHubUniqueId": "cm",
 		"DBMasterUsername": "datahubpostgresdev",
 		"DBMasterPassword": "REPLACEME",
 		"PostgresMasterUsername": "datahubpostgresdev",
