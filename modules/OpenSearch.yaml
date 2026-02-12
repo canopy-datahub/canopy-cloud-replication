@@ -16,14 +16,14 @@ Parameters:
         Type: String
         Description: The Project name
         Default: datahub
-    OpenSearchMasterUsername:
+    OpenSearchUsername:
         Type: String
         Description: Master user for OpenSearch internal user database
         MinLength: 3
         MaxLength: 64
         AllowedPattern: "[a-zA-Z0-9_+=.@-]+"
         Default: opensearch
-    OpenSearchMasterPassword:
+    OpenSearchPassword:
         Type: String
         Description: Master password (use a strong value; rotate via stack update)
         NoEcho: true
@@ -136,8 +136,8 @@ Resources:
                 InternalUserDatabaseEnabled: true
                 AnonymousAuthEnabled: false
                 MasterUserOptions:
-                    MasterUserName: !Ref OpenSearchMasterUsername
-                    MasterUserPassword: !Ref OpenSearchMasterPassword
+                    MasterUserName: !Ref OpenSearchUsername
+                    MasterUserPassword: !Ref OpenSearchPassword
             Tags:
               -
                 Key: "Environment"
