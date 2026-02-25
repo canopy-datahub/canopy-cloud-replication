@@ -1,9 +1,9 @@
 {
 	"Parameters": {
 		"Environment": "dev",
-		"ProjectName": "redwood",
+		"ProjectName": "canopy",
 		"Region": "us-east-1",
-		"DataHubUniqueId": "cm",
+		"DataHubUniqueId": "canopy-id",
 		"DBMasterUsername": "datahubpostgresdev",
 		"DBMasterPassword": "REPLACEME",
 		"PostgresMasterUsername": "datahubpostgresdev",
@@ -13,6 +13,6 @@
 		"DataHubUserUsername": "datahub_user",
 		"DataHubUserPassword": "REPLACEME",
 		"OpenSearchUsername": "opensearch",
-		"OpenSearchPassword": "ChangeMe@2025"
+		"OpenSearchPassword": "ChangeMe@2026"
 	}
 }
