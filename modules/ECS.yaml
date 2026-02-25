@@ -711,3 +711,19 @@ Resources:
                 Weight: 1
                 Base: 0
 
+Outputs:
+  ECSClusterArn:
+    Description: ECS Cluster ARN for use by ECS-Keycloak stack
+    Value: !GetAtt ECSCluster.Arn
+    Export:
+      Name: !Sub "${ProjectName}-ECS-${Environment}-ClusterArn"
+  ECSTaskRoleArn:
+    Description: ECS Task Role ARN for use by ECS-Keycloak stack
+    Value: !GetAtt ECSTaskRole.Arn
+    Export:
+      Name: !Sub "${ProjectName}-ECS-${Environment}-TaskRoleArn"
+  ECSExecutionRoleArn:
+    Description: ECS Execution Role ARN for use by ECS-Keycloak stack
+    Value: !GetAtt ECSExecutionRole.Arn
+    Export:
+      Name: !Sub "${ProjectName}-ECS-${Environment}-ExecutionRoleArn"

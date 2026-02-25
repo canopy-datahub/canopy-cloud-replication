@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "ECS Keycloak service only"
+
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+
+Resources:
+  KeycloakTaskDefinition:
+    Type: "AWS::ECS::TaskDefinition"
+    Properties:
+      ContainerDefinitions:
+        -
+          Cpu: 2048
+          Environment:
+            -
+              Name: "KEYCLOAK_ADMIN"
+              Value: "admin"
+            -
+              Name: "KC_DB"
+              Value: "dev-file"
+            -
+              Name: "KC_HOSTNAME_STRICT"
+              Value: "false"
+            -
+              Name: "KC_HOSTNAME_STRICT_HTTPS"
+              Value: "false"
+            -
+              Name: "KC_HTTP_ENABLED"
+              Value: "true"
+            -
+              Name: "KC_HEALTH_ENABLED"
+              Value: "true"
+            -
+              Name: "KC_METRICS_ENABLED"
+              Value: "true"
+            -
+              Name: "KC_HTTP_MANAGEMENT_HEALTH_ENABLED"
+              Value: "false"
+          Secrets:
+            -
+              Name: "KEYCLOAK_ADMIN_PASSWORD"
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KEYCLOAK_ADMIN_PASSWORD::"
+          Essential: true
+          HealthCheck:
+            Command:
+              - "CMD-SHELL"
+              - "curl -f http://localhost:8080/health/ready || exit 1"
+            Interval: 30
+            Timeout: 5
+            Retries: 3
+            StartPeriod: 300
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-keycloak/${Environment}:latest"
+          LogConfiguration:
+            LogDriver: "awslogs"
+            Options:
+              awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: "keycloak"
+          Memory: 4096
+          Name: !Sub "${ProjectName}-Keycloak"
+          PortMappings:
+            -
+              ContainerPort: 8080
+              HostPort: 8080
+              Protocol: "tcp"
+      Family: !Sub "${ProjectName}-keycloak-${Environment}"
+      TaskRoleArn:
+        Fn::ImportValue: !Sub "${ProjectName}-ECS-${Environment}-TaskRoleArn"
+      ExecutionRoleArn:
+        Fn::ImportValue: !Sub "${ProjectName}-ECS-${Environment}-ExecutionRoleArn"
+      NetworkMode: "awsvpc"
+      RequiresCompatibilities:
+        - "EC2"
+        - "FARGATE"
+      Cpu: "2048"
+      Memory: "4096"
+
+  KeycloakService:
+    Type: "AWS::ECS::Service"
+    Properties:
+      ServiceName: !Sub "${ProjectName}-Keycloak"
+      Cluster:
+        Fn::ImportValue: !Sub "${ProjectName}-ECS-${Environment}-ClusterArn"
+      LoadBalancers:
+        -
+          TargetGroupArn:
+            Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-KeycloakTargetGroup"
+          ContainerName: !Sub "${ProjectName}-Keycloak"
+          ContainerPort: 8080
+      DesiredCount: 1
+      PlatformVersion: "LATEST"
+      TaskDefinition: !Ref KeycloakTaskDefinition
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: false
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: "DISABLED"
+          SecurityGroups:
+            - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
+          Subnets:
+            - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+            - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
+      HealthCheckGracePeriodSeconds: 600
+      SchedulingStrategy: "REPLICA"
+      DeploymentController:
+        Type: "ECS"
+      CapacityProviderStrategy:
+        -
+          CapacityProvider: "FARGATE"
+          Weight: 0
+          Base: 0
+        -
+          CapacityProvider: "FARGATE_SPOT"
+          Weight: 1
+          Base: 0

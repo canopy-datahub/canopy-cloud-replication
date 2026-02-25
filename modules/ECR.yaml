@@ -80,3 +80,8 @@ Resources:
         Properties:
             RepositoryName: !Sub "${ProjectName}-user-service/${Environment}"
 
+    KeycloakRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-keycloak/${Environment}"
+
