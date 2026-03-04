@@ -22,6 +22,9 @@ Parameters:
         Type: String
         NoEcho: true
         Description: Master password for the PostgreSQL instance
+    MyIP:
+        Type: String
+        Description: Your workstation's public IP in CIDR notation (e.g. 203.0.113.5/32) — required to connect to RDS for schema setup
 
 Conditions:
     DEV: !Equals [!Ref Environment, dev]
@@ -68,32 +71,6 @@ Resources:
             OptionGroupName: "default:postgres-16"
             CACertificateIdentifier: "rds-ca-rsa2048-g1"
 
-    # RDSDBProxy:
-    #     Type: "AWS::RDS::DBProxy"
-    #     Properties:
-    #         DBProxyName: !Sub "datahub-db-proxy-${Environment}"
-    #         EngineFamily: "POSTGRESQL"
-    #         VpcSecurityGroupIds:
-    #           - "sg-0dc608be5f7eee5f6" ## GET FROM NETWORKING STACK
-    #         VpcSubnetIds:
-    #           - "subnet-0835f4ca5509a3ecc" ## GET FROM NETWORKING STACK
-    #           - "subnet-041462c76d97c28a0" ## GET FROM NETWORKING STACK
-    #         # Auth: ## GET FROM SECRETS MANAGER ONCE COMPLETED
-    #         #   -
-    #         #     AuthScheme: "SECRETS"
-    #         #     SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${RDSDBInstance}/testdatahubpostgres-IL7dGP"
-    #         #     IAMAuth: "DISABLED"
-    #         #     ClientPasswordAuthType: "POSTGRES_SCRAM_SHA_256"
-    #         #   -
-    #         #     AuthScheme: "SECRETS"
-    #         #     SecretArn: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${RDSDBInstance}/datahub_admin-VePiXp"
-    #         #     IAMAuth: "DISABLED"
-    #         #     ClientPasswordAuthType: "POSTGRES_SCRAM_SHA_256"
-    #         RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/rds-proxy-role-1697141531813"  ## CREATE HERE
-    #         RequireTLS: true
-    #         IdleClientTimeout: 1800
-    #         DebugLogging: false
-
     RDSDBSubnetGroup:
         Type: "AWS::RDS::DBSubnetGroup"
         Properties:
@@ -110,18 +87,6 @@ Resources:
             Family: "postgres16"
             Parameters:
                 shared_preload_libraries: "pg_stat_statements,pg_tle,pg_cron"
-
-    # RDSDBProxyTargetGroup:
-    #     Type: "AWS::RDS::DBProxyTargetGroup"
-    #     Properties:
-    #         DBProxyName: !Sub "datahub-db-proxy-${Environment}"
-    #         TargetGroupName: "default"
-    #         ConnectionPoolConfigurationInfo:
-    #             MaxConnectionsPercent: 100
-    #             MaxIdleConnectionsPercent: 50
-    #             ConnectionBorrowTimeout: 120
-    #         DBInstanceIdentifiers:
-    #           - !Ref RDSDBInstance
 
     RdsSecurityGroup:
         Type: "AWS::EC2::SecurityGroup"
@@ -152,13 +117,12 @@ Resources:
                 IpProtocol: "tcp"
                 ToPort: 5432
 
-              # External user access - Add user public IP addresses below
-              # Example: 
-              - CidrIp: "73.92.102.66/32"
-                Description: "Atti workstation"
+              # Deployer workstation — set MyIP in parameters-{ENV}.json
+              - CidrIp: !Ref MyIP
+                Description: "Deployer workstation"
                 FromPort: 5432
                 IpProtocol: "tcp"
-                ToPort: 5432    
+                ToPort: 5432
 
               - SourceSecurityGroupId:
                   Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
@@ -168,63 +132,10 @@ Resources:
                 IpProtocol: "tcp"
                 ToPort: 5432
 
-              # - SourceSecurityGroupId: !Ref RdsSecurityGroup
-              #   SourceSecurityGroupOwnerId: !Ref AWS::AccountId
-              #   Description: "Proxy & DB SG"
-              #   FromPort: 5432
-              #   IpProtocol: "tcp"
-              #   ToPort: 5432
-
             SecurityGroupEgress:
               - CidrIp: "0.0.0.0/0"
                 Description: "Allow all outbound traffic"
                 IpProtocol: "-1"
-
-    # RdsProxyPolicy1:
-    #   Type: AWS::IAM::Policy
-    #   Properties:
-    #     PolicyDocument:
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         - Sid: "GetSecretValue"
-    #           Action:
-    #             - secretsmanager:GetSecretValue
-    #           Resource:  ### CHANGE THESE WHEN SECRETS ARE CREATED
-    #             - "arn:aws:secretsmanager:us-east-2:652837727789:secret:rds-db-credentials/datahub-dev-postgresql/iam_db_user_dev/1697141531813-Vy6AWB"
-    #             - "arn:aws:secretsmanager:us-east-1:652837727789:secret:datahub-test-postgresql/testdatahubpostgres-IL7dGP"
-    #             - "arn:aws:secretsmanager:us-east-1:652837727789:secret:datahub-test-postgresql/datahub_admin-VePiXp"
-    #             - "arn:aws:secretsmanager:us-east-2:652837727789:secret:datahub-dev-postgresql/datahub_user-1NYhGH"
-    #           Effect: Allow
-    #         - Sid: "DecryptSecretValue"
-    #           Action:
-    #             - kms:Decrypt
-    #           Resource:  ### CHANGE THESE WHEN SECRETS ARE CREATED
-    #             - "arn:aws:kms:us-east-2:652837727789:key/33554ea3-b070-403e-aa2d-61c297974d3f"
-    #           Effect: Allow
-    #           Condition:
-    #             StringEquals:
-    #               kms:ViaService:
-    #                 - secretsmanager.us-east-2.amazonaws.com
-    #     Roles:
-    #       - !Ref RdsProxyRole
-    #     PolicyName: !Sub "${ProjectName}-rds-proxy-policy1-${Environment}"
-
-    # RdsProxyRole:
-    #   Type: AWS::IAM::Role
-    #   Properties:
-    #     Path: /
-    #     RoleName: !Sub "${ProjectName}-rds-proxy-role-${Environment}"
-    #     AssumeRolePolicyDocument:
-    #       Version: '2012-10-17'
-    #       Statement:
-    #         - Sid: ""
-    #           Effect: Allow
-    #           Principal:
-    #             Service: rds.amazonaws.com
-    #           Action: sts:AssumeRole
-    #     MaxSessionDuration: 3600
-    #     ManagedPolicyArns:
-    #       - !Sub arn:aws:iam::${AWS::AccountId}:policy/rds-proxy-policy-1697141531813
 
 Outputs:
   RdsEndpoint:

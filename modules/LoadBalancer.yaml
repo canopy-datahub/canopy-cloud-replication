@@ -102,24 +102,6 @@ Resources:
                 TargetGroupArn: !Ref UIServiceTargetGroup
                 Type: "forward"
 
-    # HttpLoadBalancerListener:
-    #     Type: "AWS::ElasticLoadBalancingV2::Listener"
-    #     Properties:
-    #         LoadBalancerArn: !Ref DataHubPublicLoadBalancer
-    #         Port: 80
-    #         Protocol: "HTTP"
-    #         DefaultActions:
-    #           -
-    #             Order: 1
-    #             RedirectConfig:
-    #                 Protocol: "HTTPS"
-    #                 Port: "443"
-    #                 Host: "#{host}"
-    #                 Path: "/#{path}"
-    #                 Query: "#{query}"
-    #                 StatusCode: "HTTP_301"
-    #             Type: "redirect"
-
     UserServiceListenerRule:
         Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
         Properties:
@@ -284,35 +266,6 @@ Resources:
                     TargetGroupStickinessConfig:
                         Enabled: false
 
-    # SagemakerAccessorListenerRule: # is this used?
-    #     Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
-    #     Properties:
-    #         Priority: "90"
-    #         ListenerArn: !Ref HttpsLoadBalancerListener
-    #         Conditions:
-    #           -
-    #             Field: "path-pattern"
-    #             PathPatternConfig:
-    #                 Values:
-    #                   - "/api/sagemaker-accessor*"
-    #         Actions:
-    #           -
-    #             Type: "forward"
-    #             TargetGroupArn: !Ref SagemakerAccessorTargetGroup
-    #             Order: 1
-    #             ForwardConfig:
-    #                 TargetGroups:
-    #                   -
-    #                     TargetGroupArn: !Ref SagemakerAccessorTargetGroup
-    #                     Weight: 1
-    #                 TargetGroupStickinessConfig:
-    #                     Enabled: false
-    #                     DurationSeconds: 3600
-    #         Tags:
-    #           -
-    #             Key: "Name"
-    #             Value: ""
-
     ApprovedDataServiceListenerRule:
         Type: "AWS::ElasticLoadBalancingV2::ListenerRule"
         Properties:
@@ -426,99 +379,6 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets:
-            #   -
-            #     Id: "10.40.72.98"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.62.134"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
-
-    # SagemakerAccessorTargetGroup:  # Can we delete this?
-    #     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    #     Properties:
-    #         HealthCheckIntervalSeconds: 35
-    #         HealthCheckPath: "/"
-    #         HealthCheckTimeoutSeconds: 30
-    #         UnhealthyThresholdCount: 2
-    #         TargetType: "lambda"
-    #         Matcher:
-    #             HttpCode: "200"
-    #         HealthyThresholdCount: 5
-    #         Name: "DataHub-Lambda-SageMakerAccessor"
-    #         HealthCheckEnabled: false
-    #         TargetGroupAttributes:
-    #           -
-    #             Key: "lambda.multi_value_headers.enabled"
-    #             Value: "false"
-    #         Targets:
-    #           -
-    #             Id: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:sagemaker-accessor-3-11"
-    #             AvailabilityZone: "all"
-
-    # PlaceholderHTTPSTargetGroup: # Can we delete this?
-    #     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    #     Properties:
-    #         HealthCheckIntervalSeconds: 30
-    #         HealthCheckPath: "/"
-    #         Port: 443
-    #         Protocol: "HTTPS"
-    #         HealthCheckPort: "traffic-port"
-    #         HealthCheckProtocol: "HTTPS"
-    #         HealthCheckTimeoutSeconds: 5
-    #         UnhealthyThresholdCount: 2
-    #         TargetType: "ip"
-    #         Matcher:
-    #             HttpCode: "200"
-    #         HealthyThresholdCount: 5
-    #         VpcId: "vpc-072375d7b124d35d7"
-    #         Name: !Sub "${DataHubPublicLoadBalancer.LoadBalancerName}-Default-HTTPS-TG"
-    #         HealthCheckEnabled: true
-    #         TargetGroupAttributes:
-    #           -
-    #             Key: "target_group_health.unhealthy_state_routing.minimum_healthy_targets.percentage"
-    #             Value: "off"
-    #           -
-    #             Key: "deregistration_delay.timeout_seconds"
-    #             Value: "300"
-    #           -
-    #             Key: "stickiness.type"
-    #             Value: "lb_cookie"
-    #           -
-    #             Key: "stickiness.lb_cookie.duration_seconds"
-    #             Value: "86400"
-    #           -
-    #             Key: "slow_start.duration_seconds"
-    #             Value: "0"
-    #           -
-    #             Key: "stickiness.app_cookie.duration_seconds"
-    #             Value: "86400"
-    #           -
-    #             Key: "load_balancing.algorithm.type"
-    #             Value: "round_robin"
-    #           -
-    #             Key: "load_balancing.cross_zone.enabled"
-    #             Value: "use_load_balancer_configuration"
-    #           -
-    #             Key: "target_group_health.dns_failover.minimum_healthy_targets.percentage"
-    #             Value: "off"
-    #           -
-    #             Key: "target_group_health.unhealthy_state_routing.minimum_healthy_targets.count"
-    #             Value: "1"
-    #           -
-    #             Key: "stickiness.enabled"
-    #             Value: "false"
-    #           -
-    #             Key: "target_group_health.dns_failover.minimum_healthy_targets.count"
-    #             Value: "1"
-    #           -
-    #             Key: "stickiness.app_cookie.cookie_name"
-    #             Value: ""
-    #           -
-    #             Key: "load_balancing.algorithm.anomaly_mitigation"
-    #             Value: "off"
 
     DownloadServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -582,17 +442,6 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # This is incorrect, should be the IPs of the download service
-            # Can we leave this empty? This will be populated by ECS service discovery?
-            # Targets:
-            #   -
-            #     Id: "10.40.72.10"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.54.147"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
 
     EntityServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -656,77 +505,6 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets:
-            #   -
-            #     Id: "10.40.71.28"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.52.61"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
-
-    # PlaceholderHttpTargetGroup: # Can we delete this?
-    #     Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    #     Properties:
-    #         HealthCheckIntervalSeconds: 30
-    #         HealthCheckPath: "/"
-    #         Port: 80
-    #         Protocol: "HTTP"
-    #         HealthCheckPort: "traffic-port"
-    #         HealthCheckProtocol: "HTTP"
-    #         HealthCheckTimeoutSeconds: 5
-    #         UnhealthyThresholdCount: 2
-    #         TargetType: "ip"
-    #         Matcher:
-    #             HttpCode: "200"
-    #         HealthyThresholdCount: 5
-    #         VpcId: "vpc-072375d7b124d35d7"
-    #         Name: !Sub "${DataHubPublicLoadBalancer.LoadBalancerName}-Default-TG"
-    #         HealthCheckEnabled: true
-    #         TargetGroupAttributes:
-    #           -
-    #             Key: "target_group_health.unhealthy_state_routing.minimum_healthy_targets.percentage"
-    #             Value: "off"
-    #           -
-    #             Key: "deregistration_delay.timeout_seconds"
-    #             Value: "300"
-    #           -
-    #             Key: "stickiness.type"
-    #             Value: "lb_cookie"
-    #           -
-    #             Key: "stickiness.lb_cookie.duration_seconds"
-    #             Value: "86400"
-    #           -
-    #             Key: "slow_start.duration_seconds"
-    #             Value: "0"
-    #           -
-    #             Key: "stickiness.app_cookie.duration_seconds"
-    #             Value: "86400"
-    #           -
-    #             Key: "load_balancing.algorithm.type"
-    #             Value: "round_robin"
-    #           -
-    #             Key: "load_balancing.cross_zone.enabled"
-    #             Value: "use_load_balancer_configuration"
-    #           -
-    #             Key: "target_group_health.dns_failover.minimum_healthy_targets.percentage"
-    #             Value: "off"
-    #           -
-    #             Key: "target_group_health.unhealthy_state_routing.minimum_healthy_targets.count"
-    #             Value: "1"
-    #           -
-    #             Key: "stickiness.enabled"
-    #             Value: "false"
-    #           -
-    #             Key: "target_group_health.dns_failover.minimum_healthy_targets.count"
-    #             Value: "1"
-    #           -
-    #             Key: "stickiness.app_cookie.cookie_name"
-    #             Value: ""
-    #           -
-    #             Key: "load_balancing.algorithm.anomaly_mitigation"
-    #             Value: "off"
 
     SearchServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -790,15 +568,6 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets:
-            #   -
-            #     Id: "10.40.73.76"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.61.190"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
 
     UIServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -862,15 +631,7 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets:
-            #   -
-            #     Id: "10.40.73.169"
-            #     Port: 3000
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.52.197"
-            #     Port: 3000
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
+
 
     ReportServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -934,15 +695,7 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets:
-            #   -
-            #     Id: "10.40.71.26"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.49.134"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
+
 
     SubmissionServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -1006,15 +759,7 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets:
-            #   -
-            #     Id: "10.40.48.173"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
-            #   -
-            #     Id: "10.40.52.153"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
+
 
     S3TargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -1078,15 +823,7 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets: # Hard coded IPs of S3 endpoints, probably better to manage outside CF
-            #   -
-            #     Id: "10.40.61.148"
-            #     Port: 443
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
-            #   -
-            #     Id: "10.40.68.180"
-            #     Port: 443
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
+
 
     UserServiceTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -1150,15 +887,7 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets: # We cannot use hard coded IPs on ECS Services, will comment out for now
-            #   -
-            #     Id: "10.40.76.82"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
-            #   -
-            #     Id: "10.40.57.138"
-            #     Port: 8080
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
+
 
     S3TargetGroupExternal:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
@@ -1222,15 +951,7 @@ Resources:
               -
                 Key: "load_balancing.algorithm.anomaly_mitigation"
                 Value: "off"
-            # Targets: # Same as S3TargetGroup, may want to leave empty and manage outside CF
-            #   -
-            #     Id: "10.40.61.148"
-            #     Port: 443
-            #     AvailabilityZone: !Sub "${AWS::Region}a"
-            #   -
-            #     Id: "10.40.68.180"
-            #     Port: 443
-            #     AvailabilityZone: !Sub "${AWS::Region}b"
+
 
     KeycloakTargetGroup:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"

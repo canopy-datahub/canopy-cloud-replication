@@ -1,18 +1,22 @@
 {
 	"Parameters": {
-		"Environment": "dev",
-		"ProjectName": "canopy",
+		"Environment": "test",
+		"ProjectName": "redwood",
 		"Region": "us-east-1",
-		"DataHubUniqueId": "canopy-id",
-		"DBMasterUsername": "datahubpostgresdev",
+		"DataHubUniqueId": "cm",
+		"DBMasterUsername": "datahubpostgrestest",
 		"DBMasterPassword": "REPLACEME",
-		"PostgresMasterUsername": "datahubpostgresdev",
+		"PostgresMasterUsername": "datahubpostgrestest",
 		"PostgresMasterPassword": "REPLACEME",
 		"DataHubAdminUsername": "datahub_admin",
 		"DataHubAdminPassword": "REPLACEME",
 		"DataHubUserUsername": "datahub_user",
 		"DataHubUserPassword": "REPLACEME",
+		"OpenSearchEndpoint": "REPLACEME",
+		"MyIP": "REPLACEME",
 		"OpenSearchUsername": "opensearch",
-		"OpenSearchPassword": "ChangeMe@2026"
+		"OpenSearchPassword": "ChangeMe@2026",
+		"LoadBalancerDomainName": "REPLACEME",
+		"RDSEndpoint": "REPLACEME"
 	}
 }
