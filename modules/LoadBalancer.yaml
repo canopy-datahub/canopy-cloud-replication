@@ -1236,17 +1236,17 @@ Resources:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
         Properties:
             HealthCheckIntervalSeconds: 30
-            HealthCheckPath: "/health/ready"
+            HealthCheckPath: "/realms/master"
             Port: 8080
             Protocol: "HTTP"
             HealthCheckPort: "traffic-port"
             HealthCheckProtocol: "HTTP"
             HealthCheckTimeoutSeconds: 5
-            UnhealthyThresholdCount: 2
+            UnhealthyThresholdCount: 3
             TargetType: "ip"
             Matcher:
                 HttpCode: "200,302"
-            HealthyThresholdCount: 5
+            HealthyThresholdCount: 3
             VpcId:
               Fn::ImportValue: !Sub ${ProjectName}-Networking-${Environment}-VPC-ID
             Name: !Sub "${ProjectName}-Keycloak-${Environment}"
