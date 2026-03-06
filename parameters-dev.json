@@ -1,6 +1,6 @@
 {
 	"Parameters": {
-		"Environment": "test",
+		"Environment": "dev",
 		"ProjectName": "redwood",
 		"Region": "us-east-1",
 		"DataHubUniqueId": "cm",
@@ -14,6 +14,8 @@
 		"DataHubUserPassword": "REPLACEME",
 		"OpenSearchEndpoint": "REPLACEME",
 		"MyIP": "REPLACEME",
+		"SupportEmail": "replaceme@example.com",
+		"StakeholderEmailsStudyReg": "replaceme@example.com",
 		"OpenSearchUsername": "opensearch",
 		"OpenSearchPassword": "ChangeMe@2026",
 		"LoadBalancerDomainName": "REPLACEME",
