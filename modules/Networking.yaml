@@ -186,31 +186,6 @@ Resources:
             Value: !Sub "${ProjectName}-Nat-Gateway-${Environment}"
 
 
-# RDS PROXY ENDPOINT
-  # DataHubVPCEndpoint:
-  #   Type: "AWS::EC2::VPCEndpoint"
-  #   Properties:
-  #     VpcEndpointType: "Interface"
-  #     VpcId: !Ref DataHubVPC
-  #     ServiceName: !Sub "com.amazonaws.vpce.${AWS::Region}.vpce-svc-045553b17ec91b500"
-  #     PolicyDocument: |
-  #         {
-  #           "Statement": [
-  #             {
-  #               "Action": "*",
-  #               "Effect": "Allow",
-  #               "Principal": "*",
-  #               "Resource": "*"
-  #             }
-  #           ]
-  #         }
-  #     SubnetIds:
-  #       - !Ref DataHubPublicSubnetAZ1
-  #       - !Ref DataHubPrivateSubnetAZ1
-  #     PrivateDnsEnabled: false
-  #     SecurityGroupIds:
-  #       - !Ref ECSHostSecurityGroup
-
   DataHubS3VPCEndpoint:
       Type: "AWS::EC2::VPCEndpoint"
       Properties:
@@ -234,30 +209,6 @@ Resources:
           PrivateDnsEnabled: false
           SecurityGroupIds:
             - !Ref ECSHostSecurityGroup
-
-  # DataHubVPCEndpoint3:
-  #   Type: "AWS::EC2::VPCEndpoint"
-  #   Properties:
-  #     VpcEndpointType: "Interface"
-  #     VpcId: !Ref DataHubVPC
-  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.datasync"
-  #     PolicyDocument: |
-  #         {
-  #           "Statement": [
-  #             {
-  #               "Action": "*",
-  #               "Effect": "Allow",
-  #               "Principal": "*",
-  #               "Resource": "*"
-  #             }
-  #           ]
-  #         }
-  #     SubnetIds:
-  #       - !Ref DataHubPrivateSubnetAZ1
-  #       - !Ref DataHubPrivateSubnetAZ2
-  #     PrivateDnsEnabled: true
-  #     SecurityGroupIds:
-  #       - "sg-0aa8e3f5049fbe1bf"
 
   DataHubVPCGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"

@@ -149,85 +149,6 @@ Resources:
                   - !Sub "arn:aws:s3:::${ProjectName}-*"
                   - !Sub "arn:aws:s3:::${ProjectName}-*/*"
 
-  # ============================================================================
-  # LAMBDA FUNCTIONS
-  # ============================================================================
-
-    # VariablesReportLambda:
-    #     Type: "AWS::Lambda::Function"
-    #     Properties:
-    #         FunctionName: "variables-report"
-    #         Description: "Variables Report Lambda Function"
-    #         Environment:
-    #             Variables:
-    #                 CORE_VARIABLES_UPLOAD_PATH: "variables-explorer/core_variables_data_model.json"
-    #                 VARIABLE_REPORT_PATH: "variables-explorer/Complete-Data-Variable-Report.xlsx"
-    #                 BUCKET: "datahub.stanford.edu"
-    #                 ALL_VARS_UPLOAD_PATH: "variables-explorer/all_variables_data_model.json"
-    #                 SECRET_NAME: !Sub "${ProjectName}_application_${Environment}"
-    #                 REPORT_NAME: "Complete-Data-Variable-Report.xlsx"
-    #                 TEMPLATE_REPORT_PATH: "variables-report/Template Variable Report.xlsx"
-    #                 REGION: !Ref AWS::Region
-
-    #         Handler: "lambda_function.lambda_handler"
-    #         Architectures:
-    #           - "x86_64"
-    #         Code:
-    #             ZipFile: |
-    #                 import json
-    #                 def lambda_handler(event, context):
-    #                     return {
-    #                         'statusCode': 200,
-    #                         'body': json.dumps('Hello from Variables Report Lambda!')
-    #                     }
-    #         MemorySize: 512
-    #         Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-    #         Runtime: "python3.11"
-    #         Timeout: 60
-    #         TracingConfig:
-    #             Mode: "PassThrough"
-    #         VpcConfig:
-    #             SubnetIds:
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
-    #             SecurityGroupIds:
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
-    #         # Layers:
-    #         #   - !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:psycopg2-custom:1"
-    #         #   - !Sub "arn:aws:lambda:${AWS::Region}:336392948345:layer:AWSSDKPandas-Python311:16"
-    #         EphemeralStorage:
-    #             Size: 512
-
-    # DataHubReporterTestLambda:
-    #     Type: "AWS::Lambda::Function"
-    #     Properties:
-    #         Description: "DataHub Reporter Test Lambda Function"
-    #         FunctionName: "datahub-reporter-test"
-    #         Architectures:
-    #           - "x86_64"
-    #         Code:
-    #             ZipFile: |
-    #                 import json
-    #                 def lambda_handler(event, context):
-    #                     return {
-    #                         'statusCode': 200,
-    #                         'body': json.dumps('Hello from DataHub Reporter Test!')
-    #                     }
-    #         MemorySize: 1024
-    #         Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-    #         Timeout: 60
-    #         Runtime: "python3.11"
-    #         TracingConfig:
-    #             Mode: "PassThrough"
-    #         VpcConfig:
-    #             SubnetIds:
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
-    #             SecurityGroupIds:
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
-    #         EphemeralStorage:
-    #             Size: 512
-
   DataHubEmailServiceLambda:
     Type: "AWS::Lambda::Function"
     DependsOn: SESLambdaExecutionRole
@@ -291,54 +212,6 @@ Resources:
       EphemeralStorage:
         Size: 1024
 
-    # DataHubPublicationScriptLambda:
-    #     Type: "AWS::Lambda::Function"
-    #     Properties:
-    #         Description: ""
-    #         FunctionName: "DataHub-PublicationScript"
-    #         Architectures:
-    #           - "x86_64"
-    #         Code:
-    #             ZipFile: |
-    #                 import json
-    #                 def lambda_handler(event, context):
-    #                     return {
-    #                         'statusCode': 200,
-    #                         'body': json.dumps('Hello from Publication Script!')
-    #                     }
-    #         MemorySize: 128
-    #         Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/LambdaExecutionRole"
-    #         Runtime: "python3.11"
-    #         Timeout: 60
-    #         TracingConfig:
-    #             Mode: "PassThrough"
-    #         VpcConfig:
-    #             SubnetIds:
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
-    #             SecurityGroupIds:
-    #               - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
-    #         EphemeralStorage:
-    #             Size: 512
-
-    # VariablesReportLambdaPermission:
-    #     Type: "AWS::Lambda::Permission"
-    #     Properties:
-    #         Action: "lambda:InvokeFunction"
-    #         FunctionName: !GetAtt VariablesReportLambda.Arn
-    #         Principal: "events.amazonaws.com"
-    #         SourceArn: !Sub "arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/VARIABLES-REPORT"
-
-    # PsycoPG2CustomLayer:
-    #     Type: "AWS::Lambda::LayerVersion"
-    #     Properties:
-    #         Description: "Python 3.11 psycopg2 layer - https://stackoverflow.com/questions/71493439/unable-to-import-module-lambda-function-no-module-named-psycopg2-psycopg-aw/77012246#7701224"
-    #         CompatibleRuntimes:
-    #           - "python3.11"
-    #         LayerName: "psycopg2-custom"
-    #         Content:
-    #             S3Bucket: "prod-iad-c1-djusa-layers"
-    #             S3Key: !Sub "/snapshots/${AWS::AccountId}/psycopg2-custom-abce5ae8-3c12-4862-aef1-414d9c11c7ee"
 
   EmailServiceSQSEventSourceMapping:
     Type: "AWS::Lambda::EventSourceMapping"
@@ -351,18 +224,6 @@ Resources:
       MaximumBatchingWindowInSeconds: 0
 
 Outputs:
-  # VariablesReportLambdaArn:
-  #   Description: "Variables Report Lambda ARN"
-  #   Value: !GetAtt VariablesReportLambda.Arn
-  #   Export:
-  #     Name: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
-
-  # DataHubReporterTestLambdaArn:
-  #   Description: "DataHub Reporter Test Lambda ARN"
-  #   Value: !GetAtt DataHubReporterTestLambda.Arn
-  #   Export:
-  #     Name: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
-
   DataHubEmailServiceLambdaArn:
     Description: "Email Service Lambda ARN"
     Value: !GetAtt DataHubEmailServiceLambda.Arn
@@ -374,12 +235,6 @@ Outputs:
     Value: !GetAtt DataHubOpenSearchRefreshLambda.Arn
     Export:
       Name: !Sub "${ProjectName}-Lambda-${Environment}-OpenSearchRefreshLambda-Arn"
-
-  # DataHubPublicationScriptLambdaArn:
-  #   Description: "DataHub Publication Script Lambda ARN"
-  #   Value: !GetAtt DataHubPublicationScriptLambda.Arn
-  #   Export:
-  #     Name: !Sub "DataHub-Lambda-${Environment}-DataHubPublicationScriptLambda-Arn"
 
   LambdaExecutionRoleArn:
     Description: "ARN of the Lambda Execution Role"

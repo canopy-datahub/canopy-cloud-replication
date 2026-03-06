@@ -64,21 +64,6 @@ Resources:
             Topics:
               - !Sub "${AlertsDhpTopic}"
 
-    # SNSSubscription:
-    #     Type: "AWS::SNS::Subscription"
-    #     Properties:
-    #         TopicArn: !Ref SNSTopic
-    #         Endpoint: "fujimoto_alissa@bah.com"
-    #         Protocol: "email"
-    #         Region: !Ref AWS::Region
-
-    # SNSSubscription2:
-    #     Type: "AWS::SNS::Subscription"
-    #     Properties:
-    #         TopicArn: !Ref SNSTopic
-    #         Endpoint: "schweikert_joseph@bah.com"
-    #         Protocol: "email"
-    #         Region: !Ref AWS::Region
 
     AlertsTopicChatbotSubscription:
         Type: "AWS::SNS::Subscription"
