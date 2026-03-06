@@ -2,17 +2,14 @@
 	"Parameters": {
 		"Environment": "dev",
 		"ProjectName": "canopy",
+		"KeycloakImageTag": "26.5.4",
 		"Region": "us-east-1",
 		"DataHubUniqueId": "canopy-id",
-		"DBMasterUsername": "datahubpostgresdev",
-		"DBMasterPassword": "REPLACEME",
-		"PostgresMasterUsername": "datahubpostgresdev",
-		"PostgresMasterPassword": "REPLACEME",
-		"DataHubAdminUsername": "datahub_admin",
-		"DataHubAdminPassword": "REPLACEME",
-		"DataHubUserUsername": "datahub_user",
-		"DataHubUserPassword": "REPLACEME",
+		"CanopyParamDbMasterUsername": "datahubpostgresdev",
+		"CanopyParamDbMasterPassword": "REPLACEME",
+		"CanopyParamDbAppUsername": "datahub_user",
+		"CanopyParamDbAppPassword": "REPLACEME",
 		"OpenSearchUsername": "opensearch",
-		"OpenSearchPassword": "ChangeMe@2026"
+		"OpenSearchPassword": "ChangeMe@2026##$%"
 	}
 }

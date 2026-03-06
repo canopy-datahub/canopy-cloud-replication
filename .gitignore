@@ -210,3 +210,4 @@ __marimo__/
 .vscode/settings.json
 
 .idea
+set-env-*.sh
