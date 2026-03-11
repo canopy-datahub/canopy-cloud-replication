@@ -99,14 +99,14 @@ Resources:
     SftpQueuePolicy:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
-            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueue}\"},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-SFTP-${Environment}\"}}}]}"
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueue.Arn}\"},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue.Arn}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-SFTP-${Environment}\"}}}]}"
             Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueue.QueueName}"
 
     SftpQueueDlqPolicy:
         Type: "AWS::SQS::QueuePolicy"
         Properties:
-            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueueDlq}\"},{\"Sid\":\"AWSEvents_sftp-dlq-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueueDlq}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-SFTP-${Environment}\"}}}]}"
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueueDlq.Arn}\"},{\"Sid\":\"AWSEvents_sftp-dlq-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueueDlq.Arn}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-SFTP-${Environment}\"}}}]}"
             Queues:
               - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueueDlq.QueueName}"
 

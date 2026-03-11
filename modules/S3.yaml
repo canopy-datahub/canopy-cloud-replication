@@ -62,6 +62,9 @@ Resources:
         - BucketKeyEnabled: false
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
       Tags:
       - Value: "SFTP"
         Key: "Name"

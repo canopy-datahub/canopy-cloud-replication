@@ -19,7 +19,8 @@
     "StakeholderEmailsStudyReg": "replaceme@example.com",
 		"OpenSearchUsername": "opensearch",
 		"OpenSearchPassword": "ChangeMe@2026",
-    "LoadBalancerDomainName": "REPLACEME",
-    "RDSEndpoint": "REPLACEME"
+		"LoadBalancerDomainName": "REPLACEME",
+		"RDSEndpoint": "REPLACEME",
+		"ElasticIPAllocationId": ""
 	}
 }

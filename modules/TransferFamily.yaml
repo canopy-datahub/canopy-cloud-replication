@@ -63,6 +63,24 @@ Conditions:
 
 Resources:
 
+  SFTPSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow inbound SFTP (port 22) from internet
+      VpcId:
+        Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: "SFTP access from internet"
+      Tags:
+        - Key: Name
+          Value: !Sub "${ProjectName}-SFTP-SecurityGroup-${Environment}"
+        - Key: Environment
+          Value: !Ref Environment
+
   CustomSFTPTransferRole:
     Type: AWS::IAM::Role
     Properties:
@@ -104,6 +122,8 @@ Resources:
             - HasElasticIP
             - - Ref: ElasticIPAllocationId
             - Ref: AWS::NoValue
+        SecurityGroupIds:
+          - !Ref SFTPSecurityGroup
         SubnetIds:
           - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Public-Subnet-AZ1"
         VpcId:
@@ -509,24 +529,8 @@ Resources:
             items:
               type: string
 
-  SFTPUserSecret:
-      Type: AWS::SecretsManager::Secret
-      DependsOn: CustomSFTPTransferRole
-      Properties:
-        Name: !Sub "SFTP/${ProjectName}-user-${Environment}"
-        Description: !Sub "SFTP user credentials and configuration for ${ProjectName} Transfer Family"
-        SecretString: !Sub |
-          { 
-            "Password":"%%CHANGE_ME%%",
-            "Role": "${CustomSFTPTransferRole.Arn}",
-            "HomeDirectory": "/${ProjectName}-sftp-${DataHubUniqueId}-${Environment}/${ProjectName}-user",
-            "Policy": "{\"Version\": \"2012-10-17\", \"Statement\": [{\"Sid\": \"AllowListingOfUserFolder\", \"Action\": [\"s3:ListBucket\"], \"Effect\": \"Allow\", \"Resource\": [\"arn:aws:s3:::$${transfer:HomeBucket}\"], \"Condition\": {\"StringLike\": {\"s3:prefix\": [\"$${transfer:HomeFolder}/*\", \"$${transfer:HomeFolder}\"]}}}, {\"Sid\": \"HomeDirObjectAccess\", \"Effect\": \"Allow\", \"Action\": [\"s3:PutObject\", \"s3:GetObject\", \"s3:DeleteObjectVersion\", \"s3:DeleteObject\", \"s3:GetObjectVersion\", \"s3:GetObjectACL\", \"s3:PutObjectACL\"], \"Resource\": \"arn:aws:s3:::$${transfer:HomeDirectory}*\"}]}"
-          }
-        Tags:
-          - Key: Name
-            Value: !Sub "${ProjectName}-SFTP-User-${Environment}"
-          - Key: Environment
-            Value: !Ref Environment
+  # SFTP user accounts are not managed by this stack.
+  # Create each user manually via the AWS CLI after deployment — see DEPLOYMENT_GUIDE.md Step 20c.
 
 
 
