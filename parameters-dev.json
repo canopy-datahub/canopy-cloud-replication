@@ -5,22 +5,18 @@
 		"KeycloakImageTag": "26.5.4",
 		"Region": "us-east-1",
 		"DataHubUniqueId": "canopy-id",
-		"CanopyParamDbMasterUsername": "datahubpostgresdev",
+		"CanopyParamDbMasterUsername": "datahub_postgres_dev",
 		"CanopyParamDbMasterPassword": "REPLACEME",
 		"CanopyParamDbAppUsername": "datahub_user",
 		"CanopyParamDbAppPassword": "REPLACEME",
-    "DataHubAdminUsername": "datahub_admin",
-    "DataHubAdminPassword": "REPLACEME",
-    "DataHubUserUsername": "datahub_user",
-    "DataHubUserPassword": "REPLACEME",
-    "OpenSearchEndpoint": "REPLACEME",
-    "MyIP": "REPLACEME",
-    "SupportEmail": "replaceme@example.com",
-    "StakeholderEmailsStudyReg": "replaceme@example.com",
+		"OpenSearchEndpoint": "REPLACEME",
+		"MyIP": "REPLACEME",
+		"SupportEmail": "replaceme@example.com",
+		"StakeholderEmailsStudyReg": "replaceme@example.com",
 		"OpenSearchUsername": "opensearch",
 		"OpenSearchPassword": "ChangeMe@2026",
 		"LoadBalancerDomainName": "REPLACEME",
 		"RDSEndpoint": "REPLACEME",
-		"ElasticIPAllocationId": "eipalloc-07239779f41d1dee9"
+		"ElasticIPAllocationId": "eipalloc-xxxxxx"
 	}
 }
