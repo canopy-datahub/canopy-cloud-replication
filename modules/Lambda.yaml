@@ -17,6 +17,9 @@ Parameters:
     Type: String
     Description: Project name for resource naming
     Default: datahub
+  LambdaDependencyLayerArn:
+    Type: String
+    Description: ARN of Lambda Dependency Layer
 
 Resources:
   # ============================================================================
@@ -196,7 +199,7 @@ Resources:
         S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
         S3Key: "opensearch-refresh/opensearch-refresh-lambda.zip"
       Layers:
-        - !Sub "arn:aws:lambda:us-east-1:772554522152:layer:dependency-layer:2" #Need to update this to the correct layer ARN
+        - !Sub "${LambdaDependencyLayerArn}"
       MemorySize: 2048
       Role: !GetAtt LambdaExecutionRole.Arn
       Runtime: "python3.11"
