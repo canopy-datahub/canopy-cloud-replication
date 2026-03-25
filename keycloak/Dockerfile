@@ -4,12 +4,10 @@ FROM quay.io/keycloak/keycloak:26.5.4
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 
-# Use embedded H2 database (default, no external database needed)
-# Note: This is suitable for development/testing. For production, use PostgreSQL.
-ENV KC_DB=dev-file
+# Build optimised for PostgreSQL so the runtime DB matches and no re-build
+# occurs on every container start ("Changes detected in configuration" warning).
+ENV KC_DB=postgres
 
-# Build the optimized Keycloak distribution with required features
-# Add any additional features you need here (e.g., user-storage-jpa, user-storage-ldap)
 RUN /opt/keycloak/bin/kc.sh build
 
 # Ensure proper permissions

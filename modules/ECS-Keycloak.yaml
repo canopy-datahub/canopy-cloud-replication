@@ -100,21 +100,6 @@ Resources:
               awslogs-region: !Ref AWS::Region
               awslogs-stream-prefix: keycloak
 
-          # ECS container health check runs *inside* the container.
-          # Keycloak image doesn't include curl/wget, so use /dev/tcp.
-          # (bash exists in the Keycloak container image.)
-          HealthCheck:
-            Command:
-              - CMD-SHELL
-              - >-
-                bash -lc
-                'exec 3<>/dev/tcp/127.0.0.1/9000
-                 && printf "GET /health/ready HTTP/1.0\r\n\r\n" >&3
-                 && head -n 1 <&3 | grep -q "200"'
-            Interval: 30
-            Timeout: 5
-            Retries: 3
-            StartPeriod: 300
 
   KeycloakService:
     Type: AWS::ECS::Service
@@ -149,7 +134,7 @@ Resources:
           ContainerName: !Sub "${ProjectName}-Keycloak"
           ContainerPort: 8080
 
-      HealthCheckGracePeriodSeconds: 300
+      HealthCheckGracePeriodSeconds: 600
 
       CapacityProviderStrategy:
         - CapacityProvider: FARGATE
