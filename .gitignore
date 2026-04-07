@@ -211,3 +211,7 @@ __marimo__/
 
 .idea
 set-env-*.sh
+
+.claude
+
+parameters-dev-*.json

@@ -16,6 +16,9 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
+  CertificateId:
+    Type: String
+    Description: ACM Certificate ID for HTTPS
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -84,18 +87,29 @@ Resources:
                 Key: "connection_logs.s3.enabled"
                 Value: "false"
 
+    HttpLoadBalancerListener:
+        Type: "AWS::ElasticLoadBalancingV2::Listener"
+        Properties:
+            LoadBalancerArn: !Ref DataHubPublicLoadBalancer
+            Port: 80
+            Protocol: "HTTP"
+            DefaultActions:
+              -
+                Type: "redirect"
+                RedirectConfig:
+                    Protocol: "HTTPS"
+                    Port: "443"
+                    StatusCode: "HTTP_301"
+
     HttpsLoadBalancerListener:
         Type: "AWS::ElasticLoadBalancingV2::Listener"
         Properties:
             LoadBalancerArn: !Ref DataHubPublicLoadBalancer
-            # Port: 443
-            # Protocol: "HTTPS"
-            Port: 80
-            Protocol: "HTTP"
-            # SslPolicy: "ELBSecurityPolicy-TLS13-1-2-FIPS-2023-04"
-            # Certificates: # this is for a specific cert, we want to manage this outside of CF
-              # -
-                # CertificateArn: !Sub "arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/dd717196-88a0-4fc5-bd11-780195f03b88"
+            Port: 443
+            Protocol: "HTTPS"
+            SslPolicy: "ELBSecurityPolicy-TLS13-1-2-FIPS-2023-04"
+            Certificates:
+              - CertificateArn: !Sub "arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/${CertificateId}"
             DefaultActions:
               -
                 Order: 1

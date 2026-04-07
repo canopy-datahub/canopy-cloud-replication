@@ -15,9 +15,13 @@
 		"OpenSearchUsername": "opensearch",
 		"OpenSearchPassword": "ChangeMe@2026",
 		"OpenSearchEndpoint": "REPLACEME",
-		"LoadBalancerDomainName": "REPLACEME",
+		"LoadBalancerDomainName": "https://canopy.example.com",
 		"RDSEndpoint": "REPLACEME",
 		"ElasticIPAllocationId": "eipalloc-xxxxxx",
-		"LambdaDependencyLayerArn": "REPLACEME"
+		"LambdaDependencyLayerArn": "REPLACEME",
+    "CertificateId": "REPLACEME-UUID",
+    "PublicHostname": "https://canopy.example.com",
+    "KeycloakRealm": "CANOPY",
+    "KeycloakClientId": "canopy-client"
 	}
 }
