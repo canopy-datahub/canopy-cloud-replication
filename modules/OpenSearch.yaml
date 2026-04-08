@@ -1,0 +1,207 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "OpenSearch stack"
+
+Parameters:
+    Environment:
+        Type: String
+        Description: The Project Environment
+        AllowedValues:
+          - dev
+          - test
+          - prod
+          - shared
+    ProjectName:
+        Type: String
+        Description: The Project name
+        Default: datahub
+    OpenSearchUsername:
+        Type: String
+        Description: Master user for OpenSearch internal user database
+        MinLength: 3
+        MaxLength: 64
+        AllowedPattern: "[a-zA-Z0-9_+=.@-]+"
+        Default: opensearch
+    OpenSearchPassword:
+        Type: String
+        Description: Master password (use a strong value; rotate via stack update)
+        NoEcho: true
+        MinLength: 8
+        MaxLength: 128
+        Default: ChangeMe@2025
+
+Conditions:
+    DEV: !Equals [!Ref Environment, dev]
+    TEST: !Equals [!Ref Environment, test]
+    PROD: !Equals [!Ref Environment, prod]
+    NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+    NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+    # Uncomment and create this service linked role on the first run for any new AWS Account
+    # OpenSearchServiceLinkedRole:
+    #     Type: AWS::IAM::ServiceLinkedRole
+    #     Properties:
+    #         AWSServiceName: opensearchservice.amazonaws.com
+    #         Description: "Service-linked role for Amazon OpenSearch Service VPC access"
+
+    OpenSearchSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Security group for OpenSearch domain
+            VpcId:
+                Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
+            SecurityGroupIngress:
+                # Allow HTTPS from ECS services
+                - SourceSecurityGroupId:
+                      Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
+                  IpProtocol: tcp
+                  FromPort: 443
+                  ToPort: 443
+                  Description: "HTTPS from ECS services"
+                # Allow from VPC CIDR (for Lambda, bastion, etc.)
+                - CidrIp: 10.40.0.0/16
+                  IpProtocol: tcp
+                  FromPort: 443
+                  ToPort: 443
+                  Description: "HTTPS from VPC"
+            Tags:
+                - Key: Name
+                  Value: !Sub "${ProjectName}-OpenSearch-${Environment}"
+                - Key: Environment
+                  Value: !Ref Environment
+
+    OpenSearchServiceDomain:
+        Type: "AWS::OpenSearchService::Domain"
+        Properties:
+            DomainName: !Sub "${ProjectName}-opensearch-${Environment}"
+            EngineVersion: "OpenSearch_2.11"
+            ClusterConfig:
+                ColdStorageOptions:
+                    Enabled: false
+                DedicatedMasterCount: 3
+                DedicatedMasterEnabled: true
+                DedicatedMasterType: "m7g.medium.search"
+                InstanceCount: 2
+                InstanceType: "m7g.medium.search"
+                ZoneAwarenessEnabled: true
+                ZoneAwarenessConfig:
+                    AvailabilityZoneCount: 2
+                WarmEnabled: false
+            AccessPolicies:
+                Version: "2012-10-17"
+                Statement:
+                  - Effect: "Allow"
+                    Principal:
+                      AWS: "*"
+                    Action: "es:*"
+                    Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${ProjectName}-opensearch-${Environment}/*"
+            VPCOptions:
+                SubnetIds:
+                  - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - !Ref OpenSearchSecurityGroup
+            EncryptionAtRestOptions:
+                Enabled: true
+                # KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/3edad626-9282-4afe-9f69-0c763ac7bd7d" ## MAY NEED TO FIX THIS
+            NodeToNodeEncryptionOptions:
+                Enabled: true
+            AdvancedOptions:
+                indices.fielddata.cache.size: "20"
+                indices.query.bool.max_clause_count: "1024"
+                rest.action.multi.allow_explicit_index: "true"
+            EBSOptions:
+                EBSEnabled: true
+                VolumeType: "gp3"
+                VolumeSize: 100
+                Iops: 3000
+                Throughput: 125
+            CognitoOptions:
+                Enabled: false
+            LogPublishingOptions:
+                ES_APPLICATION_LOGS:
+                    CloudWatchLogsLogGroupArn: !GetAtt OpenSearchApplicationLogsGroup.Arn
+                    Enabled: true
+                AUDIT_LOGS:
+                    CloudWatchLogsLogGroupArn: !GetAtt OpenSearchAuditLogsGroup.Arn
+                    Enabled: true
+            DomainEndpointOptions:
+                EnforceHTTPS: true
+                TLSSecurityPolicy: "Policy-Min-TLS-1-2-2019-07"
+                CustomEndpointEnabled: false
+            AdvancedSecurityOptions:
+                Enabled: true
+                InternalUserDatabaseEnabled: true
+                AnonymousAuthEnabled: false
+                MasterUserOptions:
+                    MasterUserName: !Ref OpenSearchUsername
+                    MasterUserPassword: !Ref OpenSearchPassword
+            Tags:
+              -
+                Key: "Environment"
+                Value: "Production"
+
+    OpenSearchApplicationLogsGroup:
+            Type: AWS::Logs::LogGroup
+            Properties:
+                LogGroupName: !Sub "${ProjectName}-OpenSearch-${Environment}/application-logs"
+                RetentionInDays: 30
+
+    OpenSearchAuditLogsGroup:
+            Type: AWS::Logs::LogGroup
+            Properties:
+                LogGroupName: !Sub "${ProjectName}-OpenSearch-${Environment}/audit-logs"
+                RetentionInDays: 30
+
+    OpenSearchLogsResourcePolicy:
+        Type: AWS::Logs::ResourcePolicy
+        Properties:
+            PolicyName: !Sub "${ProjectName}-opensearch-logs-policy-${Environment}"
+            PolicyDocument: !Sub |
+              {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Sid": "AllowOpenSearchServiceLogging",
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": "es.amazonaws.com"
+                    },
+                    "Action": [
+                      "logs:CreateLogStream",
+                      "logs:PutLogEvents"
+                    ],
+                    "Resource": [
+                      "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ProjectName}-OpenSearch-${Environment}/application-logs:*",
+                      "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ProjectName}-OpenSearch-${Environment}/audit-logs:*"
+                    ]
+                  }
+                ]
+              }
+
+Outputs:
+    OpenSearchDomainEndpoint:
+        Description: "OpenSearch Domain Endpoint"
+        Value: !GetAtt OpenSearchServiceDomain.DomainEndpoint
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-Endpoint"
+
+    OpenSearchDomainArn:
+        Description: "OpenSearch Domain ARN"
+        Value: !GetAtt OpenSearchServiceDomain.Arn
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-Arn"
+
+    OpenSearchDomainName:
+        Description: "OpenSearch Domain Name"
+        Value: !Ref OpenSearchServiceDomain
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-DomainName"
+
+    OpenSearchSecurityGroupId:
+        Description: "OpenSearch Security Group ID"
+        Value: !Ref OpenSearchSecurityGroup
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-SecurityGroup"

@@ -1,0 +1,27 @@
+{
+	"Parameters": {
+		"Environment": "test",
+		"ProjectName": "canopy",
+		"KeycloakImageTag": "26.5.4",
+		"Region": "us-east-1",
+		"DataHubUniqueId": "canopy-id",
+		"CanopyParamDbMasterUsername": "datahub_postgres_test",
+		"CanopyParamDbMasterPassword": "REPLACEME",
+		"CanopyParamDbAppUsername": "datahub_user",
+		"CanopyParamDbAppPassword": "REPLACEME",
+		"MyIP": "REPLACEME/32",
+		"SupportEmail": "replaceme@example.com",
+		"StakeholderEmailsStudyReg": "replaceme@example.com",
+		"OpenSearchUsername": "opensearch",
+		"OpenSearchPassword": "ChangeMe@2026",
+    "OpenSearchEndpoint": "REPLACEME",
+		"LoadBalancerDomainName": "REPLACEME",
+		"RDSEndpoint": "REPLACEME",
+		"ElasticIPAllocationId": "",
+    "LambdaDependencyLayerArn": "REPLACEME",
+    "CertificateId": "REPLACEME-UUID",
+    "PublicHostname": "https://canopy.example.com",
+    "KeycloakRealm": "CANOPY",
+    "KeycloakClientId": "canopy-client"
+	}
+}

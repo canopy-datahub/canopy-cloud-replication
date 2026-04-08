@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "CloudWatch stack"
+Parameters:
+    Environment:
+        Type: String
+        Description: The Project Environment
+        AllowedValues:
+            - dev
+            - test
+            - prod
+            - shared
+    ProjectName:
+        Type: String
+        Description: The Project name
+        Default: datahub
+
+Conditions:
+    DEV: !Equals [!Ref Environment, dev]
+    TEST: !Equals [!Ref Environment, test]
+    PROD: !Equals [!Ref Environment, prod]
+    NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+    NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+    MicroservicesLogGroup:
+        Type: "AWS::Logs::LogGroup"
+        Properties:
+            LogGroupName: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"

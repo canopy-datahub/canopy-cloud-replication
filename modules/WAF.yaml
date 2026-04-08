@@ -1,0 +1,110 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "WAF stack"
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+
+Conditions:
+  DEV: !Equals [!Ref Environment, dev]
+  TEST: !Equals [!Ref Environment, test]
+  PROD: !Equals [!Ref Environment, prod]
+  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+
+    CloudFrontWAFv2WebACL:
+        Type: "AWS::WAFv2::WebACL"
+        Properties:
+            Name: !Sub "${ProjectName}-cloudfront-webacl-${Environment}"
+            Description: !Sub "${ProjectName} CloudFront WebACL for the ${Environment} Environment"
+            DefaultAction:
+                Allow:
+                    CustomRequestHandling:
+                        InsertHeaders:
+                          - Name: "Action"
+                            Value: "Would-be-blocked"
+            VisibilityConfig:
+                SampledRequestsEnabled: true
+                CloudWatchMetricsEnabled: true
+                MetricName: !Sub "${ProjectName}-cloudfront-webacl-${Environment}-metric"
+            Scope: "CLOUDFRONT"
+            Rules:
+              - Name: "AWS-RateBasedRule-IP-300"
+                Priority: 0
+                Action:
+                    Count: {}
+                Statement:
+                    RateBasedStatement:
+                        Limit: 300
+                        AggregateKeyType: "IP"
+                VisibilityConfig:
+                    SampledRequestsEnabled: true
+                    CloudWatchMetricsEnabled: true
+                    MetricName: "AWS-RateBasedRule-IP-300"
+              - Name: "AWS-AWSManagedRulesAmazonIpReputationList"
+                Priority: 1
+                OverrideAction:
+                    None: {}
+                Statement:
+                    ManagedRuleGroupStatement:
+                        VendorName: "AWS"
+                        Name: "AWSManagedRulesAmazonIpReputationList"
+                VisibilityConfig:
+                    SampledRequestsEnabled: true
+                    CloudWatchMetricsEnabled: true
+                    MetricName: "AWS-AWSManagedRulesAmazonIpReputationList"
+              - Name: "Whitelist-IPs"
+                Priority: 2
+                Action:
+                    Allow: {}
+                Statement:
+                    IPSetReferenceStatement:
+                        ARN: !GetAtt WhitelistIPSet.Arn
+                VisibilityConfig:
+                    SampledRequestsEnabled: true
+                    CloudWatchMetricsEnabled: true
+                    MetricName: "Whitelist-IPs"
+
+    WhitelistIPSet:
+        Type: "AWS::WAFv2::IPSet"
+        Properties:
+            Name: "Whitelisted-IPs"
+            Description: ""
+            IPAddressVersion: "IPV4"
+            Addresses:
+              - "34.237.50.127/32"
+              - "52.28.204.202/32"
+              - "3.82.84.220/32"
+              - "156.80.4.2/32"
+              - "156.40.59.192/26"
+              - "152.16.191.129/32"
+              - "3.229.245.210/32"
+              - "3.12.28.24/32"
+              - "100.27.42.254/32"
+              - "128.229.4.2/32"
+              - "52.22.163.186/32"
+              - "64.41.200.0/24"
+              - "3.232.155.177/32"
+              - "34.234.230.180/32"
+              - "54.85.169.114/32"
+              - "10.33.0.0/16"
+              - "152.16.191.0/24"
+              - "18.190.14.217/32"
+              - "152.16.191.131/32"
+              - "54.88.149.100/32"
+              - "10.180.21.192/26"
+            Scope: "CLOUDFRONT"
+

@@ -1,0 +1,192 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "S3 Buckets stack - Bucket names must be globally unique"
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name (must be lowercase for S3 bucket names; e.g. redwood not Redwood)
+    Default: datahub
+  DataHubUniqueId:
+    Type: String
+    Description: A unique identifier to ensure S3 bucket names are globally unique (must be lowercase for S3 bucket names)
+    Default: stanford
+
+Conditions:
+  DEV: !Equals [!Ref Environment, dev]
+  TEST: !Equals [!Ref Environment, test]
+  PROD: !Equals [!Ref Environment, prod]
+  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+  ## Required by application
+  S3BucketDataHubUploadPortal:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      BucketName: !Sub "${ProjectName}-upload-portal-${DataHubUniqueId}-${Environment}"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+
+  ## Required by SFTP server for user home directories
+  S3BucketSftpDataHub:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-sftp-${DataHubUniqueId}-${Environment}"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: false
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
+      Tags:
+      - Value: "SFTP"
+        Key: "Name"
+
+  ## Required by Submission for in-review files for PII processing
+  S3BucketDataHubReview:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-review-${DataHubUniqueId}-${Environment}"
+      VersioningConfiguration:
+        Status: "Enabled"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+
+## Resource bucket for study UUID spreadsheet, and other static resources
+  S3BucketDataHubResources:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-resources-${DataHubUniqueId}-${Environment}"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+      Tags:
+      - Key: "Environment"
+        Value: !Sub "${Environment}"
+
+## Bucket containing approved files for access after PII processing
+  S3BucketDataHubDefault:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-default-${DataHubUniqueId}-${Environment}"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+
+  ## Bucket containing Lambda function code artifacts for deployment
+  S3BucketDataHubLambdaArtifacts:
+    Type: "AWS::S3::Bucket"
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+      Tags:
+      - Key: "Environment"
+        Value: !Sub "${Environment}"
+      VersioningConfiguration:
+        Status: "Enabled"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+
+Outputs:
+  S3BucketDataHubReviewName:
+    Description: "The ARN of the S3 bucket for review files"
+    Value: !GetAtt S3BucketDataHubReview.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubReview-Arn"
+  S3BucketDataHubDefaultName:
+    Description: "The ARN of the S3 bucket for default files"
+    Value: !GetAtt S3BucketDataHubDefault.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubDefault-Arn"
+  S3BucketSftpDataHubName:
+    Description: "The ARN of the S3 bucket for SFTP user home directories"
+    Value: !GetAtt S3BucketSftpDataHub.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketSftpDataHub-Arn"
+  S3BucketDataHubUploadPortalName:
+    Description: "The ARN of the main S3 bucket for the Upload Portal"
+    Value: !GetAtt S3BucketDataHubUploadPortal.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubUploadPortal-Arn"
+  S3BucketDataHubLambdaArtifactsName:
+    Description: "The ARN of the S3 bucket for Lambda function artifacts"
+    Value: !GetAtt S3BucketDataHubLambdaArtifacts.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubLambdaArtifacts-Arn"
+  S3BucketDataHubResourcesName:
+    Description: "The ARN of the S3 bucket for static resources (study UUID spreadsheet, variable reports, etc.)"
+    Value: !GetAtt S3BucketDataHubResources.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubResources-Arn"

@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "RDS PostgreSQL Database stack"
+Parameters:
+    Environment:
+        Type: String
+        Description: The Project Environment
+        AllowedValues:
+          - dev
+          - test
+          - prod
+          - shared
+    ProjectName:
+        Type: String
+        Description: The Project name
+        Default: datahub
+    CanopyParamDbMasterUsername:
+        Type: String
+        Description: Master username for the PostgreSQL instance
+    CanopyParamDbMasterPassword:
+        Type: String
+        NoEcho: true
+        Description: Master password for the PostgreSQL instance
+    MyIP:
+        Type: String
+        Description: Your workstation's public IP in CIDR notation (e.g. 203.0.113.5/32) — required to connect to RDS for schema setup
+
+Conditions:
+    DEV: !Equals [!Ref Environment, dev]
+    TEST: !Equals [!Ref Environment, test]
+    PROD: !Equals [!Ref Environment, prod]
+    NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+    NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+    RDSDBInstance:
+        Type: "AWS::RDS::DBInstance"
+        Properties:
+            DBInstanceIdentifier: !Sub "${ProjectName}-postgresql-${Environment}"
+            AllocatedStorage: 20
+            DBInstanceClass: "db.t4g.small"
+            Engine: "postgres"
+            MasterUsername: !Ref CanopyParamDbMasterUsername
+            MasterUserPassword: !Ref CanopyParamDbMasterPassword
+            DBName: !Sub "${ProjectName}_${Environment}"
+            PreferredBackupWindow: "05:00-05:30"
+            BackupRetentionPeriod: 3
+            AvailabilityZone: !Sub "${AWS::Region}a"
+            PreferredMaintenanceWindow: "sun:06:00-sun:06:30"
+            MultiAZ: false
+            EngineVersion: "16.9"
+            AutoMinorVersionUpgrade: true
+            LicenseModel: "postgresql-license"
+            # Iops: 3000
+            PubliclyAccessible: true
+            StorageType: "gp3"
+            Port: 5432
+            StorageEncrypted: true
+            # KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/88cc85e9-4665-41a7-ae8a-a6bf09a4a0d6" # USE aws/rds AWS KMS Key
+            CopyTagsToSnapshot: true
+            MonitoringInterval: 0
+            EnableIAMDatabaseAuthentication: false
+            EnablePerformanceInsights: false
+            DeletionProtection: false
+            DBSubnetGroupName: !Sub "${ProjectName}-db-subnet-group-${Environment}"
+            VPCSecurityGroups:
+              - !Ref RdsSecurityGroup
+            MaxAllocatedStorage: 1000
+            DBParameterGroupName: !Ref RDSDBParameterGroup
+            OptionGroupName: "default:postgres-16"
+            CACertificateIdentifier: "rds-ca-rsa2048-g1"
+
+    RDSDBSubnetGroup:
+        Type: "AWS::RDS::DBSubnetGroup"
+        Properties:
+            DBSubnetGroupDescription: !Sub "${ProjectName}-db-subnet-group-${Environment}"
+            DBSubnetGroupName: !Sub "${ProjectName}-db-subnet-group-${Environment}"
+            SubnetIds:
+              - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Public-Subnet-AZ1"
+              - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Public-Subnet-AZ2"
+
+    RDSDBParameterGroup:
+        Type: "AWS::RDS::DBParameterGroup"
+        Properties:
+            Description: "Parameter group for the test db with pg_cron enabled"
+            Family: "postgres16"
+            Parameters:
+                shared_preload_libraries: "pg_stat_statements,pg_tle,pg_cron"
+
+    RdsSecurityGroup:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Created by RDS management console"
+            GroupName: !Sub "${ProjectName}-db-sg-${Environment}"
+            VpcId:
+                Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
+            Tags:
+              -
+                Key: "Name"
+                Value: !Sub "DATAHUB-${Environment}-DB"
+            SecurityGroupIngress:
+              - CidrIp: "0.0.0.0/0"
+                Description: "INSECURE: Open to all IPs - REPLACE THIS RULE based on your security requirements"
+                FromPort: 5432
+                IpProtocol: "tcp"
+                ToPort: 5432
+
+              - CidrIp: "10.31.0.0/16"
+                Description: "Control VPC"
+                FromPort: 0
+                IpProtocol: "tcp"
+                ToPort: 65535
+
+              - CidrIp: "10.40.0.0/16"
+                FromPort: 5432
+                IpProtocol: "tcp"
+                ToPort: 5432
+
+              # Deployer workstation — set MyIP in parameters-{ENV}.json
+              - CidrIp: !Ref MyIP
+                Description: "Deployer workstation"
+                FromPort: 5432
+                IpProtocol: "tcp"
+                ToPort: 5432
+
+              - SourceSecurityGroupId:
+                  Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
+                SourceSecurityGroupOwnerId: !Ref AWS::AccountId
+                Description: "ECS Services"
+                FromPort: 5432
+                IpProtocol: "tcp"
+                ToPort: 5432
+
+            SecurityGroupEgress:
+              - CidrIp: "0.0.0.0/0"
+                Description: "Allow all outbound traffic"
+                IpProtocol: "-1"
+
+Outputs:
+  RdsEndpoint:
+    Value: !GetAtt RDSDBInstance.Endpoint.Address
+    Export:
+      Name: !Sub "${AWS::StackName}-rds-postgresql-${Environment}-Endpoint"

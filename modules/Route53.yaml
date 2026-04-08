@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "Route53 Services stack"
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+
+Conditions:
+  DEV: !Equals [!Ref Environment, dev]
+  TEST: !Equals [!Ref Environment, test]
+  PROD: !Equals [!Ref Environment, prod]
+  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+    Route53HostedZone:
+        Type: "AWS::Route53::HostedZone"
+        Properties:
+            Name: "datahub.stanford.edu."
+            VPCs:
+              -
+                VPCRegion: "us-east-1"
+                VPCId:
+                    Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
+
+    # Route53RecordSet:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: "datahub.stanford.edu"
+    #         Type: "NS"
+    #         TTL: 172800
+    #         ResourceRecords:
+    #           - "ns-1536.awsdns-00.co.uk."
+    #           - "ns-0.awsdns-00.com."
+    #           - "ns-1024.awsdns-00.org."
+    #           - "ns-512.awsdns-00.net."
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    # Route53RecordSet2:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: "datahub.stanford.edu"
+    #         Type: "SOA"
+    #         TTL: 900
+    #         # ResourceRecords:
+    #         #   - "ns-1536.awsdns-00.co.uk. awsdns-hostmaster.amazon.com. 1 7200 900 1209600 86400"
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    Route53LoadBalancerAliasRecordSet:
+        Type: "AWS::Route53::RecordSet"
+        Properties:
+            Name: !Sub "${Environment}.datahub.stanford.edu"
+            Type: "A"
+            AliasTarget:
+                HostedZoneId:
+                    Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-LoadBalancer-HostedZoneId"
+                DNSName:
+                    Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-LoadBalancer-DNSName"
+                EvaluateTargetHealth: true
+            HostedZoneId: !Ref Route53HostedZone
+
+    # Route53DatabaseAliasRecordSet:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: !Sub "rds.datahub.stanford.edu"
+    #         Type: "A"
+    #         TTL: 300
+    ##         ResourceRecords:
+    ##           - "10.32.50.183"
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    # Route53DatabaseCnameRecordSet:
+    #     Type: "AWS::Route53::RecordSet"
+    #     Properties:
+    #         Name: !Sub "rds.datahub.stanford.edu"
+    #         Type: "CNAME"
+    #         TTL: 300
+    #         ResourceRecords:
+    #           Fn::ImportValue: !Sub "${ProjectName}-RDS-${Environment}-RDS-Endpoint"
+    #         HostedZoneId: !Ref Route53HostedZone
+
+    # CertificateManagerCertificate:
+    #     Type: "AWS::CertificateManager::Certificate"
+    #     Properties:
+    #         DomainName: "datahub.stanford.edu"
+    #         SubjectAlternativeNames:
+    #           - "datahub.stanford.edu"
+    #           - "www.datahub.stanford.edu"
+    #         DomainValidationOptions:
+    #           -
+    #             DomainName: "datahub.stanford.edu"
+    #           -
+    #             DomainName: "www.datahub.stanford.edu"
+    #         CertificateTransparencyLoggingPreference: "DISABLED"
+

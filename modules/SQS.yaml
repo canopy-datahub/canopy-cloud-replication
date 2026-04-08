@@ -1,0 +1,137 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "SQS Queues stack"
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+
+Conditions:
+  DEV: !Equals [!Ref Environment, dev]
+  TEST: !Equals [!Ref Environment, test]
+  PROD: !Equals [!Ref Environment, prod]
+  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+
+    PiiSqsQueueDlq:
+        Type: "AWS::SQS::Queue"
+        Properties:
+            DelaySeconds: "0"
+            MaximumMessageSize: "262144"
+            MessageRetentionPeriod: "345600"
+            ReceiveMessageWaitTimeSeconds: "0"
+            VisibilityTimeout: "30"
+            QueueName: !Sub "${ProjectName}-pii-sqs-queue-dlq-${Environment}"
+
+    PiiSqsQueue:
+        Type: "AWS::SQS::Queue"
+        Properties:
+            DelaySeconds: "0"
+            MaximumMessageSize: "262144"
+            MessageRetentionPeriod: "345600"
+            ReceiveMessageWaitTimeSeconds: "0"
+            VisibilityTimeout: "30"
+            QueueName: !Sub "${ProjectName}-pii-sqs-queue-${Environment}"
+            RedrivePolicy:
+              deadLetterTargetArn: !GetAtt PiiSqsQueueDlq.Arn
+              maxReceiveCount: 10
+
+
+    EmailQueue:
+        Type: "AWS::SQS::Queue"
+        Properties:
+            DelaySeconds: "0"
+            MaximumMessageSize: "262144"
+            MessageRetentionPeriod: "345600"
+            ReceiveMessageWaitTimeSeconds: "0"
+            VisibilityTimeout: "360"
+            QueueName: !Sub "${ProjectName}-email-queue-${Environment}"
+
+    SftpQueue:
+        Type: "AWS::SQS::Queue"
+        Properties:
+            DelaySeconds: "0"
+            MaximumMessageSize: "262144"
+            MessageRetentionPeriod: "345600"
+            ReceiveMessageWaitTimeSeconds: "0"
+            VisibilityTimeout: "30"
+            QueueName: !Sub "${ProjectName}-sftp-queue-${Environment}"
+            RedrivePolicy:
+              deadLetterTargetArn: !GetAtt SftpQueueDlq.Arn
+              maxReceiveCount: 10
+
+    SftpQueueDlq:
+        Type: "AWS::SQS::Queue"
+        Properties:
+            DelaySeconds: "0"
+            MaximumMessageSize: "262144"
+            MessageRetentionPeriod: "345600"
+            ReceiveMessageWaitTimeSeconds: "0"
+            VisibilityTimeout: "30"
+            QueueName: !Sub "${ProjectName}-sftp-queue-dlq-${Environment}"
+
+    PiiSqsQueuePolicy:
+        Type: "AWS::SQS::QueuePolicy"
+        Properties:
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${PiiSqsQueueDlq}\"}]}"
+            Queues:
+              - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${PiiSqsQueueDlq.QueueName}"
+
+    EmailQueuePolicy:
+        Type: "AWS::SQS::QueuePolicy"
+        Properties:
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${EmailQueue}\"}]}"
+            Queues:
+              - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${EmailQueue.QueueName}"
+
+    SftpQueuePolicy:
+        Type: "AWS::SQS::QueuePolicy"
+        Properties:
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueue.Arn}\"},{\"Sid\":\"AWSEvents_sftp-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueue.Arn}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-SFTP-${Environment}\"}}}]}"
+            Queues:
+              - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueue.QueueName}"
+
+    SftpQueueDlqPolicy:
+        Type: "AWS::SQS::QueuePolicy"
+        Properties:
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__owner_statement\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::${AWS::AccountId}:root\"},\"Action\":\"SQS:*\",\"Resource\":\"${SftpQueueDlq.Arn}\"},{\"Sid\":\"AWSEvents_sftp-dlq-${Environment}\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sqs:SendMessage\",\"Resource\":\"${SftpQueueDlq.Arn}\",\"Condition\":{\"ArnEquals\":{\"aws:SourceArn\":\"arn:aws:events:${AWS::Region}:${AWS::AccountId}:rule/${ProjectName}-SFTP-${Environment}\"}}}]}"
+            Queues:
+              - !Sub "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${SftpQueueDlq.QueueName}"
+
+Outputs:
+  EmailQueueArn:
+    Description: "ARN of the Email Queue"
+    Value: !GetAtt EmailQueue.Arn
+    Export:
+      Name: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Arn"
+  
+  EmailQueueUrl:
+    Description: "URL of the Email Queue"
+    Value: !Ref EmailQueue
+    Export:
+      Name: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Url"
+
+  SftpQueueArn:
+    Description: "ARN of the SFTP Queue"
+    Value: !GetAtt SftpQueue.Arn
+    Export:
+      Name: !Sub "${ProjectName}-SQS-${Environment}-SftpQueue-Arn"
+
+  SftpQueueDlqArn:
+    Description: "ARN of the SFTP Queue Dead Letter Queue"
+    Value: !GetAtt SftpQueueDlq.Arn
+    Export:
+      Name: !Sub "${ProjectName}-SQS-${Environment}-SftpQueueDLQ-Arn"
+

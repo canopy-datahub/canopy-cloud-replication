@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "ECR repositories stack"
+
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues:
+      - dev
+      - test
+      - prod
+      - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+
+Conditions:
+  DEV: !Equals [!Ref Environment, dev]
+  TEST: !Equals [!Ref Environment, test]
+  PROD: !Equals [!Ref Environment, prod]
+  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
+  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
+
+Resources:
+    ReporterRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-reporter/${Environment}"
+
+    ReportServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-report-service/${Environment}"
+
+    UserInterfaceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-ui/${Environment}"
+
+    SearchServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-search/${Environment}"
+
+    EntityServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-entityservice/${Environment}"
+
+    OpenSearchRefreshRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-opensearchrefresh/${Environment}"
+
+    SubmissionServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-submission-service/${Environment}"
+
+    PublicationScriptRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-publicationscript/${Environment}"
+
+    ApprovedDataServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-approved-data-service/${Environment}"
+
+    DownloadServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-download-service/${Environment}"
+
+    UserServiceRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-user-service/${Environment}"
+
+    KeycloakRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-keycloak/${Environment}"
+
