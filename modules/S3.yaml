@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/10/14 16:52:06
-  "This template deploys the Data Hub S3 Buckets. Bucket names must be globally unique. Please modify the bucket names to ensure uniqueness."
+  Last Modified: 2026/01/20 14:30:00
+  "S3 Buckets stack - Bucket names must be globally unique"
 Parameters:
   Environment:
     Type: String
@@ -13,13 +13,11 @@ Parameters:
       - shared
   ProjectName:
     Type: String
-    Description: The Project name
+    Description: The Project name (must be lowercase for S3 bucket names; e.g. redwood not Redwood)
     Default: datahub
-    AllowedValues:
-      - datahub
   DataHubUniqueId:
     Type: String
-    Description: A unique identifier to ensure S3 bucket names are globally unique
+    Description: A unique identifier to ensure S3 bucket names are globally unique (must be lowercase for S3 bucket names)
     Default: stanford
 
 Conditions:
@@ -35,20 +33,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
-      BucketName: !Sub "datahub-upload-portal-${DataHubUniqueId}-${Environment}"
-    # Fn::Transform:
-    #   Name: String
-    #   Parameters:
-    #     InputString: !Sub "${ProjectName}-upload-portal-${Environment}"
-    #     Operation: Lower
-    # Fn::Transform:
-    #   Name: Lower
-    #   Parameters:
-    #     Value: !Sub "${ProjectName}-upload-portal-${Environment}"
-      # BucketName: !Transform
-      #   Name: LowerCase
-      #   Parameters:
-      #     Value: !Sub "${ProjectName}-upload-portal-${Environment}" # Or any other string you want to convert
+      BucketName: !Sub "${ProjectName}-upload-portal-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -68,7 +53,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "sftp-datahub-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-sftp-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -77,31 +62,9 @@ Resources:
         - BucketKeyEnabled: false
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
-      ## May be using EventBridge instead of S3 Events
-      # NotificationConfiguration:
-      #   QueueConfigurations: []
-      #   LambdaConfigurations: []
-      #   EventBridgeConfiguration:
-      #     EventBridgeEnabled: true
-      #   TopicConfigurations:
-      #   - Topic: !Sub "arn:aws:sns:us-east-1:${AWS::AccountId}:SFTP-Object-Upload-Topic-${Environment}" ##FIXME - Parameterize SNS Topic ARN
-      #     Filter:
-      #       S3Key:
-      #         Rules:
-      #         - Value: "test/"
-      #           Name: "Prefix"
-      #     Event: "s3:ObjectCreated:*"
-      #   - Topic: !Sub "arn:aws:sns:us-east-1:${AWS::AccountId}:SFTP-Object-Upload-Topic-${Environment}" ##FIXME - Parameterize SNS Topic ARN
-      #     Filter:
-      #       S3Key:
-      #         Rules:
-      #         - Value: "prod/"
-      #           Name: "Prefix"
-      #         - Value: ""
-      #           Name: "Suffix"
-      #     Event: "s3:ObjectCreated:*"
-      # VersioningConfiguration:
-      #   Status: "Enabled"
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
       Tags:
       - Value: "SFTP"
         Key: "Name"
@@ -116,7 +79,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "datahub-review-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-review-${DataHubUniqueId}-${Environment}"
       VersioningConfiguration:
         Status: "Enabled"
       OwnershipControls:
@@ -127,39 +90,29 @@ Resources:
         - BucketKeyEnabled: true
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
-      # LoggingConfiguration:
-      #   TargetObjectKeyFormat:
-      #     PartitionedPrefix:
-      #       PartitionDateSource: "EventTime"
-      #   DestinationBucketName: "datahub-s3-access-logging" ##FIXME - Parameterize Access Log Bucket Name
-      #   LogFilePrefix: ""
 
-## Used for static website hosting
-
-  # S3BucketDataHubNihGov:
-  #   UpdateReplacePolicy: "Retain"
-  #   Type: "AWS::S3::Bucket"
-  #   DeletionPolicy: "Retain"
-  #   Properties:
-  #     PublicAccessBlockConfiguration:
-  #       RestrictPublicBuckets: true
-  #       IgnorePublicAcls: true
-  #       BlockPublicPolicy: true
-  #       BlockPublicAcls: true
-  #     BucketName: "datahub.stanford.edu" ##FIXME
-  #     VersioningConfiguration:
-  #       Status: "Enabled"
-  #     OwnershipControls:
-  #       Rules:
-  #       - ObjectOwnership: "BucketOwnerEnforced"
-  #     BucketEncryption:
-  #       ServerSideEncryptionConfiguration:
-  #       - BucketKeyEnabled: false
-  #         ServerSideEncryptionByDefault:
-  #           SSEAlgorithm: "AES256"
-  #     Tags:
-  #     - Value: "Production"
-  #       Key: "Environment"
+## Resource bucket for study UUID spreadsheet, and other static resources
+  S3BucketDataHubResources:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete ## CHANGE THIS
+    Properties:
+      PublicAccessBlockConfiguration:
+        RestrictPublicBuckets: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        BlockPublicAcls: true
+      BucketName: !Sub "${ProjectName}-resources-${DataHubUniqueId}-${Environment}"
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: "BucketOwnerEnforced"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+        - BucketKeyEnabled: true
+          ServerSideEncryptionByDefault:
+            SSEAlgorithm: "AES256"
+      Tags:
+      - Key: "Environment"
+        Value: !Sub "${Environment}"
 
 ## Bucket containing approved files for access after PII processing
   S3BucketDataHubDefault:
@@ -171,7 +124,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "datahub-default-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-default-${DataHubUniqueId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -180,48 +133,6 @@ Resources:
         - BucketKeyEnabled: true
           ServerSideEncryptionByDefault:
             SSEAlgorithm: "AES256"
-      # LoggingConfiguration:
-      #   TargetObjectKeyFormat:
-      #     PartitionedPrefix:
-      #       PartitionDateSource: "EventTime"
-      #   DestinationBucketName: "datahub-s3-access-logging" ##FIXME
-      #   LogFilePrefix: ""
-      # VersioningConfiguration:
-      #   Status: "Enabled"
-      # ReplicationConfiguration:
-      #   Role: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/s3crr_role_for_datahub-default" ##FIXME
-      #   Rules:
-      #   - Status: "Enabled"
-      #     Destination:
-      #       Bucket: !Sub "arn:aws:s3:::covid-${ProjectName}-default-crr-${Environment}"
-      #     Id: "CRR"
-      #     DeleteMarkerReplication:
-      #       Status: "Enabled"
-      #     Filter: {}
-      #     Priority: 0
-
-  ## S3 Bucket policy for static website hosting
-  # S3BucketPolicyDataHubNihGov:
-  #   UpdateReplacePolicy: "Retain"
-  #   Type: "AWS::S3::BucketPolicy"
-  #   DeletionPolicy: "Retain"
-  #   Properties:
-  #     Bucket:
-  #       Ref: "S3BucketDataHubStanfordEdu"
-  #     PolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #       - Condition:
-  #           StringEquals:
-  #             aws:SourceVpce: !Ref VPCId ##FIXME - Parameterize VPC Endpoint ID
-  #         Resource:
-  #         - "arn:aws:s3:::datahub.stanford.edu" ##FIXME
-  #         - "arn:aws:s3:::datahub.stanford.edu/*" ##FIXME
-  #         Action: "s3:GetObject"
-  #         Effect: "Allow"
-  #         Principal: "*"
-  #         Sid: "Access-to-specific-VPCE-only"
-  #       Id: "VPC-Endpoint-Interface-4-S3-Webpages"
 
   ## Bucket containing Lambda function code artifacts for deployment
   S3BucketDataHubLambdaArtifacts:
@@ -233,7 +144,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "datahub-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
       Tags:
       - Key: "Environment"
         Value: !Sub "${Environment}"
@@ -250,12 +161,12 @@ Resources:
 
 Outputs:
   S3BucketDataHubReviewName:
-    Description: "The ARN of the S3 bucket for Data Hub review files"
+    Description: "The ARN of the S3 bucket for review files"
     Value: !GetAtt S3BucketDataHubReview.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubReview-Arn"
   S3BucketDataHubDefaultName:
-    Description: "The ARN of the S3 bucket for Data Hub default files"
+    Description: "The ARN of the S3 bucket for default files"
     Value: !GetAtt S3BucketDataHubDefault.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubDefault-Arn"
@@ -265,7 +176,7 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketSftpDataHub-Arn"
   S3BucketDataHubUploadPortalName:
-    Description: "The ARN of the main S3 bucket for the Data Hub Upload Portal"
+    Description: "The ARN of the main S3 bucket for the Upload Portal"
     Value: !GetAtt S3BucketDataHubUploadPortal.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubUploadPortal-Arn"
@@ -274,3 +185,8 @@ Outputs:
     Value: !GetAtt S3BucketDataHubLambdaArtifacts.Arn
     Export:
       Name: !Sub "${AWS::StackName}-S3BucketDataHubLambdaArtifacts-Arn"
+  S3BucketDataHubResourcesName:
+    Description: "The ARN of the S3 bucket for static resources (study UUID spreadsheet, variable reports, etc.)"
+    Value: !GetAtt S3BucketDataHubResources.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketDataHubResources-Arn"

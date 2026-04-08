@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/10/17 13:52:29
-  "This template deploys the Data Hub Route53 Services."
+  Last Modified: 2026/01/20 14:30:00
+  "Route53 Services stack"
 Parameters:
   Environment:
     Type: String
@@ -15,8 +15,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -34,7 +32,7 @@ Resources:
               -
                 VPCRegion: "us-east-1"
                 VPCId:
-                    Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-VPC-ID"
+                    Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
 
     # Route53RecordSet:
     #     Type: "AWS::Route53::RecordSet"
@@ -66,9 +64,9 @@ Resources:
             Type: "A"
             AliasTarget:
                 HostedZoneId:
-                    Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-LoadBalancer-HostedZoneId"
+                    Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-LoadBalancer-HostedZoneId"
                 DNSName:
-                    Fn::ImportValue: !Sub "DataHub-LoadBalancer-${Environment}-LoadBalancer-DNSName"
+                    Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-LoadBalancer-DNSName"
                 EvaluateTargetHealth: true
             HostedZoneId: !Ref Route53HostedZone
 
@@ -89,7 +87,7 @@ Resources:
     #         Type: "CNAME"
     #         TTL: 300
     #         ResourceRecords:
-    #           Fn::ImportValue: !Sub "DataHub-RDS-${Environment}-RDS-Endpoint"
+    #           Fn::ImportValue: !Sub "${ProjectName}-RDS-${Environment}-RDS-Endpoint"
     #         HostedZoneId: !Ref Route53HostedZone
 
     # CertificateManagerCertificate:

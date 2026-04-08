@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description:  >-
-    Last Modified: 2025/10/28 14:55:45
-    "Data Hub OpenSearch stack"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "OpenSearch stack"
 
 Parameters:
     Environment:
@@ -16,22 +16,20 @@ Parameters:
         Type: String
         Description: The Project name
         Default: datahub
-        AllowedValues:
-          - datahub
-    OpenSearchMasterUsername:
+    OpenSearchUsername:
         Type: String
         Description: Master user for OpenSearch internal user database
         MinLength: 3
         MaxLength: 64
         AllowedPattern: "[a-zA-Z0-9_+=.@-]+"
         Default: opensearch
-    OpenSearchMasterPassword:
+    OpenSearchPassword:
         Type: String
         Description: Master password (use a strong value; rotate via stack update)
         NoEcho: true
         MinLength: 8
         MaxLength: 128
-        Default: Change–me25$
+        Default: ChangeMe@2025
 
 Conditions:
     DEV: !Equals [!Ref Environment, dev]
@@ -47,6 +45,32 @@ Resources:
     #     Properties:
     #         AWSServiceName: opensearchservice.amazonaws.com
     #         Description: "Service-linked role for Amazon OpenSearch Service VPC access"
+
+    OpenSearchSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Security group for OpenSearch domain
+            VpcId:
+                Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-VPC-ID"
+            SecurityGroupIngress:
+                # Allow HTTPS from ECS services
+                - SourceSecurityGroupId:
+                      Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
+                  IpProtocol: tcp
+                  FromPort: 443
+                  ToPort: 443
+                  Description: "HTTPS from ECS services"
+                # Allow from VPC CIDR (for Lambda, bastion, etc.)
+                - CidrIp: 10.40.0.0/16
+                  IpProtocol: tcp
+                  FromPort: 443
+                  ToPort: 443
+                  Description: "HTTPS from VPC"
+            Tags:
+                - Key: Name
+                  Value: !Sub "${ProjectName}-OpenSearch-${Environment}"
+                - Key: Environment
+                  Value: !Ref Environment
 
     OpenSearchServiceDomain:
         Type: "AWS::OpenSearchService::Domain"
@@ -75,10 +99,10 @@ Resources:
                     Resource: !Sub "arn:aws:es:${AWS::Region}:${AWS::AccountId}:domain/${ProjectName}-opensearch-${Environment}/*"
             VPCOptions:
                 SubnetIds:
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ1"
-                  - Fn::ImportValue: !Sub "DataHub-Networking-${Environment}-Private-Subnet-AZ2"
-                 # SecurityGroupIds:
-                #   - !Ref OpenSearchSecurityGroup  ## WILL LIKELY NEED TO IMPORT VALUE HERE
+                  - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+                  - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
+                SecurityGroupIds:
+                  - !Ref OpenSearchSecurityGroup
             EncryptionAtRestOptions:
                 Enabled: true
                 # KmsKeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/3edad626-9282-4afe-9f69-0c763ac7bd7d" ## MAY NEED TO FIX THIS
@@ -86,7 +110,6 @@ Resources:
                 Enabled: true
             AdvancedOptions:
                 indices.fielddata.cache.size: "20"
-                override_main_response_version: "true"
                 indices.query.bool.max_clause_count: "1024"
                 rest.action.multi.allow_explicit_index: "true"
             EBSOptions:
@@ -113,8 +136,8 @@ Resources:
                 InternalUserDatabaseEnabled: true
                 AnonymousAuthEnabled: false
                 MasterUserOptions:
-                    MasterUserName: !Ref OpenSearchMasterUsername
-                    MasterUserPassword: !Ref OpenSearchMasterPassword
+                    MasterUserName: !Ref OpenSearchUsername
+                    MasterUserPassword: !Ref OpenSearchPassword
             Tags:
               -
                 Key: "Environment"
@@ -158,34 +181,27 @@ Resources:
                 ]
               }
 
-    # OpenSearchSecurityGroup:  ## WILL LIKELY NEED TO IMPORT VALUE HERE
-    #     Type: "AWS::EC2::SecurityGroup"
-    #     Properties:
-    #         GroupDescription: "Access to the ECS hosts and the tasks/containers that run on them"
-    #         GroupName: !Sub "DataHub-PROD-SecurityGroups-1FTOWRELN2UDM-ECSHostSecurityGroup-NS8WUQ4GG14T"
-    #         Tags:
-    #           -
-    #             Key: "Environment"
-    #             Value: "Production"
-    #           -
-    #             Key: "Name"
-    #             Value: "DataHub-PROD-ECS-Hosts"
-    #         VpcId: "vpc-072375d7b124d35d7"
-    #         SecurityGroupIngress:
-    #           -
-    #             CidrIp: "10.31.0.0/16"
-    #             Description: "Shared/Control VPC"
-    #             FromPort: 0
-    #             IpProtocol: "tcp"
-    #             ToPort: 65535
-    #           -
-    #             CidrIp: "10.40.0.0/16"
-    #             IpProtocol: "-1"
-    #           -
-    #             SourceSecurityGroupId: "sg-06ec59fff2453d742"
-    #             SourceSecurityGroupOwnerId: !Ref AWS::AccountId
-    #             IpProtocol: "-1"
-    #         SecurityGroupEgress:
-    #           -
-    #             CidrIp: "0.0.0.0/0"
-    #             IpProtocol: "-1"
+Outputs:
+    OpenSearchDomainEndpoint:
+        Description: "OpenSearch Domain Endpoint"
+        Value: !GetAtt OpenSearchServiceDomain.DomainEndpoint
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-Endpoint"
+
+    OpenSearchDomainArn:
+        Description: "OpenSearch Domain ARN"
+        Value: !GetAtt OpenSearchServiceDomain.Arn
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-Arn"
+
+    OpenSearchDomainName:
+        Description: "OpenSearch Domain Name"
+        Value: !Ref OpenSearchServiceDomain
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-DomainName"
+
+    OpenSearchSecurityGroupId:
+        Description: "OpenSearch Security Group ID"
+        Value: !Ref OpenSearchSecurityGroup
+        Export:
+            Name: !Sub "${ProjectName}-OpenSearch-${Environment}-SecurityGroup"

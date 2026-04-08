@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "ECS Keycloak service (ALB + ECS health checks) - Keycloak 26.x"
+
+Parameters:
+  Environment:
+    Type: String
+    Description: The Project Environment
+    AllowedValues: [dev, test, prod, shared]
+
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+
+  KeycloakImageTag:
+    Type: String
+    Description: ECR image tag for the Keycloak container (e.g. 26.5.4, git SHA, or latest)
+    Default: latest
+
+  PublicHostname:
+    Type: String
+    Description: >
+      Public base URL used for KC_HOSTNAME (e.g. https://canopy-dev.example.com or
+      https://my-alb-123.us-east-1.elb.amazonaws.com). Must include the scheme (https://).
+      Defaults to empty string; when empty, KC_HOSTNAME falls back to the ALB DNS name.
+    Default: ""
+
+Conditions:
+  UsePublicHostname: !Not [!Equals [!Ref PublicHostname, ""]]
+
+Resources:
+  KeycloakTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub "${ProjectName}-keycloak-${Environment}"
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      Cpu: "2048"
+      Memory: "4096"
+      ExecutionRoleArn:
+        Fn::ImportValue: !Sub "${ProjectName}-ECS-${Environment}-ExecutionRoleArn"
+      TaskRoleArn:
+        Fn::ImportValue: !Sub "${ProjectName}-ECS-${Environment}-TaskRoleArn"
+
+      ContainerDefinitions:
+        - Name: !Sub "${ProjectName}-Keycloak"
+          Essential: true
+          Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-keycloak/${Environment}:${KeycloakImageTag}"
+
+          EntryPoint:
+            - "/opt/keycloak/bin/kc.sh"
+          Command:
+            - "start"
+
+          PortMappings:
+            - ContainerPort: 8080
+              Protocol: tcp
+
+          Environment:
+            - Name: KC_BOOTSTRAP_ADMIN_USERNAME
+              Value: admin
+
+            - Name: KC_DB
+              Value: postgres
+
+            - Name: KC_DB_URL
+              Value:
+                Fn::Sub:
+                  - "jdbc:postgresql://${DbHost}:5432/${ProjectName}_${Environment}"
+                  - DbHost:
+                      Fn::ImportValue:
+                        Fn::Sub: "${ProjectName}-RDS-${Environment}-rds-postgresql-${Environment}-Endpoint"
+
+            # Tell Keycloak it is behind an ALB / reverse proxy.
+            - Name: KC_PROXY_HEADERS
+              Value: xforwarded
+
+            # Public frontend URL Keycloak uses in redirects and OIDC metadata.
+            # Set PublicHostname parameter to your custom domain (https://canopy-dev.example.com)
+            # so Keycloak does not advertise the raw ALB DNS to users.
+            - Name: KC_HOSTNAME
+              Value: !If
+                - UsePublicHostname
+                - !Ref PublicHostname
+                - Fn::Join:
+                    - ""
+                    - - "https://"
+                      - Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-LoadBalancer-DNSName"
+
+            - Name: KC_HTTP_ENABLED
+              Value: "true"
+            - Name: KC_HOSTNAME_STRICT
+              Value: "false"
+
+            # Health + metrics
+            - Name: KC_HEALTH_ENABLED
+              Value: "true"
+            - Name: KC_METRICS_ENABLED
+              Value: "true"
+
+          Secrets:
+            - Name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KEYCLOAK_ADMIN_PASSWORD::"
+            - Name: KC_DB_USERNAME
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DBMasterUsername::"
+            - Name: KC_DB_PASSWORD
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DBMasterPassword::"
+
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub "/aws/ecs/${ProjectName}-microservices-${Environment}"
+              awslogs-region: !Ref AWS::Region
+              awslogs-stream-prefix: keycloak
+
+
+  KeycloakService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Sub "${ProjectName}-Keycloak"
+      Cluster:
+        Fn::ImportValue: !Sub "${ProjectName}-ECS-${Environment}-ClusterArn"
+      TaskDefinition: !Ref KeycloakTaskDefinition
+      DesiredCount: 1
+      PlatformVersion: LATEST
+      SchedulingStrategy: REPLICA
+
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+        DeploymentCircuitBreaker:
+          Enable: true
+          Rollback: true
+
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-ECS-Host-SecurityGroup"
+          Subnets:
+            - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ1"
+            - Fn::ImportValue: !Sub "${ProjectName}-Networking-${Environment}-Private-Subnet-AZ2"
+
+      LoadBalancers:
+        - TargetGroupArn:
+            Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-KeycloakTargetGroup"
+          ContainerName: !Sub "${ProjectName}-Keycloak"
+          ContainerPort: 8080
+
+      HealthCheckGracePeriodSeconds: 600
+
+      CapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+          Base: 0

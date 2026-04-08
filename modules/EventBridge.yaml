@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "EventBridge Rules for Lambda Functions"
+Description: >-
+  Last Modified: 2026/01/20 14:30:00
+  "EventBridge Rules for Lambda Functions"
 Parameters:
   Environment:
     Type: String
@@ -8,124 +10,32 @@ Parameters:
       - test
       - prod
       - shared
+  ProjectName:
+    Type: String
+    Description: The Project name
+    Default: datahub
+  DataHubUniqueId:
+    Type: String
+    Description: Unique identifier used in S3 bucket names (must match S3 stack)
+    Default: stanford
 
 Resources:
 
+    # Rule name includes ProjectName so multiple projects in the same account each get their own rule.
+    # Event pattern filters by this project's SFTP bucket so only its uploads trigger this rule.
     SftpRule:
         Type: "AWS::Events::Rule"
         Properties:
-            Name: !Sub "SFTP-${Environment}"
-            EventPattern: !Sub "{\"source\":[\"aws.s3\"],\"detail-type\":[\"Object Created\"],\"detail.object.key\":[{\"prefix\":\"${Environment}\"}]}"
+            Name: !Sub "${ProjectName}-SFTP-${Environment}"
+            Description: !Sub "S3 Object Created for ${ProjectName} SFTP bucket → SFTP queue"
+            EventPattern: !Sub "{\"source\":[\"aws.s3\"],\"detail-type\":[\"Object Created\"],\"detail\":{\"bucket\":{\"name\":[\"${ProjectName}-sftp-${DataHubUniqueId}-${Environment}\"]},\"object\":{\"key\":[{\"prefix\":\"${Environment}\"}]}}}"
             State: "ENABLED"
             Targets:
               -
                 Arn:
-                  Fn::ImportValue: !Sub "DataHub-SQS-${Environment}-SftpQueue-Arn"
+                  Fn::ImportValue: !Sub "${ProjectName}-SQS-${Environment}-SftpQueue-Arn"
                 Id: "SftpQueueTarget"
                 DeadLetterConfig:
                     Arn:
-                      Fn::ImportValue: !Sub "DataHub-SQS-${Environment}-SftpQueueDLQ-Arn"
+                      Fn::ImportValue: !Sub "${ProjectName}-SQS-${Environment}-SftpQueueDLQ-Arn"
             EventBusName: "default"
-
-    ReporterRule:
-        Type: "AWS::Events::Rule"
-        Properties:
-            Name: !Sub "DataHub-REPORTER-${Environment}"
-            Description: "Variables Report schedule for environment"
-            ScheduleExpression: "cron(0 12 ? * 2#1 *)"
-            State: "ENABLED"
-            Targets:
-              -
-                Arn:
-                  Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-DataHubReporterTestLambda-Arn"
-                Id: "ReporterLambdaTarget"
-            EventBusName: "default"
-
-    VariableReportRule:
-        Type: "AWS::Events::Rule"
-        Properties:
-            Name: "VARIABLES-REPORT"
-            Description: "Variables Report schedule for PROD environment"
-            ScheduleExpression: "cron(0 8 1 * ? *)"
-            State: "ENABLED"
-            Targets:
-              -
-                Arn:
-                  Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
-                Id: "VariablesReportLambdaTarget"
-            EventBusName: "default"
-
-    VariableReportSchedule:
-        Type: "AWS::Scheduler::Schedule"
-        Properties:
-            Name: "variables-report"
-            Description: ""
-            State: "DISABLED"
-            GroupName: "default"
-            ScheduleExpression: "cron(0 8 1 * ? *)"
-            ScheduleExpressionTimezone: "America/New_York"
-            FlexibleTimeWindow:
-                Mode: "OFF"
-            Target:
-                Arn:
-                  Fn::ImportValue: !Sub "DataHub-Lambda-${Environment}-VariablesReportLambda-Arn"
-                RetryPolicy:
-                    MaximumEventAgeInSeconds: 86400
-                    MaximumRetryAttempts: 185
-                RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Amazon_EventBridge_Scheduler_LAMBDA_a700f0f097"
-
-
-    # EventsRule:
-    #     Type: "AWS::Events::Rule"
-    #     Properties:
-    #         Name: "Health"
-    #         EventPattern: "{\"source\":[\"aws.health\"]}"
-    #         State: "ENABLED"
-    #         Targets:
-    #           -
-    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
-    #             Id: "Id520238fe-fcec-4c0c-8d7d-f466b5c85850"
-    #           -
-    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts-DHP"
-    #             Id: "Id7d151d31-44d5-42ef-a6a1-9d880e1a4037"
-    #         EventBusName: "default"
-
-    # EventsRule2:
-    #     Type: "AWS::Events::Rule"
-    #     Properties:
-    #         Name: "ACM"
-    #         EventPattern: "{\"source\":[\"aws.acm\"]}"
-    #         State: "ENABLED"
-    #         Targets:
-    #           -
-    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
-    #             Id: "Id8f5a7ddb-1061-4829-8c94-127b3c892ddc"
-    #         EventBusName: "default"
-
-    # EventsRule3:
-    #     Type: "AWS::Events::Rule"
-    #     Properties:
-    #         Name: "DataHub-GuardDuty"
-    #         EventPattern: "{\"source\":[\"aws.guardduty\"],\"detail-type\":[\"GuardDuty Finding\"]}"
-    #         State: "ENABLED"
-    #         Targets:
-    #           -
-    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
-    #             Id: "Ida2413653-8de8-4803-88c7-a3c26e3f280c"
-    #             RoleArn: !Sub "arn:aws:iam::${AWS::AccountId}:role/service-role/Amazon_EventBridge_Invoke_Sns_1963110324"
-    #         EventBusName: "default"
-
-    # EventsRule7:
-    #     Type: "AWS::Events::Rule"
-    #     Properties:
-    #         Name: "ecs-deployment-failed"
-    #         EventPattern: "{\"source\":[\"aws.ecs\"],\"detail-type\":[\"ECS Deployment State Change\"],\"detail\":{\"eventType\":[\"ERROR\"],\"eventName\":[\"SERVICE_DEPLOYMENT_FAILED\"]}}"
-    #         State: "ENABLED"
-    #         Targets:
-    #           -
-    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts-DHP"
-    #             Id: "Id2fab75f0-19d1-494b-9307-c5d603581a95"
-    #           -
-    #             Arn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:DataHub-Alerts"
-    #             Id: "Id7873fe76-3d16-4609-a77f-4d4adfebc641"
-    #         EventBusName: "default"

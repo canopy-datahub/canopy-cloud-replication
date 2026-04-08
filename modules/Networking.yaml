@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-    Last Modified: 2025/10/16 17:06:37
-    "DataHub Networking stack"
+  Last Modified: 2026/01/20 14:30:00
+  "Networking stack"
 
 Parameters:
   Environment:
@@ -16,8 +16,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -147,6 +145,13 @@ Resources:
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref EC2NatGateway
       RouteTableId: !Ref DataHubPrivateRoutesAZ1
+  
+  EC2RoutePrivateAZ2:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      NatGatewayId: !Ref EC2NatGateway
+      RouteTableId: !Ref DataHubPrivateRoutesAZ2
 
   EC2Route3:
     Type: "AWS::EC2::Route"
@@ -154,6 +159,13 @@ Resources:
       DestinationCidrBlock: "0.0.0.0/0"
       GatewayId: !Ref DataHubInternetGateway
       RouteTableId: !Ref DataHubPublicRoutesAZ1
+
+  EC2RoutePublicAZ2:
+    Type: "AWS::EC2::Route"
+    Properties:
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref DataHubInternetGateway
+      RouteTableId: !Ref DataHubPublicRoutesAZ2
 
   NatGateway1EIP:
     Type: AWS::EC2::EIP
@@ -173,31 +185,6 @@ Resources:
             Key: "Name"
             Value: !Sub "${ProjectName}-Nat-Gateway-${Environment}"
 
-
-# RDS PROXY ENDPOINT
-  # DataHubVPCEndpoint:
-  #   Type: "AWS::EC2::VPCEndpoint"
-  #   Properties:
-  #     VpcEndpointType: "Interface"
-  #     VpcId: !Ref DataHubVPC
-  #     ServiceName: !Sub "com.amazonaws.vpce.${AWS::Region}.vpce-svc-045553b17ec91b500"
-  #     PolicyDocument: |
-  #         {
-  #           "Statement": [
-  #             {
-  #               "Action": "*",
-  #               "Effect": "Allow",
-  #               "Principal": "*",
-  #               "Resource": "*"
-  #             }
-  #           ]
-  #         }
-  #     SubnetIds:
-  #       - !Ref DataHubPublicSubnetAZ1
-  #       - !Ref DataHubPrivateSubnetAZ1
-  #     PrivateDnsEnabled: false
-  #     SecurityGroupIds:
-  #       - !Ref ECSHostSecurityGroup
 
   DataHubS3VPCEndpoint:
       Type: "AWS::EC2::VPCEndpoint"
@@ -222,30 +209,6 @@ Resources:
           PrivateDnsEnabled: false
           SecurityGroupIds:
             - !Ref ECSHostSecurityGroup
-
-  # DataHubVPCEndpoint3:
-  #   Type: "AWS::EC2::VPCEndpoint"
-  #   Properties:
-  #     VpcEndpointType: "Interface"
-  #     VpcId: !Ref DataHubVPC
-  #     ServiceName: !Sub "com.amazonaws.${AWS::Region}.datasync"
-  #     PolicyDocument: |
-  #         {
-  #           "Statement": [
-  #             {
-  #               "Action": "*",
-  #               "Effect": "Allow",
-  #               "Principal": "*",
-  #               "Resource": "*"
-  #             }
-  #           ]
-  #         }
-  #     SubnetIds:
-  #       - !Ref DataHubPrivateSubnetAZ1
-  #       - !Ref DataHubPrivateSubnetAZ2
-  #     PrivateDnsEnabled: true
-  #     SecurityGroupIds:
-  #       - "sg-0aa8e3f5049fbe1bf"
 
   DataHubVPCGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
@@ -301,9 +264,22 @@ Resources:
           VpcId: !Ref DataHubVPC
           GroupDescription: Access to the load balancer that sits in front of ECS
           SecurityGroupIngress:
-              # Allow access from anywhere to our ECS services
+              # Allow HTTP access from anywhere (internet-facing ALB)
+              - CidrIp: 0.0.0.0/0
+                IpProtocol: tcp
+                FromPort: 80
+                ToPort: 80
+                Description: "HTTP access from internet"
+              # Allow HTTPS access from anywhere (for future HTTPS setup)
+              - CidrIp: 0.0.0.0/0
+                IpProtocol: tcp
+                FromPort: 443
+                ToPort: 443
+                Description: "HTTPS access from internet"
+              # Allow access from VPC for internal communication
               - CidrIp: 10.40.0.0/16
                 IpProtocol: -1
+                Description: "Internal VPC access"
           Tags:
               - Key: Name
                 Value: !Sub "${ProjectName}-LoadBalancers-${Environment}"

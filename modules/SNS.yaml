@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/09/30 14:36:21
-  "This template deploys the Data Hub SNS Topics."
+  Last Modified: 2026/01/20 14:30:00
+  "SNS Topics stack"
 Parameters:
   Environment:
     Type: String
@@ -15,8 +15,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -66,21 +64,6 @@ Resources:
             Topics:
               - !Sub "${AlertsDhpTopic}"
 
-    # SNSSubscription:
-    #     Type: "AWS::SNS::Subscription"
-    #     Properties:
-    #         TopicArn: !Ref SNSTopic
-    #         Endpoint: "fujimoto_alissa@bah.com"
-    #         Protocol: "email"
-    #         Region: !Ref AWS::Region
-
-    # SNSSubscription2:
-    #     Type: "AWS::SNS::Subscription"
-    #     Properties:
-    #         TopicArn: !Ref SNSTopic
-    #         Endpoint: "schweikert_joseph@bah.com"
-    #         Protocol: "email"
-    #         Region: !Ref AWS::Region
 
     AlertsTopicChatbotSubscription:
         Type: "AWS::SNS::Subscription"

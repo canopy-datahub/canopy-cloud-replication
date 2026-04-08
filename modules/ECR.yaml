@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/10/16 17:06:37
-  "This template deploys the Data Hub ECR repositories."
+  Last Modified: 2026/01/20 14:30:00
+  "ECR repositories stack"
 
 Parameters:
   Environment:
@@ -16,8 +16,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -30,55 +28,60 @@ Resources:
     ReporterRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-reporter/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-reporter/${Environment}"
 
     ReportServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-report-service/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-report-service/${Environment}"
 
     UserInterfaceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-ui/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-ui/${Environment}"
 
     SearchServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-search/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-search/${Environment}"
 
     EntityServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-entityservice/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-entityservice/${Environment}"
 
     OpenSearchRefreshRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-opensearchrefresh/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-opensearchrefresh/${Environment}"
 
     SubmissionServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-submission-service/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-submission-service/${Environment}"
 
     PublicationScriptRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-publicationscript/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-publicationscript/${Environment}"
 
     ApprovedDataServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-approved-data-service/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-approved-data-service/${Environment}"
 
     DownloadServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-download-service/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-download-service/${Environment}"
 
     UserServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
-            RepositoryName: !Sub "datahub-user-service/${Environment}"
+            RepositoryName: !Sub "${ProjectName}-user-service/${Environment}"
+
+    KeycloakRepository:
+        Type: "AWS::ECR::Repository"
+        Properties:
+            RepositoryName: !Sub "${ProjectName}-keycloak/${Environment}"
 

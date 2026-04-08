@@ -1,8 +1,16 @@
-# Should be rescanned on us-west-2
+#
+# SES and the email lambda:
+# - The lambda sends mail with From = supportEmail (from SecretsManager) and To/Cc from the request.
+# - supportEmail and StakeholderEmailsStudyReg (and other addresses) can appear as sender or recipients.
+# - You must verify the SENDER (supportEmail) in SES. Domain "stanford.edu" is verified below, so any
+#   *@stanford.edu (e.g. ycao77@stanford.edu) can be used as supportEmail without adding an identity.
+# - In SES SANDBOX mode, every recipient (To/Cc, including StakeholderEmailsStudyReg) must also be
+#   verified (SES → Verified identities → Create identity). In production, only the sender must be verified.
+#
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2025/09/30 14:48:53
-  "This template deploys the Data Hub SES Services."
+  Last Modified: 2026/01/20 14:30:00
+  "SES Services stack"
 Parameters:
   Environment:
     Type: String
@@ -16,8 +24,6 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-    AllowedValues:
-      - datahub
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
