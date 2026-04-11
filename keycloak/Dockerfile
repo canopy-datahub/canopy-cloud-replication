@@ -8,6 +8,9 @@ ENV KC_METRICS_ENABLED=true
 # occurs on every container start ("Changes detected in configuration" warning).
 ENV KC_DB=postgres
 
+# Copy custom Canopy theme
+COPY ./themes/canopy /opt/keycloak/themes/canopy
+
 RUN /opt/keycloak/bin/kc.sh build
 
 # Ensure proper permissions
