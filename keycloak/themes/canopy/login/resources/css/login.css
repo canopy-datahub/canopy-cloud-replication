@@ -1,0 +1,269 @@
+/* ==========================================================================
+   Canopy Keycloak Login Theme
+   Matches the Canopy Research Data Platform branding
+   Colors: Dark Green #00693e / #004b2d, Gold #d4af37, White
+   Font:   Open Sans
+   ========================================================================== */
+
+/* ---------- Google Font ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
+
+/* ---------- Global ---------- */
+* {
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+/* ---------- Page Background (lighter greens matching main page hero) ---------- */
+html.login-pf {
+    background: #4a7c5f !important;
+}
+
+.login-pf-page {
+    background: linear-gradient(160deg, #3d6b50 0%, #5a8f6e 40%, #6a9f7e 70%, #4a7c5f 100%) !important;
+    min-height: 100vh !important;
+}
+
+/* ---------- Header / Brand ("Canopy") ---------- */
+#kc-header {
+    padding: 60px 0 20px 0;
+    text-align: center;
+}
+
+#kc-header-wrapper {
+    font-family: 'Open Sans Variable', 'Open Sans', sans-serif !important;
+    font-size: 56px;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: none;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------- Login Card (frosted glass, matching main page search box) ---------- */
+.card-pf {
+    background: hsla(0, 0%, 100%, 0.1) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    backdrop-filter: blur(20px) !important;
+    border: 2px solid rgba(212, 175, 55, 0.4) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(212, 175, 55, 0.15) !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+    padding: 36px 32px !important;
+    position: relative !important;
+}
+
+/* ---------- "Sign in to your account" heading ---------- */
+.login-pf-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#kc-page-title {
+    color: #ffffff !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    margin: 0 0 10px 0 !important;
+}
+
+/* ---------- Form Labels ---------- */
+.pf-c-form__label,
+.pf-c-form__label-text,
+label[for="username"],
+label[for="password"] {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+}
+
+/* ---------- Input Fields ---------- */
+.pf-c-form-control,
+input#username,
+input#password {
+    border: 1px solid #cccccc !important;
+    border-radius: 4px !important;
+    padding: 10px 12px !important;
+    font-size: 15px !important;
+    transition: border-color 0.2s ease !important;
+    background-color: #ffffff !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.pf-c-form-control:focus,
+input#username:focus,
+input#password:focus {
+    border-color: #00693e !important;
+    box-shadow: 0 0 0 2px rgba(0, 105, 62, 0.2) !important;
+    outline: none !important;
+}
+
+/* Password input group - keep input and toggle together */
+.pf-c-input-group {
+    display: flex !important;
+}
+
+.pf-c-input-group .pf-c-form-control {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    flex: 1 !important;
+}
+
+/* ---------- Password visibility toggle ---------- */
+.pf-c-button.pf-m-control {
+    border: 1px solid #cccccc !important;
+    border-left: none !important;
+    border-top-right-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
+    background-color: #f8f8f8 !important;
+    color: #404040 !important;
+    padding: 0 12px !important;
+    cursor: pointer !important;
+}
+
+.pf-c-button.pf-m-control:hover {
+    background-color: #e6f2ec !important;
+    color: #00693e !important;
+}
+
+/* ---------- Form Groups spacing ---------- */
+.form-group {
+    margin-bottom: 16px !important;
+}
+
+/* ---------- "Forgot Password?" link ---------- */
+.login-pf-settings {
+    margin-bottom: 20px !important;
+}
+
+.login-pf-settings a {
+    color: #f4c542 !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+.login-pf-settings a:hover {
+    color: #ffd700 !important;
+    text-decoration: underline !important;
+}
+
+/* ---------- Sign In Button (matches Search button on main page) ---------- */
+#kc-login,
+.pf-c-button.pf-m-primary {
+    background-color: #004b2d !important;
+    border: none !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    padding: 14px 24px !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+    text-transform: none !important;
+    width: 100% !important;
+}
+
+#kc-login:hover,
+.pf-c-button.pf-m-primary:hover {
+    background-color: #003b24 !important;
+    box-shadow: 0 4px 12px rgba(0, 75, 45, 0.4) !important;
+}
+
+#kc-login:focus,
+.pf-c-button.pf-m-primary:focus {
+    background-color: #003b24 !important;
+    box-shadow: 0 0 0 3px rgba(0, 105, 62, 0.3) !important;
+    outline: none !important;
+}
+
+/* ---------- "New user? Register" footer ---------- */
+#kc-info,
+.login-pf-signup {
+    text-align: center !important;
+    margin-top: 16px !important;
+    padding: 0 !important;
+}
+
+#kc-registration span {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 14px !important;
+}
+
+#kc-registration a {
+    color: #f4c542 !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+}
+
+#kc-registration a:hover {
+    color: #ffd700 !important;
+    text-decoration: underline !important;
+}
+
+/* ---------- Alert / Error Messages ---------- */
+.alert-error,
+.pf-c-alert.pf-m-danger,
+.kc-feedback-text {
+    background-color: #fff5f5 !important;
+    border-left: 4px solid #da1e28 !important;
+    border-radius: 4px !important;
+    color: #da1e28 !important;
+    padding: 12px !important;
+    margin-bottom: 16px !important;
+}
+
+.alert-success,
+.pf-c-alert.pf-m-success {
+    background-color: #f0faf4 !important;
+    border-left: 4px solid #00693e !important;
+    border-radius: 4px !important;
+    color: #00693e !important;
+}
+
+/* ---------- General links inside the card ---------- */
+.card-pf a {
+    color: #f4c542 !important;
+    text-decoration: none !important;
+}
+
+.card-pf a:hover {
+    color: #ffd700 !important;
+    text-decoration: underline !important;
+}
+
+/* ---------- "Back to Canopy Main Page" link ---------- */
+#canopy-back-link {
+    display: block !important;
+    text-align: center !important;
+    margin-top: 24px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 13px !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+}
+
+#canopy-back-link:hover {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+    .card-pf {
+        margin: 0 16px !important;
+        max-width: 100% !important;
+        padding: 24px 20px !important;
+    }
+
+    #kc-header-wrapper {
+        font-size: 28px;
+        letter-spacing: 4px;
+    }
+
+    #kc-header {
+        padding: 40px 0 16px 0;
+    }
+}
