@@ -19,9 +19,9 @@
 		"RDSEndpoint": "REPLACEME",
 		"ElasticIPAllocationId": "eipalloc-xxxxxx",
 		"LambdaDependencyLayerArn": "REPLACEME",
-    "CertificateId": "REPLACEME-UUID",
-    "PublicHostname": "https://canopy.example.com",
-    "KeycloakRealm": "CANOPY",
-    "KeycloakClientId": "canopy-client"
+		"CertificateId": "REPLACEME-UUID",
+		"PublicHostname": "https://canopy.example.com",
+		"KeycloakRealm": "CANOPY",
+		"KeycloakClientId": "canopy-client"
 	}
 }
