@@ -15,7 +15,7 @@ unset CANOPY_PROJECT_NAME
 export CANOPY_ENV=dev
 export CANOPY_HOME=~/CANOPY
 export CANOPY_CLOUD_REPLICATION=${CANOPY_HOME}/canopy-cloud-replication
-export CANOPY_AWS_PARAMETER_FILE=${CANOPY_HOME}/parameters-${CANOPY_ENV}-user.json
+export CANOPY_AWS_PARAMETER_FILE=${CANOPY_HOME}/aws-parameters-${CANOPY_ENV}-user.json
 export CANOPY_PROJECT_NAME=$(cat ${CANOPY_AWS_PARAMETER_FILE} | grep -o '"ProjectName": "[^"]*"' | cut -d'"' -f4)
 export CANOPY_UNIQUE_ID=$(cat ${CANOPY_AWS_PARAMETER_FILE} | grep -o '"DataHubUniqueId": "[^"]*"' | cut -d'"' -f4)
 
