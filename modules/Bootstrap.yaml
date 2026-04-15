@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Account-level bootstrap stack.
+  Creates shared prerequisites that only need to exist once per AWS account.
+  Run this once before deploying service-specific stacks.
+
+Parameters:
+  ProjectName:
+    Type: String
+  Environment:
+    Type: String
+
+Resources:
+  OpenSearchServiceLinkedRole:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: opensearchservice.amazonaws.com
+      Description: "Service-linked role for Amazon OpenSearch Service VPC access"
+
+Outputs:
+  StackInfo:
+    Description: Bootstrap stack identifier
+    Value: !Sub "${ProjectName}-Bootstrap-${Environment}"
