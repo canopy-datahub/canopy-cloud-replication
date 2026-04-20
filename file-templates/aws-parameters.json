@@ -2,9 +2,9 @@
 	"Parameters": {
 		"Environment": "<<CANOPY_ENV>>",
 		"ProjectName": "canopy",
+		"DeploymentId": "0001",
 		"KeycloakImageTag": "26.5.4",
 		"Region": "us-east-1",
-		"DataHubUniqueId": "canopy-id",
 		"CanopyParamDbMasterUsername": "datahub_postgres_<<CANOPY_ENV>>",
 		"CanopyParamDbMasterPassword": "REPLACEME",
 		"CanopyParamDbAppUsername": "datahub_user",

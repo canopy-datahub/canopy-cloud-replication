@@ -10,7 +10,7 @@ Parameters:
       - test
       - prod
       - shared
-  DataHubUniqueId:
+  DeploymentId:
     Type: String
     Description: A unique identifier to ensure S3 bucket names are globally unique
   ProjectName:
@@ -24,8 +24,8 @@ Parameters:
 Resources:
   # ============================================================================
   # PREREQUISITE: Upload these S3 objects before deploying this stack:
-  #   - s3://${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}/email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar
-  #   - s3://${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}/opensearch-refresh/opensearch-refresh-lambda.zip
+  #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar
+  #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/opensearch-refresh/opensearch-refresh-lambda.zip
   # ============================================================================
   # IAM ROLES
   # ============================================================================
@@ -165,7 +165,7 @@ Resources:
       Architectures:
         - "x86_64"
       Code:
-        S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+        S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}"
         S3Key: !Sub "email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar"
       MemorySize: 2048
       Role: !GetAtt SESLambdaExecutionRole.Arn
@@ -196,7 +196,7 @@ Resources:
       Architectures:
         - "arm64"
       Code:
-        S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+        S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}"
         S3Key: "opensearch-refresh/opensearch-refresh-lambda.zip"
       Layers:
         - !Sub "${LambdaDependencyLayerArn}"
