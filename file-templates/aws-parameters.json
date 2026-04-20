@@ -15,7 +15,6 @@
 		"OpenSearchUsername": "opensearch",
 		"OpenSearchPassword": "REPLACEME",
 		"OpenSearchEndpoint": "REPLACEME:vpc-....amazonaws.com",
-		"LoadBalancerDomainName": "https://canopy.example.com",
 		"RDSEndpoint": "REPLACEME:....amazonaws.com",
 		"ElasticIPAllocationId": "REPLACEME:eipalloc-xxxxxx",
 		"LambdaDependencyLayerArn": "REPLACEME:arn:aws:lambda:...",
