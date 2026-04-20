@@ -15,10 +15,10 @@ Parameters:
         Type: String
         Description: The Project name
         Default: datahub
-    CanopyParamDbMasterUsername:
+    DbMasterUsername:
         Type: String
         Description: Master username for the PostgreSQL instance
-    CanopyParamDbMasterPassword:
+    DbMasterPassword:
         Type: String
         NoEcho: true
         Description: Master password for the PostgreSQL instance
@@ -41,8 +41,8 @@ Resources:
             AllocatedStorage: 20
             DBInstanceClass: "db.t4g.small"
             Engine: "postgres"
-            MasterUsername: !Ref CanopyParamDbMasterUsername
-            MasterUserPassword: !Ref CanopyParamDbMasterPassword
+            MasterUsername: !Ref DbMasterUsername
+            MasterUserPassword: !Ref DbMasterPassword
             DBName: !Sub "${ProjectName}_${Environment}"
             PreferredBackupWindow: "05:00-05:30"
             BackupRetentionPeriod: 3
