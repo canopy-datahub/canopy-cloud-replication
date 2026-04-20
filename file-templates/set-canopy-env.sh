@@ -4,7 +4,7 @@ unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
 unset AWS_SESSION_TOKEN
 
-export AWS_PROFILE=canopy-dev
+export AWS_PROFILE=canopy-<<CANOPY_ENV>>
 export AWS_REGION=us-east-1
 
 
