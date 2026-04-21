@@ -63,13 +63,8 @@ Resources:
             - Name: KC_DB
               Value: postgres
 
-            - Name: KC_DB_URL
-              Value:
-                Fn::Sub:
-                  - "jdbc:postgresql://${DbHost}:5432/${ProjectName}_${Environment}"
-                  - DbHost:
-                      Fn::ImportValue:
-                        Fn::Sub: "${ProjectName}-RDS-${Environment}-rds-postgresql-${Environment}-Endpoint"
+            # KC_DB_URL is pulled from the application secret (pre-built by SecretsManager.yaml
+            # using the isolated KeycloakDbName). See the "Secrets:" block below.
 
             # Tell Keycloak it is behind an ALB / reverse proxy.
             - Name: KC_PROXY_HEADERS
@@ -101,10 +96,12 @@ Resources:
           Secrets:
             - Name: KC_BOOTSTRAP_ADMIN_PASSWORD
               ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KEYCLOAK_ADMIN_PASSWORD::"
+            - Name: KC_DB_URL
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KC_DB_URL::"
             - Name: KC_DB_USERNAME
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DBMasterUsername::"
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KC_DB_USERNAME::"
             - Name: KC_DB_PASSWORD
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DBMasterPassword::"
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KC_DB_PASSWORD::"
 
           LogConfiguration:
             LogDriver: awslogs
