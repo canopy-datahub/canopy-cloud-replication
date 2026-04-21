@@ -11,16 +11,28 @@ ENV KC_DB=postgres
 # Copy custom Canopy theme
 COPY ./themes/canopy /opt/keycloak/themes/canopy
 
+# Realm-import template. The entrypoint wrapper substitutes @@PUBLIC_HOSTNAME@@
+# with the runtime KC_HOSTNAME and writes the rendered JSON to
+# /opt/keycloak/data/import/ before kc.sh start --import-realm picks it up.
+COPY ./realm-import /opt/keycloak/realm-template
+
+# Entrypoint wrapper (sed-renders templates, then execs kc.sh).
+COPY ./entrypoint.sh /opt/keycloak/entrypoint.sh
+
 RUN /opt/keycloak/bin/kc.sh build
 
-# Ensure proper permissions
+# Ensure proper permissions (keycloak user needs to read the template dir
+# and write the rendered files into data/import).
 USER root
-RUN chown -R keycloak:keycloak /opt/keycloak
+RUN chmod +x /opt/keycloak/entrypoint.sh \
+    && chown -R keycloak:keycloak /opt/keycloak
 USER keycloak
 
 # Expose Keycloak port
 EXPOSE 8080
 
-# Start Keycloak in optimized mode
-# Configuration will come from environment variables and secrets
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start", "--optimized"]
+# Wrapper renders realm-import templates, then starts Keycloak optimised with
+# --import-realm. Import is idempotent — skipped if the CANOPY realm already
+# exists in the DB, so safe on container restart.
+ENTRYPOINT ["/opt/keycloak/entrypoint.sh"]
+CMD ["start", "--optimized", "--import-realm"]

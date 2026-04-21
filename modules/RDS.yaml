@@ -22,6 +22,9 @@ Parameters:
         Type: String
         NoEcho: true
         Description: Master password for the PostgreSQL instance
+    CanopyAppDbName:
+        Type: String
+        Description: Name of the initial application database RDS creates at provision time (e.g. canopy_prod).
     MyIP:
         Type: String
         Description: Your workstation's public IP in CIDR notation (e.g. 203.0.113.5/32) — required to connect to RDS for schema setup
@@ -43,7 +46,7 @@ Resources:
             Engine: "postgres"
             MasterUsername: !Ref DbMasterUsername
             MasterUserPassword: !Ref DbMasterPassword
-            DBName: !Sub "${ProjectName}_${Environment}"
+            DBName: !Ref CanopyAppDbName
             PreferredBackupWindow: "05:00-05:30"
             BackupRetentionPeriod: 3
             AvailabilityZone: !Sub "${AWS::Region}a"
