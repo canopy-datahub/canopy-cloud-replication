@@ -47,29 +47,21 @@ Resources:
           Essential: true
           Image: !Sub "${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ProjectName}-keycloak/${Environment}:${KeycloakImageTag}"
 
-          EntryPoint:
-            - "/opt/keycloak/bin/kc.sh"
-          Command:
-            - "start"
+          # EntryPoint/Command come from the Dockerfile: the entrypoint wrapper
+          # renders realm-import templates with the runtime KC_HOSTNAME and then
+          # execs `kc.sh start --optimized --import-realm`. Overriding these here
+          # would bypass the realm auto-import.
 
           PortMappings:
             - ContainerPort: 8080
               Protocol: tcp
 
           Environment:
-            - Name: KC_BOOTSTRAP_ADMIN_USERNAME
-              Value: admin
-
             - Name: KC_DB
               Value: postgres
 
-            - Name: KC_DB_URL
-              Value:
-                Fn::Sub:
-                  - "jdbc:postgresql://${DbHost}:5432/${ProjectName}_${Environment}"
-                  - DbHost:
-                      Fn::ImportValue:
-                        Fn::Sub: "${ProjectName}-RDS-${Environment}-rds-postgresql-${Environment}-Endpoint"
+            # KC_DB_URL is pulled from the application secret (pre-built by SecretsManager.yaml
+            # using the isolated KeycloakDbName). See the "Secrets:" block below.
 
             # Tell Keycloak it is behind an ALB / reverse proxy.
             - Name: KC_PROXY_HEADERS
@@ -99,12 +91,16 @@ Resources:
               Value: "true"
 
           Secrets:
+            - Name: KC_BOOTSTRAP_ADMIN_USERNAME
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KEYCLOAK_ADMIN_USERNAME::"
             - Name: KC_BOOTSTRAP_ADMIN_PASSWORD
               ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KEYCLOAK_ADMIN_PASSWORD::"
+            - Name: KC_DB_URL
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KC_DB_URL::"
             - Name: KC_DB_USERNAME
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DBMasterUsername::"
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KC_DB_USERNAME::"
             - Name: KC_DB_PASSWORD
-              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DBMasterPassword::"
+              ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:KC_DB_PASSWORD::"
 
           LogConfiguration:
             LogDriver: awslogs

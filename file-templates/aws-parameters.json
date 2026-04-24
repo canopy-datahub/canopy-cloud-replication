@@ -1,0 +1,33 @@
+{
+	"Parameters": {
+		"Environment": "<<CANOPY_ENV>>",
+		"ProjectName": "canopy",
+		"DeploymentId": "0001",
+		"KeycloakImageTag": "26.5.4",
+		"Region": "us-east-1",
+		"DbMasterUsername": "datahub_postgres_<<CANOPY_ENV>>",
+		"DbMasterPassword": "REPLACEME",
+		"CanopyAppDbName": "canopy_<<CANOPY_ENV>>",
+		"CanopyDbUsername": "canopy_user",
+		"CanopyDbPassword": "REPLACEME",
+		"KeycloakDbName": "canopy_keycloak_<<CANOPY_ENV>>",
+		"KeycloakDbUsername": "keycloak_user",
+		"KeycloakDbPassword": "REPLACEME",
+		"KeycloakAdminUsername": "administrator",
+		"KeycloakAdminPassword": "REPLACEME",
+		"MyIP": "REPLACEME/32",
+		"StakeholderEmailsStudyReg": "replaceme-notify@example.com",
+		"SupportEmail": "replaceme-support@example.com",
+		"SenderDomain": "",
+		"OpenSearchUsername": "opensearch",
+		"OpenSearchPassword": "REPLACEME",
+		"OpenSearchEndpoint": "REPLACEME:vpc-....amazonaws.com",
+		"RDSEndpoint": "REPLACEME:....amazonaws.com",
+		"ElasticIPAllocationId": "REPLACEME:eipalloc-xxxxxx",
+		"LambdaDependencyLayerArn": "REPLACEME:arn:aws:lambda:...",
+		"CertificateId": "REPLACEME:UUID",
+		"PublicHostname": "https://canopy.example.com",
+		"KeycloakRealm": "CANOPY",
+		"KeycloakClientId": "canopy-client"
+	}
+}

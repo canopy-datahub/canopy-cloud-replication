@@ -1,16 +1,25 @@
 #
 # SES and the email lambda:
-# - The lambda sends mail with From = supportEmail (from SecretsManager) and To/Cc from the request.
-# - supportEmail and StakeholderEmailsStudyReg (and other addresses) can appear as sender or recipients.
-# - You must verify the SENDER (supportEmail) in SES. Domain "stanford.edu" is verified below, so any
-#   *@stanford.edu (e.g. ycao77@stanford.edu) can be used as supportEmail without adding an identity.
-# - In SES SANDBOX mode, every recipient (To/Cc, including StakeholderEmailsStudyReg) must also be
-#   verified (SES → Verified identities → Create identity). In production, only the sender must be verified.
+# - The lambda sends mail with From = SupportEmail (mirrored into SecretsManager as "supportEmail")
+#   and To/Cc from the request.
+# - For SES to accept the send, SupportEmail must be a verified identity — either:
+#     (a) directly, as an email identity (always created by this stack), OR
+#     (b) covered by a verified domain identity (created only if SenderDomain is non-empty).
+# - Domain verification requires adding the DKIM CNAME records AWS generates to the DNS zone
+#   of SenderDomain. Without those DNS records, the domain identity stays in PendingVerification
+#   forever — AWS cannot "just trust" a domain claim. See:
+#   https://docs.aws.amazon.com/ses/latest/dg/send-email-authentication-dkim-easy.html
+# - Recipients (StakeholderEmailsStudyReg etc.): in SES SANDBOX mode every recipient must also
+#   be verified individually (SES console → Verified identities → Create identity). In
+#   production mode, only the sender must be verified. This stack does NOT auto-verify
+#   recipients — that step belongs in the SES console (or a separate identity-per-recipient
+#   flow if you want to template it). See Step 24b in DEPLOYMENT_GUIDE.md.
 #
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Last Modified: 2026/01/20 14:30:00
-  "SES Services stack"
+  Last Modified: 2026/04/22
+  "SES Services stack — parameterized email identities (SupportEmail + optional SenderDomain)"
+
 Parameters:
   Environment:
     Type: String
@@ -24,47 +33,66 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
+  SupportEmail:
+    Type: String
+    Description: >-
+      Sender address used by the email-lambda (mirrored into the application secret as
+      "supportEmail"). Always created as an email identity in SES. DKIM signing is enabled;
+      identity reaches "Verified" status once the owner clicks the confirmation link AWS
+      sends to this address.
+  SenderDomain:
+    Type: String
+    Default: ""
+    Description: >-
+      Optional — domain for a domain-level SES identity (e.g. egyedia.com). When non-empty,
+      a domain identity is created with DKIM enabled; add the three CNAME records AWS
+      generates to the domain's DNS zone to reach "Verified" status. Any *@<SenderDomain>
+      sender then works without per-email verification. Leave empty to skip domain
+      verification and rely on the email identity for SupportEmail alone.
 
 Conditions:
+  UseSenderDomain: !Not [!Equals [!Ref SenderDomain, ""]]
   DEV: !Equals [!Ref Environment, dev]
   TEST: !Equals [!Ref Environment, test]
   PROD: !Equals [!Ref Environment, prod]
-  NOTDEV: !Not [!Equals [!Ref Environment, dev]]
-  NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
-    DataHubEmailIdentity:
-        Type: "AWS::SES::EmailIdentity"
-        Properties:
-            EmailIdentity: "datahub@stanford.edu"
-            DkimAttributes:
-                SigningEnabled: true
-            MailFromAttributes:
-                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
-            ConfigurationSetAttributes: {}
-            FeedbackAttributes:
-                EmailForwardingEnabled: true
+  # Always: individual email identity for the sender the lambda uses.
+  SupportEmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Ref SupportEmail
+      DkimAttributes:
+        SigningEnabled: true
+      MailFromAttributes:
+        BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+      ConfigurationSetAttributes: {}
+      FeedbackAttributes:
+        EmailForwardingEnabled: true
 
-    DataHubDevEmailIdentity:
-        Type: "AWS::SES::EmailIdentity"
-        Properties:
-            EmailIdentity: "datahub.dev@stanford.edu"
-            DkimAttributes:
-                SigningEnabled: false
-            MailFromAttributes:
-                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
-            ConfigurationSetAttributes: {}
-            FeedbackAttributes:
-                EmailForwardingEnabled: true
+  # Optional: domain-level identity. Skipped if SenderDomain is empty.
+  SenderDomainIdentity:
+    Type: AWS::SES::EmailIdentity
+    Condition: UseSenderDomain
+    Properties:
+      EmailIdentity: !Ref SenderDomain
+      DkimAttributes:
+        SigningEnabled: true
+      MailFromAttributes:
+        BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
+      ConfigurationSetAttributes: {}
+      FeedbackAttributes:
+        EmailForwardingEnabled: true
 
-    StanfordEduEmailIdentity:
-        Type: "AWS::SES::EmailIdentity"
-        Properties:
-            EmailIdentity: "stanford.edu"
-            DkimAttributes:
-                SigningEnabled: true
-            MailFromAttributes:
-                BehaviorOnMxFailure: "USE_DEFAULT_VALUE"
-            ConfigurationSetAttributes: {}
-            FeedbackAttributes:
-                EmailForwardingEnabled: true
+Outputs:
+  SupportEmailIdentityArn:
+    Value: !GetAtt SupportEmailIdentity.DkimDNSTokenName1
+    Description: First DKIM CNAME host for the SupportEmail identity (add all three to DNS for DKIM verification).
+    Export:
+      Name: !Sub "${AWS::StackName}-SupportEmail-DkimCname1Host"
+  SenderDomainIdentityArn:
+    Condition: UseSenderDomain
+    Value: !GetAtt SenderDomainIdentity.DkimDNSTokenName1
+    Description: First DKIM CNAME host for the SenderDomain identity (add all three to DNS for DKIM verification).
+    Export:
+      Name: !Sub "${AWS::StackName}-SenderDomain-DkimCname1Host"

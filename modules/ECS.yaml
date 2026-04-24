@@ -35,7 +35,7 @@ Resources:
                 TargetGroupArn:
                   Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-ReportServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-ReportService"
-                ContainerPort: 8080
+                ContainerPort: 8084
             DesiredCount: 0
             PlatformVersion: "LATEST"
             TaskDefinition: !Ref ReportServiceTaskDefinition
@@ -77,7 +77,7 @@ Resources:
                 TargetGroupArn:
                   Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-UserServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-UserService"
-                ContainerPort: 8080
+                ContainerPort: 8082
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref UserServiceTaskDefinition
@@ -120,7 +120,7 @@ Resources:
                 TargetGroupArn:
                   Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-EntityServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-EntityService"
-                ContainerPort: 8080
+                ContainerPort: 8087
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref EntityServiceTaskDefinition
@@ -204,7 +204,7 @@ Resources:
                 TargetGroupArn:
                   Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-SearchServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-Search"
-                ContainerPort: 8080
+                ContainerPort: 8081
             DesiredCount: 0
             PlatformVersion: "LATEST"
             TaskDefinition: !Ref SearchServiceTaskDefinition
@@ -246,7 +246,7 @@ Resources:
                 TargetGroupArn:
                   Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-DownloadServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-DownloadService"
-                ContainerPort: 8080
+                ContainerPort: 8086
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref DownloadServiceTaskDefinition
@@ -288,7 +288,7 @@ Resources:
                 TargetGroupArn:
                   Fn::ImportValue: !Sub "${ProjectName}-LoadBalancer-${Environment}-SubmissionServiceTargetGroup"
                 ContainerName: !Sub "${ProjectName}-SubmissionService"
-                ContainerPort: 8080
+                ContainerPort: 8083
             DesiredCount: 0
             PlatformVersion: "1.4.0"
             TaskDefinition: !Ref SubmissionServiceTaskDefinition
@@ -337,7 +337,7 @@ Resources:
                 HealthCheck:
                     Command:
                       - "CMD-SHELL"
-                      - "curl -f http://localhost:8080/api/user/v1/actuator/health || exit 1"
+                      - "curl -f http://localhost:8082/api/user/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
@@ -353,8 +353,8 @@ Resources:
                 Name: !Sub "${ProjectName}-UserService"
                 PortMappings:
                   -
-                    ContainerPort: 8080
-                    HostPort: 8080
+                    ContainerPort: 8082
+                    HostPort: 8082
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}-user-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
@@ -420,7 +420,7 @@ Resources:
                 HealthCheck:
                     Command:
                       - "CMD-SHELL"
-                      - "curl -f http://localhost:8080/api/submission-service/v1/actuator/health || exit 1"
+                      - "curl -f http://localhost:8083/api/submission/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
@@ -435,8 +435,8 @@ Resources:
                 Name: !Sub "${ProjectName}-SubmissionService"
                 PortMappings:
                   -
-                    ContainerPort: 8080
-                    HostPort: 8080
+                    ContainerPort: 8083
+                    HostPort: 8083
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}-submission-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
@@ -473,8 +473,8 @@ Resources:
                 Name: !Sub "${ProjectName}-Search"
                 PortMappings:
                   -
-                    ContainerPort: 8080
-                    HostPort: 8080
+                    ContainerPort: 8081
+                    HostPort: 8081
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}-search-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
@@ -503,7 +503,7 @@ Resources:
                 HealthCheck:
                     Command:
                       - "CMD-SHELL"
-                      - "curl -f http://localhost:8080/api/report/v1/actuator/health || exit 1"
+                      - "curl -f http://localhost:8084/api/report/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
@@ -519,8 +519,8 @@ Resources:
                 Name: !Sub "${ProjectName}-ReportService"
                 PortMappings:
                   -
-                    ContainerPort: 8080
-                    HostPort: 8080
+                    ContainerPort: 8084
+                    HostPort: 8084
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}-report-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
@@ -574,7 +574,7 @@ Resources:
                 HealthCheck:
                     Command:
                       - "CMD-SHELL"
-                      - "curl -f http://localhost:8080/api/entity/v1/actuator/health || exit 1"
+                      - "curl -f http://localhost:8087/api/entity/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
@@ -590,8 +590,8 @@ Resources:
                 Name: !Sub "${ProjectName}-EntityService"
                 PortMappings:
                   -
-                    ContainerPort: 8080
-                    HostPort: 8080
+                    ContainerPort: 8087
+                    HostPort: 8087
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}-entityservice-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole
@@ -621,7 +621,7 @@ Resources:
                 HealthCheck:
                     Command:
                       - "CMD-SHELL"
-                      - "curl -f http://localhost:8080/api/download/v1/actuator/health || exit 1"
+                      - "curl -f http://localhost:8086/api/download/v1/actuator/health || exit 1"
                     Interval: 30
                     Timeout: 5
                     Retries: 3
@@ -637,8 +637,8 @@ Resources:
                 Name: !Sub "${ProjectName}-DownloadService"
                 PortMappings:
                   -
-                    ContainerPort: 8080
-                    HostPort: 8080
+                    ContainerPort: 8086
+                    HostPort: 8086
                     Protocol: "tcp"
             Family: !Sub "${ProjectName}-download-service-${Environment}"
             TaskRoleArn: !Ref ECSTaskRole

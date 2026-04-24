@@ -267,7 +267,7 @@ Resources:
                 Field: "path-pattern"
                 PathPatternConfig:
                     Values:
-                      - "/api/submission-service/v1*"
+                      - "/api/submission/v1*"
             Actions:
               -
                 Type: "forward"
@@ -715,7 +715,7 @@ Resources:
         Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
         Properties:
             HealthCheckIntervalSeconds: 30
-            HealthCheckPath: "/api/submission-service/v1/actuator/health"
+            HealthCheckPath: "/api/submission/v1/actuator/health"
             Port: 80
             Protocol: "HTTP"
             HealthCheckPort: "traffic-port"

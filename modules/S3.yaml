@@ -15,7 +15,7 @@ Parameters:
     Type: String
     Description: The Project name (must be lowercase for S3 bucket names; e.g. redwood not Redwood)
     Default: datahub
-  DataHubUniqueId:
+  DeploymentId:
     Type: String
     Description: A unique identifier to ensure S3 bucket names are globally unique (must be lowercase for S3 bucket names)
     Default: stanford
@@ -33,7 +33,7 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
-      BucketName: !Sub "${ProjectName}-upload-portal-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-upload-portal-${DeploymentId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -53,7 +53,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "${ProjectName}-sftp-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-sftp-${DeploymentId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -79,7 +79,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "${ProjectName}-review-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-review-${DeploymentId}-${Environment}"
       VersioningConfiguration:
         Status: "Enabled"
       OwnershipControls:
@@ -101,7 +101,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "${ProjectName}-resources-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-resources-${DeploymentId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -124,7 +124,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "${ProjectName}-default-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-default-${DeploymentId}-${Environment}"
       OwnershipControls:
         Rules:
         - ObjectOwnership: "BucketOwnerEnforced"
@@ -144,7 +144,7 @@ Resources:
         IgnorePublicAcls: true
         BlockPublicPolicy: true
         BlockPublicAcls: true
-      BucketName: !Sub "${ProjectName}-lambda-artifacts-${DataHubUniqueId}-${Environment}"
+      BucketName: !Sub "${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}"
       Tags:
       - Key: "Environment"
         Value: !Sub "${Environment}"

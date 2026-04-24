@@ -14,7 +14,7 @@ Parameters:
     Type: String
     Description: The Project name
     Default: datahub
-  DataHubUniqueId:
+  DeploymentId:
     Type: String
     Description: Unique identifier used in S3 bucket names (must match S3 stack)
     Default: stanford
@@ -28,7 +28,7 @@ Resources:
         Properties:
             Name: !Sub "${ProjectName}-SFTP-${Environment}"
             Description: !Sub "S3 Object Created for ${ProjectName} SFTP bucket → SFTP queue"
-            EventPattern: !Sub "{\"source\":[\"aws.s3\"],\"detail-type\":[\"Object Created\"],\"detail\":{\"bucket\":{\"name\":[\"${ProjectName}-sftp-${DataHubUniqueId}-${Environment}\"]},\"object\":{\"key\":[{\"prefix\":\"${Environment}\"}]}}}"
+            EventPattern: !Sub "{\"source\":[\"aws.s3\"],\"detail-type\":[\"Object Created\"],\"detail\":{\"bucket\":{\"name\":[\"${ProjectName}-sftp-${DeploymentId}-${Environment}\"]},\"object\":{\"key\":[{\"prefix\":\"${Environment}\"}]}}}"
             State: "ENABLED"
             Targets:
               -
