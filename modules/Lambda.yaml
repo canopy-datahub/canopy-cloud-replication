@@ -24,7 +24,7 @@ Parameters:
 Resources:
   # ============================================================================
   # PREREQUISITE: Upload these S3 objects before deploying this stack:
-  #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar
+  #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/email-service/datahub-service-email-0.0.2-SNAPSHOT-aws.jar
   #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/opensearch-refresh/opensearch-refresh-lambda.zip
   # ============================================================================
   # IAM ROLES
@@ -166,7 +166,7 @@ Resources:
         - "x86_64"
       Code:
         S3Bucket: !Sub "${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}"
-        S3Key: !Sub "email-service/datahub-service-email-0.0.1-SNAPSHOT-aws.jar"
+        S3Key: !Sub "email-service/canopy-service-email-0.0.2-SNAPSHOT-aws.jar"
       MemorySize: 2048
       Role: !GetAtt SESLambdaExecutionRole.Arn
       Runtime: "java17"
