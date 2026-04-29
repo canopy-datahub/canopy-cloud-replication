@@ -14,7 +14,7 @@ Parameters:
     ProjectName:
         Type: String
         Description: The Project name
-        Default: datahub
+        Default: canopy
     DbMasterUsername:
         Type: String
         Description: Master username for the PostgreSQL instance

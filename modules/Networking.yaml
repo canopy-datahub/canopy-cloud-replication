@@ -15,7 +15,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: datahub
+    Default: canopy
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -25,7 +25,7 @@ Conditions:
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
-  DataHubVPC:
+  CanopyVPC:
     Type: "AWS::EC2::VPC"
     Properties:
       CidrBlock: "10.40.0.0/16"
@@ -38,12 +38,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-${Environment}"
 
-  DataHubPublicSubnetAZ2:
+  CanopyPublicSubnetAZ2:
     Type: "AWS::EC2::Subnet"
     Properties:
-      AvailabilityZone: !GetAtt DataHubPrivateSubnetAZ2.AvailabilityZone
+      AvailabilityZone: !GetAtt CanopyPrivateSubnetAZ2.AvailabilityZone
       CidrBlock: "10.40.32.0/20"
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       MapPublicIpOnLaunch: true
       Tags:
         - Key: "Environment"
@@ -51,12 +51,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Public-Subnet-AZ2-${Environment}"
 
-  DataHubPublicSubnetAZ1:
+  CanopyPublicSubnetAZ1:
     Type: "AWS::EC2::Subnet"
     Properties:
-      AvailabilityZone: !GetAtt DataHubPrivateSubnetAZ1.AvailabilityZone
+      AvailabilityZone: !GetAtt CanopyPrivateSubnetAZ1.AvailabilityZone
       CidrBlock: "10.40.16.0/20"
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       MapPublicIpOnLaunch: true
       Tags:
         - Key: "Environment"
@@ -64,12 +64,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Public-Subnet-AZ1-${Environment}"
 
-  DataHubPrivateSubnetAZ1:
+  CanopyPrivateSubnetAZ1:
     Type: "AWS::EC2::Subnet"
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}a"
       CidrBlock: "10.40.48.0/20"
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       MapPublicIpOnLaunch: false
       Tags:
         - Key: "Environment"
@@ -77,12 +77,12 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-SubnetAZ1-${Environment}"
 
-  DataHubPrivateSubnetAZ2:
+  CanopyPrivateSubnetAZ2:
     Type: "AWS::EC2::Subnet"
     Properties:
       AvailabilityZone: !Sub "${AWS::Region}b"
       CidrBlock: "10.40.64.0/20"
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       MapPublicIpOnLaunch: false
       Tags:
         - Key: "Environment"
@@ -90,7 +90,7 @@ Resources:
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-Subnet-AZ2-${Environment}"
 
-  DataHubInternetGateway:
+  CanopyInternetGateway:
     Type: "AWS::EC2::InternetGateway"
     Properties:
       Tags:
@@ -99,40 +99,40 @@ Resources:
         - Key: "Environment"
           Value: !Sub "${Environment}"
 
-  DataHubPrivateRoutesAZ1:
+  CanopyPrivateRoutesAZ1:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-Routes-AZ1-${Environment}"
 
-  DataHubPrivateRoutesAZ2:
+  CanopyPrivateRoutesAZ2:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
         - Key: "Name"
           Value: !Sub "${ProjectName}-Private-Routes-AZ2-${Environment}"
 
-  DataHubPublicRoutesAZ1:
+  CanopyPublicRoutesAZ1:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
         - Key: "Name"
           Value: !Sub "${ProjectName}-Public-Routes-${Environment}"
 
-  DataHubPublicRoutesAZ2:
+  CanopyPublicRoutesAZ2:
     Type: "AWS::EC2::RouteTable"
     Properties:
-      VpcId: !Ref DataHubVPC
+      VpcId: !Ref CanopyVPC
       Tags:
         - Key: "Environment"
           Value: !Sub "${Environment}"
@@ -144,28 +144,28 @@ Resources:
     Properties:
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref EC2NatGateway
-      RouteTableId: !Ref DataHubPrivateRoutesAZ1
+      RouteTableId: !Ref CanopyPrivateRoutesAZ1
   
   EC2RoutePrivateAZ2:
     Type: "AWS::EC2::Route"
     Properties:
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref EC2NatGateway
-      RouteTableId: !Ref DataHubPrivateRoutesAZ2
+      RouteTableId: !Ref CanopyPrivateRoutesAZ2
 
   EC2Route3:
     Type: "AWS::EC2::Route"
     Properties:
       DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref DataHubInternetGateway
-      RouteTableId: !Ref DataHubPublicRoutesAZ1
+      GatewayId: !Ref CanopyInternetGateway
+      RouteTableId: !Ref CanopyPublicRoutesAZ1
 
   EC2RoutePublicAZ2:
     Type: "AWS::EC2::Route"
     Properties:
       DestinationCidrBlock: "0.0.0.0/0"
-      GatewayId: !Ref DataHubInternetGateway
-      RouteTableId: !Ref DataHubPublicRoutesAZ2
+      GatewayId: !Ref CanopyInternetGateway
+      RouteTableId: !Ref CanopyPublicRoutesAZ2
 
   NatGateway1EIP:
     Type: AWS::EC2::EIP
@@ -176,7 +176,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
         AllocationId: !GetAtt NatGateway1EIP.AllocationId
-        SubnetId: !Ref DataHubPublicSubnetAZ1
+        SubnetId: !Ref CanopyPublicSubnetAZ1
         Tags:
           -
             Key: "Environment"
@@ -186,11 +186,11 @@ Resources:
             Value: !Sub "${ProjectName}-Nat-Gateway-${Environment}"
 
 
-  DataHubS3VPCEndpoint:
+  CanopyS3VPCEndpoint:
       Type: "AWS::EC2::VPCEndpoint"
       Properties:
           VpcEndpointType: "Interface"
-          VpcId: !Ref DataHubVPC
+          VpcId: !Ref CanopyVPC
           ServiceName: !Sub "com.amazonaws.${AWS::Region}.s3"
           PolicyDocument: |
               {
@@ -204,46 +204,46 @@ Resources:
                 ]
               }
           SubnetIds:
-            - !Ref DataHubPrivateSubnetAZ1
-            - !Ref DataHubPrivateSubnetAZ2
+            - !Ref CanopyPrivateSubnetAZ1
+            - !Ref CanopyPrivateSubnetAZ2
           PrivateDnsEnabled: false
           SecurityGroupIds:
             - !Ref ECSHostSecurityGroup
 
-  DataHubVPCGatewayAttachment:
+  CanopyVPCGatewayAttachment:
     Type: "AWS::EC2::VPCGatewayAttachment"
     Properties:
-      InternetGatewayId: !Ref DataHubInternetGateway
-      VpcId: !Ref DataHubVPC
+      InternetGatewayId: !Ref CanopyInternetGateway
+      VpcId: !Ref CanopyVPC
 
   EC2SubnetRouteTableAssociation:
       Type: "AWS::EC2::SubnetRouteTableAssociation"
       Properties:
-        RouteTableId: !Ref DataHubPrivateRoutesAZ1
-        SubnetId: !Ref DataHubPrivateSubnetAZ1
+        RouteTableId: !Ref CanopyPrivateRoutesAZ1
+        SubnetId: !Ref CanopyPrivateSubnetAZ1
 
   EC2SubnetRouteTableAssociation2:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      RouteTableId: !Ref DataHubPrivateRoutesAZ2
-      SubnetId: !Ref  DataHubPrivateSubnetAZ2
+      RouteTableId: !Ref CanopyPrivateRoutesAZ2
+      SubnetId: !Ref  CanopyPrivateSubnetAZ2
 
   EC2SubnetRouteTableAssociation3:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-        RouteTableId: !Ref DataHubPublicRoutesAZ1
-        SubnetId: !Ref DataHubPublicSubnetAZ1
+        RouteTableId: !Ref CanopyPublicRoutesAZ1
+        SubnetId: !Ref CanopyPublicSubnetAZ1
 
   EC2SubnetRouteTableAssociation4:
     Type: "AWS::EC2::SubnetRouteTableAssociation"
     Properties:
-      RouteTableId: !Ref DataHubPublicRoutesAZ2
-      SubnetId: !Ref DataHubPublicSubnetAZ2
+      RouteTableId: !Ref CanopyPublicRoutesAZ2
+      SubnetId: !Ref CanopyPublicSubnetAZ2
 
   ECSHostSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
-          VpcId: !Ref DataHubVPC
+          VpcId: !Ref CanopyVPC
           GroupDescription: Access to the ECS hosts and the tasks/containers that run on them
           SecurityGroupIngress:
               # Only allow inbound access to ECS from the ELB
@@ -261,7 +261,7 @@ Resources:
   LoadBalancerSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
-          VpcId: !Ref DataHubVPC
+          VpcId: !Ref CanopyVPC
           GroupDescription: Access to the load balancer that sits in front of ECS
           SecurityGroupIngress:
               # Allow HTTP access from anywhere (internet-facing ALB)
@@ -286,27 +286,27 @@ Resources:
 
 Outputs:
   VpcId:
-    Value: !Ref DataHubVPC
+    Value: !Ref CanopyVPC
     Export:
       Name: !Sub "${AWS::StackName}-VPC-ID"
 
   PublicSubnetAZ1:
-    Value: !Ref DataHubPublicSubnetAZ1
+    Value: !Ref CanopyPublicSubnetAZ1
     Export:
       Name: !Sub "${AWS::StackName}-Public-Subnet-AZ1"
 
   PublicSubnetAZ2:
-    Value: !Ref DataHubPublicSubnetAZ2
+    Value: !Ref CanopyPublicSubnetAZ2
     Export:
       Name: !Sub "${AWS::StackName}-Public-Subnet-AZ2"
 
   PrivateSubnetAZ1:
-    Value: !Ref DataHubPrivateSubnetAZ1
+    Value: !Ref CanopyPrivateSubnetAZ1
     Export:
       Name: !Sub "${AWS::StackName}-Private-Subnet-AZ1"
 
   PrivateSubnetAZ2:
-    Value: !Ref DataHubPrivateSubnetAZ2
+    Value: !Ref CanopyPrivateSubnetAZ2
     Export:
       Name: !Sub "${AWS::StackName}-Private-Subnet-AZ2"
 

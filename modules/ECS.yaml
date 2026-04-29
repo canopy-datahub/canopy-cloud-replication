@@ -15,7 +15,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: datahub
+    Default: canopy
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -546,11 +546,11 @@ Resources:
                     Name: "AWS_SECRET_NAME"
                     Value: !Sub "${ProjectName}_application_${Environment}"
                 Secrets:
-                  - Name: DATAHUB_SPRING_MANAGEMENT_USER
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DATAHUB_SPRING_MANAGEMENT_USER::"
+                  - Name: CANOPY_SPRING_MANAGEMENT_USER
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:CANOPY_SPRING_MANAGEMENT_USER::"
 
-                  - Name: DATAHUB_SPRING_MANAGEMENT_PASSWORD
-                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:DATAHUB_SPRING_MANAGEMENT_PASSWORD::"
+                  - Name: CANOPY_SPRING_MANAGEMENT_PASSWORD
+                    ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:CANOPY_SPRING_MANAGEMENT_PASSWORD::"
 
                   - Name: dbuser
                     ValueFrom: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${ProjectName}_application_${Environment}:dbuser::"

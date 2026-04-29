@@ -19,11 +19,10 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: datahub
+    Default: canopy
   DeploymentId:
     Type: String
     Description: A unique identifier to ensure S3 bucket names are globally unique
-    Default: stanford
   CreateServer:
     AllowedValues:
       - 'true'

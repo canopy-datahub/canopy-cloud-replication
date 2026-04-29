@@ -15,7 +15,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: datahub
+    Default: canopy
   CertificateId:
     Type: String
     Description: ACM Certificate ID for HTTPS
@@ -28,7 +28,7 @@ Conditions:
   NOTPROD: !Not [!Equals [!Ref Environment, prod]]
 
 Resources:
-    DataHubPublicLoadBalancer:
+    CanopyPublicLoadBalancer:
         Type: "AWS::ElasticLoadBalancingV2::LoadBalancer"
         Properties:
             Name: !Sub "${ProjectName}-${Environment}"
@@ -90,7 +90,7 @@ Resources:
     HttpLoadBalancerListener:
         Type: "AWS::ElasticLoadBalancingV2::Listener"
         Properties:
-            LoadBalancerArn: !Ref DataHubPublicLoadBalancer
+            LoadBalancerArn: !Ref CanopyPublicLoadBalancer
             Port: 80
             Protocol: "HTTP"
             DefaultActions:
@@ -104,7 +104,7 @@ Resources:
     HttpsLoadBalancerListener:
         Type: "AWS::ElasticLoadBalancingV2::Listener"
         Properties:
-            LoadBalancerArn: !Ref DataHubPublicLoadBalancer
+            LoadBalancerArn: !Ref CanopyPublicLoadBalancer
             Port: 443
             Protocol: "HTTPS"
             SslPolicy: "ELBSecurityPolicy-TLS13-1-2-FIPS-2023-04"
@@ -1008,12 +1008,12 @@ Resources:
 
 Outputs:
   LoadBalancerDNSName:
-    Value: !GetAtt DataHubPublicLoadBalancer.DNSName
+    Value: !GetAtt CanopyPublicLoadBalancer.DNSName
     Export:
       Name: !Sub "${AWS::StackName}-LoadBalancer-DNSName"
 
   LoadBalancerHostedZoneId:
-    Value: !GetAtt DataHubPublicLoadBalancer.CanonicalHostedZoneID
+    Value: !GetAtt CanopyPublicLoadBalancer.CanonicalHostedZoneID
     Export:
       Name: !Sub "${AWS::StackName}-LoadBalancer-HostedZoneId"
 

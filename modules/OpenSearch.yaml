@@ -15,7 +15,7 @@ Parameters:
     ProjectName:
         Type: String
         Description: The Project name
-        Default: datahub
+        Default: canopy
     OpenSearchUsername:
         Type: String
         Description: Master user for OpenSearch internal user database

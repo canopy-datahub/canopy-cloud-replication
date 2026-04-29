@@ -13,7 +13,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: datahub
+    Default: canopy
   DeploymentId:
     Type: String
     Description: Unique identifier used in S3 bucket names (must match S3 stack)

@@ -14,11 +14,10 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name (must be lowercase for S3 bucket names; e.g. redwood not Redwood)
-    Default: datahub
+    Default: canopy
   DeploymentId:
     Type: String
     Description: A unique identifier to ensure S3 bucket names are globally unique (must be lowercase for S3 bucket names)
-    Default: stanford
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
@@ -29,7 +28,7 @@ Conditions:
 
 Resources:
   ## Required by application
-  S3BucketDataHubUploadPortal:
+  S3BucketCanopyUploadPortal:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -44,7 +43,7 @@ Resources:
             SSEAlgorithm: "AES256"
 
   ## Required by SFTP server for user home directories
-  S3BucketSftpDataHub:
+  S3BucketSftpCanopy:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -70,7 +69,7 @@ Resources:
         Key: "Name"
 
   ## Required by Submission for in-review files for PII processing
-  S3BucketDataHubReview:
+  S3BucketCanopyReview:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -92,7 +91,7 @@ Resources:
             SSEAlgorithm: "AES256"
 
 ## Resource bucket for study UUID spreadsheet, and other static resources
-  S3BucketDataHubResources:
+  S3BucketCanopyResources:
     Type: AWS::S3::Bucket
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -115,7 +114,7 @@ Resources:
         Value: !Sub "${Environment}"
 
 ## Bucket containing approved files for access after PII processing
-  S3BucketDataHubDefault:
+  S3BucketCanopyDefault:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -135,7 +134,7 @@ Resources:
             SSEAlgorithm: "AES256"
 
   ## Bucket containing Lambda function code artifacts for deployment
-  S3BucketDataHubLambdaArtifacts:
+  S3BucketCanopyLambdaArtifacts:
     Type: "AWS::S3::Bucket"
     DeletionPolicy: Delete ## CHANGE THIS
     Properties:
@@ -160,33 +159,33 @@ Resources:
             SSEAlgorithm: "AES256"
 
 Outputs:
-  S3BucketDataHubReviewName:
+  S3BucketCanopyReviewName:
     Description: "The ARN of the S3 bucket for review files"
-    Value: !GetAtt S3BucketDataHubReview.Arn
+    Value: !GetAtt S3BucketCanopyReview.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketDataHubReview-Arn"
-  S3BucketDataHubDefaultName:
+      Name: !Sub "${AWS::StackName}-S3BucketCanopyReview-Arn"
+  S3BucketCanopyDefaultName:
     Description: "The ARN of the S3 bucket for default files"
-    Value: !GetAtt S3BucketDataHubDefault.Arn
+    Value: !GetAtt S3BucketCanopyDefault.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketDataHubDefault-Arn"
-  S3BucketSftpDataHubName:
+      Name: !Sub "${AWS::StackName}-S3BucketCanopyDefault-Arn"
+  S3BucketSftpCanopyName:
     Description: "The ARN of the S3 bucket for SFTP user home directories"
-    Value: !GetAtt S3BucketSftpDataHub.Arn
+    Value: !GetAtt S3BucketSftpCanopy.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketSftpDataHub-Arn"
-  S3BucketDataHubUploadPortalName:
+      Name: !Sub "${AWS::StackName}-S3BucketSftpCanopy-Arn"
+  S3BucketCanopyUploadPortalName:
     Description: "The ARN of the main S3 bucket for the Upload Portal"
-    Value: !GetAtt S3BucketDataHubUploadPortal.Arn
+    Value: !GetAtt S3BucketCanopyUploadPortal.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketDataHubUploadPortal-Arn"
-  S3BucketDataHubLambdaArtifactsName:
+      Name: !Sub "${AWS::StackName}-S3BucketCanopyUploadPortal-Arn"
+  S3BucketCanopyLambdaArtifactsName:
     Description: "The ARN of the S3 bucket for Lambda function artifacts"
-    Value: !GetAtt S3BucketDataHubLambdaArtifacts.Arn
+    Value: !GetAtt S3BucketCanopyLambdaArtifacts.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketDataHubLambdaArtifacts-Arn"
-  S3BucketDataHubResourcesName:
+      Name: !Sub "${AWS::StackName}-S3BucketCanopyLambdaArtifacts-Arn"
+  S3BucketCanopyResourcesName:
     Description: "The ARN of the S3 bucket for static resources (study UUID spreadsheet, variable reports, etc.)"
-    Value: !GetAtt S3BucketDataHubResources.Arn
+    Value: !GetAtt S3BucketCanopyResources.Arn
     Export:
-      Name: !Sub "${AWS::StackName}-S3BucketDataHubResources-Arn"
+      Name: !Sub "${AWS::StackName}-S3BucketCanopyResources-Arn"

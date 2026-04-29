@@ -16,7 +16,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: Project name for resource naming
-    Default: datahub
+    Default: canopy
   LambdaDependencyLayerArn:
     Type: String
     Description: ARN of Lambda Dependency Layer
@@ -24,7 +24,7 @@ Parameters:
 Resources:
   # ============================================================================
   # PREREQUISITE: Upload these S3 objects before deploying this stack:
-  #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/email-service/datahub-service-email-0.0.2-SNAPSHOT-aws.jar
+  #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/email-service/canopy-service-email-0.0.2-SNAPSHOT-aws.jar
   #   - s3://${ProjectName}-lambda-artifacts-${DeploymentId}-${Environment}/opensearch-refresh/opensearch-refresh-lambda.zip
   # ============================================================================
   # IAM ROLES
@@ -152,7 +152,7 @@ Resources:
                   - !Sub "arn:aws:s3:::${ProjectName}-*"
                   - !Sub "arn:aws:s3:::${ProjectName}-*/*"
 
-  DataHubEmailServiceLambda:
+  CanopyEmailServiceLambda:
     Type: "AWS::Lambda::Function"
     DependsOn: SESLambdaExecutionRole
     Properties:
@@ -182,7 +182,7 @@ Resources:
       EphemeralStorage:
         Size: 512
 
-  DataHubOpenSearchRefreshLambda:
+  CanopyOpenSearchRefreshLambda:
     Type: "AWS::Lambda::Function"
     DependsOn: LambdaExecutionRole
     Properties:
@@ -222,20 +222,20 @@ Resources:
       BatchSize: 10
       EventSourceArn:
         Fn::ImportValue: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Arn"
-      FunctionName: !Ref DataHubEmailServiceLambda
+      FunctionName: !Ref CanopyEmailServiceLambda
       Enabled: true
       MaximumBatchingWindowInSeconds: 0
 
 Outputs:
-  DataHubEmailServiceLambdaArn:
+  CanopyEmailServiceLambdaArn:
     Description: "Email Service Lambda ARN"
-    Value: !GetAtt DataHubEmailServiceLambda.Arn
+    Value: !GetAtt CanopyEmailServiceLambda.Arn
     Export:
       Name: !Sub "${ProjectName}-Lambda-${Environment}-EmailServiceLambda-Arn"
 
-  DataHubOpenSearchRefreshLambdaArn:
+  CanopyOpenSearchRefreshLambdaArn:
     Description: "OpenSearch Refresh Lambda ARN"
-    Value: !GetAtt DataHubOpenSearchRefreshLambda.Arn
+    Value: !GetAtt CanopyOpenSearchRefreshLambda.Arn
     Export:
       Name: !Sub "${ProjectName}-Lambda-${Environment}-OpenSearchRefreshLambda-Arn"
 

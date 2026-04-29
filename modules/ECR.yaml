@@ -15,7 +15,7 @@ Parameters:
   ProjectName:
     Type: String
     Description: The Project name
-    Default: datahub
+    Default: canopy
 
 Conditions:
   DEV: !Equals [!Ref Environment, dev]
