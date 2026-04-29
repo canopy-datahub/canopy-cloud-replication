@@ -17,7 +17,6 @@ Parameters:
   DeploymentId:
     Type: String
     Description: Unique identifier used in S3 bucket names (must match S3 stack)
-    Default: stanford
 
 Resources:
 
