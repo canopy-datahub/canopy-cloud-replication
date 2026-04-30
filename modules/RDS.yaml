@@ -101,7 +101,7 @@ Resources:
             Tags:
               -
                 Key: "Name"
-                Value: !Sub "DATAHUB-${Environment}-DB"
+                Value: !Sub "CANOPY-${Environment}-DB"
             SecurityGroupIngress:
               - CidrIp: "0.0.0.0/0"
                 Description: "INSECURE: Open to all IPs - REPLACE THIS RULE based on your security requirements"

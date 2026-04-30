@@ -5,7 +5,7 @@
 		"DeploymentId": "0001",
 		"KeycloakImageTag": "26.5.4",
 		"Region": "us-east-1",
-		"DbMasterUsername": "datahub_postgres_<<CANOPY_ENV>>",
+		"DbMasterUsername": "canopy_postgres_<<CANOPY_ENV>>",
 		"DbMasterPassword": "REPLACEME",
 		"CanopyAppDbName": "canopy_<<CANOPY_ENV>>",
 		"CanopyDbUsername": "canopy_user",
