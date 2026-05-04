@@ -8,6 +8,7 @@ Parameters:
     AllowedValues:
       - dev
       - test
+      - staging
       - prod
       - shared
   DeploymentId:

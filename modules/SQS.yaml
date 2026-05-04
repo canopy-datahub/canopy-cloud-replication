@@ -9,6 +9,7 @@ Parameters:
     AllowedValues:
       - dev
       - test
+      - staging
       - prod
       - shared
   ProjectName:
@@ -116,7 +117,7 @@ Outputs:
     Value: !GetAtt EmailQueue.Arn
     Export:
       Name: !Sub "${ProjectName}-SQS-${Environment}-EmailQueue-Arn"
-  
+
   EmailQueueUrl:
     Description: "URL of the Email Queue"
     Value: !Ref EmailQueue

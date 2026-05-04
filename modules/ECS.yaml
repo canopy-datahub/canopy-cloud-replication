@@ -10,6 +10,7 @@ Parameters:
     AllowedValues:
       - dev
       - test
+      - staging
       - prod
       - shared
   ProjectName:
@@ -109,7 +110,7 @@ Resources:
                 Weight: 1
                 Base: 0
 
-  
+
     EntityService:
         Type: "AWS::ECS::Service"
         Properties:
@@ -669,7 +670,7 @@ Resources:
               - "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
               - "arn:aws:iam::aws:policy/AmazonSESFullAccess"
               - "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
-          
+
     ECSExecutionRole:
         Type: "AWS::IAM::Role"
         Properties:

@@ -5,8 +5,12 @@ Parameters:
   Environment:
     Type: String
     Description: The Project Environment
-    AllowedValues: [dev, test, prod, shared]
-
+    AllowedValues:
+      - dev
+      - test
+      - staging
+      - prod
+      - shared
   ProjectName:
     Type: String
     Description: The Project name

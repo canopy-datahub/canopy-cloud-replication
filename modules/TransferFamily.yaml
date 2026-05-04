@@ -13,6 +13,7 @@ Parameters:
     AllowedValues:
       - dev
       - test
+      - staging
       - prod
       - shared
     Description: Environment name for the Transfer Family server
@@ -541,13 +542,13 @@ Outputs:
     Condition: CreateServer
     Export:
       Name: !Sub "${ProjectName}-TransferFamily-${Environment}-ServerId"
-  
+
   # SFTPUserSecretArn:
   #   Description: "SFTP User Secret ARN"
   #   Value: !Ref SFTPUserSecret
   #   Export:
   #     Name: !Sub "${ProjectName}-TransferFamily-${Environment}-SFTPUserSecret-Arn"
-  
+
   StackArn:
     Value:
       Ref: AWS::StackId

@@ -10,6 +10,7 @@ Parameters:
     AllowedValues:
       - dev
       - test
+      - staging
       - prod
       - shared
   ProjectName:
@@ -145,7 +146,7 @@ Resources:
       DestinationCidrBlock: "0.0.0.0/0"
       NatGatewayId: !Ref EC2NatGateway
       RouteTableId: !Ref CanopyPrivateRoutesAZ1
-  
+
   EC2RoutePrivateAZ2:
     Type: "AWS::EC2::Route"
     Properties:
