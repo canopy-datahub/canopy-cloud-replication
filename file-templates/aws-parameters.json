@@ -11,7 +11,7 @@
 		"CanopyDbUsername": "canopy_user",
 		"CanopyDbPassword": "REPLACEME",
 		"KeycloakDbName": "canopy_keycloak_<<CANOPY_ENV>>",
-		"KeycloakDbUsername": "keycloak_user",
+		"KeycloakDbUsername": "canopy_keycloak_user",
 		"KeycloakDbPassword": "REPLACEME",
 		"KeycloakAdminUsername": "administrator",
 		"KeycloakAdminPassword": "REPLACEME",
