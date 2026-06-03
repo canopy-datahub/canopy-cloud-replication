@@ -6,6 +6,7 @@ unset AWS_SESSION_TOKEN
 
 export AWS_PROFILE=canopy-<<CANOPY_ENV>>-<<USERNAME>>
 export AWS_REGION=us-east-1
+export AWS_PAGER=""
 
 
 unset CANOPY_ENV

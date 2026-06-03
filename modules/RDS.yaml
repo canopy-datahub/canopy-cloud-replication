@@ -67,7 +67,9 @@ Resources:
             EnableIAMDatabaseAuthentication: false
             EnablePerformanceInsights: false
             DeletionProtection: false
-            DBSubnetGroupName: !Sub "${ProjectName}-db-subnet-group-${Environment}"
+            # Use !Ref (not !Sub literal name) so CloudFormation tracks the dependency
+            # on RDSDBSubnetGroup and deletes the instance BEFORE the subnet group.
+            DBSubnetGroupName: !Ref RDSDBSubnetGroup
             VPCSecurityGroups:
               - !Ref RdsSecurityGroup
             MaxAllocatedStorage: 1000

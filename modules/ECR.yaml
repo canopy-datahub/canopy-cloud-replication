@@ -30,39 +30,47 @@ Resources:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-report-service/${Environment}"
+            EmptyOnDelete: true
 
     UserInterfaceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-ui/${Environment}"
+            EmptyOnDelete: true
 
     SearchServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-search/${Environment}"
+            EmptyOnDelete: true
 
     EntityServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-entityservice/${Environment}"
+            EmptyOnDelete: true
 
     SubmissionServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-submission-service/${Environment}"
+            EmptyOnDelete: true
 
     DownloadServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-download-service/${Environment}"
+            EmptyOnDelete: true
 
     UserServiceRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-user-service/${Environment}"
+            EmptyOnDelete: true
 
     KeycloakRepository:
         Type: "AWS::ECR::Repository"
         Properties:
             RepositoryName: !Sub "${ProjectName}-keycloak/${Environment}"
+            EmptyOnDelete: true
 
