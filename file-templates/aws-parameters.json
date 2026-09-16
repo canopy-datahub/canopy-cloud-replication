@@ -3,7 +3,7 @@
 		"Environment": "<<CANOPY_ENV>>",
 		"ProjectName": "canopy",
 		"DeploymentId": "0001",
-		"KeycloakImageTag": "26.5.4",
+		"KeycloakImageTag": "26.7.3",
 		"Region": "us-east-1",
 		"DbMasterUsername": "canopy_postgres_<<CANOPY_ENV>>",
 		"DbMasterPassword": "REPLACEME",

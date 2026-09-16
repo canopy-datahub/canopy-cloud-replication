@@ -18,7 +18,7 @@ Parameters:
 
   KeycloakImageTag:
     Type: String
-    Description: ECR image tag for the Keycloak container (e.g. 26.5.4, git SHA, or latest)
+    Description: ECR image tag for the Keycloak container (e.g. 26.7.3, git SHA, or latest)
     Default: latest
 
   PublicHostname:

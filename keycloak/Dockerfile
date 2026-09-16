@@ -1,4 +1,4 @@
-FROM quay.io/keycloak/keycloak:26.5.4
+FROM quay.io/keycloak/keycloak:26.7.3
 
 # Enable health checks and metrics
 ENV KC_HEALTH_ENABLED=true
