@@ -2,7 +2,7 @@
 	"Parameters": {
 		"Environment": "prod",
 		"ProjectName": "canopy",
-		"KeycloakImageTag": "26.5.4",
+		"KeycloakImageTag": "26.7.3",
 		"Region": "us-east-1",
 		"DataHubUniqueId": "canopy-id",
 		"CanopyParamDbMasterUsername": "datahub_postgres_prod",
